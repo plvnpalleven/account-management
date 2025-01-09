@@ -14,6 +14,8 @@ import Invoice from "./pages/CustomerService/Invoice";
 import Receipt from "./pages/CustomerService/Receipt";
 import MeetingSchedule from "./pages/CustomerService/MeetingSchedule";
 import ConfidentialyAgreement from "./pages/CustomerService/ConfidentialyAgreement";
+import AnnualExpenses from "./pages/FinancialSystem/AnnualExpenses";
+import AnnualRevenue from "./pages/FinancialSystem/AnnualRevenue";
 
 const App = () => {
   return (
@@ -49,6 +51,15 @@ const App = () => {
             <Route
               path="/CustomerService/ConfidentialyAgreement"
               element={<ConfidentialyAgreement />}
+            />
+            {/* Financial Services Routes */}
+            <Route
+              path="/FinancialService/AnnualExpenses"
+              element={<AnnualExpenses />}
+            />
+            <Route
+              path="/FinancialService/AnnualRevenue"
+              element={<AnnualRevenue />}
             />
           </Routes>
         </div>
