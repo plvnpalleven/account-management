@@ -1,20 +1,33 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "./Sidebar.css";
+import logo from '../assets/logo.png';
 const Sidebar = () => {
   const location = useLocation(); //ดึง path ปัจจุบัน
   const [isWorkOfficeOpen, setIsWorkOfficeOpen] = useState(false);
   const [isCustomerOpen, setIsCustomerOpen] = useState(false);
   const [isFinancialOpen, setIsFinancialOpen] = useState(false);
 
-  const toggleWorkOffice = () => setIsWorkOfficeOpen(!isWorkOfficeOpen);
-  const toggleCustomerService = () => setIsCustomerOpen(!isCustomerOpen);
-  const toggleFinancialService = () => setIsFinancialOpen(!isFinancialOpen);
+  const toggleWorkOffice = () => {
+    setIsWorkOfficeOpen(!isWorkOfficeOpen);
+    setIsCustomerOpen(false); // ปิด Customer Service
+    setIsFinancialOpen(false); // ปิด Financial Service
+  };
+  const toggleCustomerService = () => {
+    setIsCustomerOpen(!isCustomerOpen);
+    setIsWorkOfficeOpen(false); // ปิด Work Office
+    setIsFinancialOpen(false); // ปิด Financial Service
+  };
+  const toggleFinancialService = () => {
+    setIsFinancialOpen(!isFinancialOpen);
+    setIsWorkOfficeOpen(false); // ปิด Work Office
+    setIsCustomerOpen(false); // ปิด Customer Service
+  };
 
   return (
     <div className="sidebar">
-      <h1 className="sidebar-header">My App</h1>
-      <nav className="flex flex-col space-y-2 p-4">
+      <img src={logo} alt="Logo" className="sidebar-logo" />
+      <nav className="flex flex-col">
         {/* Work Office Dropdown */}
         <>
           <button
@@ -27,7 +40,7 @@ const Sidebar = () => {
           </button>
           {/* Work Office Child*/}
           {isWorkOfficeOpen && (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col">
               <Link
                 to="/WorkOffice/Recruitment"
                 className={`nav-link ${
@@ -122,7 +135,7 @@ const Sidebar = () => {
           </button>
           {/* Customer Service Child */}
           {isCustomerOpen && (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col">
               <Link
                 to="/CustomerService/AddInfo"
                 className={`nav-link ${
@@ -200,7 +213,7 @@ const Sidebar = () => {
           </button>
           {/* Financial System Child */}
           {isFinancialOpen && (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col">
               <Link
                 to="/FinancialSystem/AnnualExpenses"
                 className={`nav-link ${

@@ -5,7 +5,13 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors:{
+        customBeige:'#EAE0D5',
+        sideInactive:'#576F73',
+        sideActive:'#7D9D9C',
+      }
+    },
   },
   plugins: [],
 }
