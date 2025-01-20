@@ -9,7 +9,7 @@ const Pagination = ({ currentTab, setCurrentTab, totalTabs }) => {
     if (currentTab < totalTabs - 1) setCurrentTab(currentTab + 1);
   };
   return (
-    <div className="flex justify-center items-center mt-4 ">
+    <div className="flex justify-center items-center ">
       {/* prev btn */}
       <button
         onClick={handlePrev}
