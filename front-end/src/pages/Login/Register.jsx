@@ -13,7 +13,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     jobInfo: {},
     personalInfo: {},
-    addPersonalInfo: {},
+    additionalInfo: {},
     addressInfo: {},
     documents: [],
   });
@@ -51,15 +51,36 @@ const Register = () => {
   }, [currentTab]);
 
   const handleSubmit = () => {
+    const errors = [];
+    const personalInfo = formData.personalInfo || {};
+    if (!personalInfo.firstName) errors.push("First Name is required.");
+    if (!personalInfo.lastName) errors.push("Last Name is required.");
+    if (personalInfo.age && (personalInfo.age < 18 || personalInfo.age > 100)) {
+      errors.push("Age must be between 18 and 100.");
+    }
+    if (personalInfo.phone && !/^\d+$/.test(personalInfo.phone)) {
+      errors.push("Phone number must contain only digits.");
+    }
+    if (personalInfo.email && !/\S+@\S+\.\S+/.test(personalInfo.email)) {
+      errors.push("Please enter a valid email address.");
+    }
+
+    // Validation for other sections can be added here...
+
+    // Check if there are errors
+    if (errors.length > 0) {
+      alert(`Please fix the following errors:\n\n${errors.join("\n")}`);
+      return;
+    }
     console.log("Submitted Data:", formData);
-    alert("From submitted successfully");
+    alert("Register successfully");
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div
-         className={`w-[500px] bg-white p-6 rounded-lg shadow-md flex flex-col transition-transform duration-300 ease-in-out transform ${
-          isAnimating ? "scale-95" : "scale-100"
+        className={`w-[500px] bg-white p-6 rounded-lg shadow-md flex flex-col transition-all duration-300 ease-in-out ${
+          isAnimating ? "border-2 border-green-500" : "border-2 border-gray-300"
         }`}
       >
         <div className="flex flex-col justify-between gap-4">
