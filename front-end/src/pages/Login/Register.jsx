@@ -5,7 +5,7 @@ import AddressInfo from "../../components/register/AddressInfo";
 import Document from "../../components/register/Document";
 import Pagination from "../../components/register/Pagination";
 import AddPersonalInfo from "../../components/register/AddPersonalInfo";
-
+import axios from "axios";
 const Register = () => {
   const [currentTab, setCurrentTab] = useState(0); // Tab ปัจจุบัน
   const [isAnimating, setIsAnimating] = useState(false);
@@ -50,7 +50,10 @@ const Register = () => {
     return () => clearTimeout(timer);
   }, [currentTab]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log("handleSubmit is called"); // ตรวจสอบว่าถูกเรียกใช้งาน
+    console.log("Submitted Data:",JSON.stringify(formData,null,2));
+
     const errors = [];
     const personalInfo = formData.personalInfo || {};
     if (!personalInfo.firstName) errors.push("First Name is required.");
@@ -72,8 +75,15 @@ const Register = () => {
       alert(`Please fix the following errors:\n\n${errors.join("\n")}`);
       return;
     }
-    console.log("Submitted Data:", formData);
-    alert("Register successfully");
+
+    try{
+      const response = await axios.post("http://localhost:5000/api/employees/register", formData);
+      alert("Registration Successful!");
+      console.log("Response from server:", response.data);
+    }catch (error){
+      console.error("Error during registration:", error);
+      alert("Failed to register. Please try again.");
+    }
   };
 
   return (

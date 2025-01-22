@@ -1,16 +1,35 @@
+import axios from "axios";
 import React from "react";
 
 const Document = ({ formData, setFormData }) => {
-  const handleFileChange = (e) => {
-    const { name, files } = e.target; // ดึง name และไฟล์จาก input
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [name]: files[0], // เก็บเฉพาะไฟล์แรกที่ผู้ใช้อัปโหลด
-      },
-    }));
+  const handleFileChange = async (e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+    if (!file) return;
+  
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
+  
+      const res = await axios.post(
+        "https://api.cloudinary.com/v1_1/dzfug6mj5/raw/upload", 
+        formData
+      );
+  
+      const fileURL = res.data.secure_url;
+      setFormData((prev) => ({
+        ...prev,
+        documents: {
+          ...prev.documents,
+          [name]: fileURL, // เก็บ URL ของไฟล์ใน documents
+        },
+      }));
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
   };
+  
 
   return (
     <div>

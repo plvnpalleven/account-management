@@ -4,18 +4,6 @@ const PersonalInfo = ({ formData, setFormData }) => {
   // ฟังก์ชันอัปเดตข้อมูลใน formData
   const handleChange = (e) => {
     const { name, value } = e.target; // ดึง name และ value จาก input
-    // if(name === "age" && (value < 18 || value > 100)){
-    //   alert("Age must be between 18 and 120!");
-    //   return;
-    // }
-    // if(name === "phone" && !/^\d+$/.test(value)){
-    //   alert("Phone number must contain only digits!");
-    //   return;
-    // }
-    // if(name === "email" && !/\S+@\S+\.\S+/.test(value)){
-    //   alert("Please enter a valid email address!");
-    //   return;
-    // }
     setFormData((prev) => ({
       ...prev, // คัดลอกค่าก่อนหน้า
       personalInfo: {
@@ -34,7 +22,7 @@ const PersonalInfo = ({ formData, setFormData }) => {
           </label>
           <input
             type="text"
-            name="firstName" // กำหนด name ให้ตรงกับ key ใน personalInfo
+            name="firstName" // กำหนด name ให้ตรงกับ key  ใน personalInfo
             value={formData.personalInfo.firstName || ""} // ดึงค่าจาก formData.personalInfo.fullName
             onChange={handleChange} // อัปเดตค่าเมื่อผู้ใช้กรอกข้อมูล
             placeholder="Enter your first name"
