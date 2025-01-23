@@ -30,9 +30,9 @@ const Register = () => {
     },
     {
       name: "Additional Info",
-      component: (
+      component: 
         <AddPersonalInfo formData={formData} setFormData={setFormData} />
-      ),
+      ,
     },
     {
       name: "Address Info",
