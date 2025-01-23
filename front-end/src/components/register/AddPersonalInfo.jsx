@@ -39,7 +39,7 @@ const AddPersonalInfo = ({
           <span className="text-red-500 text-sm">{errors.religion}</span>
         )}
         {/* แสดงฟิลด์อินพุตเมื่อเลือก "Other" */}
-        {formData.additionalInfo.religion === "Other" && (
+        {/* {formData.additionalInfo.religion === "Other" && (
           <div>
             <label className="block mb-2 font-medium text-gray-700">
               Specify Religion
@@ -53,10 +53,12 @@ const AddPersonalInfo = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
             />
             {errors.otherReligion && (
-              <span className="text-red-500 text-sm">{errors.otherReligion}</span>
+              <span className="text-red-500 text-sm">
+                {errors.otherReligion}
+              </span>
             )}
           </div>
-        )}
+        )} */}
       </div>
       <div className="flex flex-row justify-between gap-4">
         <div className="flex-1">
@@ -71,6 +73,9 @@ const AddPersonalInfo = ({
             placeholder="Enter your ethnicity"
             className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
           />
+          {errors.ethnicity && (
+            <span className="text-red-500 text-sm">{errors.ethnicity}</span>
+          )}
         </div>
         <div className="flex-1">
           <label className="block mb-2 font-medium text-gray-700">
@@ -84,6 +89,9 @@ const AddPersonalInfo = ({
             placeholder="Enter your nationality"
             className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
           />
+          {errors.nationality && (
+            <span className="text-red-500 text-sm">{errors.nationality}</span>
+          )}
         </div>
       </div>
       <div className="flex flex-row justify-between gap-4">
@@ -97,12 +105,17 @@ const AddPersonalInfo = ({
             onChange={handleChange} // อัปเดตค่าข้อมูล
             className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
           >
-            <option value="">Select Militatary Status</option>
+            <option value="">Select Military Status</option>
             <option value="Exempted">Exempted</option>
             <option value="Reserve">Reserve</option>
             <option value="Not Yet Drafted">Not Yet Drafted</option>
             <option value="Other">Other</option>
           </select>
+          {errors.militaryStatus && (
+            <span className="text-red-500 text-sm">
+              {errors.militaryStatus}
+            </span>
+          )}
         </div>
         <div className="flex-1">
           <label className="block mb-2 font-medium text-gray-700">
@@ -110,7 +123,7 @@ const AddPersonalInfo = ({
           </label>
           <select
             name="maritalStatus" // ชื่อ key ใน formData
-            value={formData.additionalInfo.maritalStat || ""} // ค่าใน Dropdown อิงจาก formData
+            value={formData.additionalInfo.maritalStatus || ""} // ค่าใน Dropdown อิงจาก formData
             onChange={handleChange} // อัปเดตค่าข้อมูล
             className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
           >
@@ -121,6 +134,9 @@ const AddPersonalInfo = ({
             <option value="Widowed">Widowed</option>
             <option value="Other">Other</option>
           </select>
+          {errors.maritalStatus && (
+            <span className="text-red-500 text-sm">{errors.maritalStatus}</span>
+          )}
         </div>
       </div>
     </div>
