@@ -1,6 +1,11 @@
 import React from "react";
 
-const AddPersonalInfo = ({ formData, setFormData }) => {
+const AddPersonalInfo = ({
+  formData,
+  setFormData,
+  errors,
+  debouncedValidation,
+}) => {
   const handleChange = (e) => {
     const { name, value } = e.target; // ดึง name และ value จาก input
     setFormData((prev) => ({
@@ -10,13 +15,14 @@ const AddPersonalInfo = ({ formData, setFormData }) => {
         [name]: value,
       },
     }));
+    debouncedValidation(name, value);
   };
 
   return (
     <div>
       <div>
         <label className="block mb-2 font-medium text-gray-700">Religion</label>
-        <select 
+        <select
           name="religion" // ชื่อ key ใน formData
           value={formData.additionalInfo.religion || ""} // ค่าใน Dropdown อิงจาก formData
           onChange={handleChange} // อัปเดตค่าข้อมูล
@@ -29,7 +35,9 @@ const AddPersonalInfo = ({ formData, setFormData }) => {
           <option value="Hinduism">Hinduism</option>
           <option value="Other">Other</option>
         </select>
-
+        {errors.religion && (
+          <span className="text-red-500 text-sm">{errors.religion}</span>
+        )}
         {/* แสดงฟิลด์อินพุตเมื่อเลือก "Other" */}
         {formData.additionalInfo.religion === "Other" && (
           <div>
@@ -44,6 +52,9 @@ const AddPersonalInfo = ({ formData, setFormData }) => {
               placeholder="Please specify your religion"
               className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
             />
+            {errors.otherReligion && (
+              <span className="text-red-500 text-sm">{errors.otherReligion}</span>
+            )}
           </div>
         )}
       </div>

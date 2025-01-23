@@ -11,11 +11,16 @@ export const employeeInfoSchema = z.object({
   personalInfo: z.object({
     firstName: z.string().min(1, "First Name is required"),
     lastName: z.string().min(1, "Last Name is required"),
-    age: z.number().min(18, "Age must be at least 18").max(100),
-    phone: z.string().regex(/^\d+$/, "Phone must be numeric"),
+    dateOfBirth: z.string().optional(),
+    age: z.coerce.number().min(18, "Age must be at least 18").max(100),
+    phone: z
+      .string()
+      .nonempty("Phone number is required")
+      .regex(/^\d+$/, "Phone must be numeric")
+      .min(10, "Phone number is not correct"),
     email: z.string().email("Invalid email address"),
   }),
-  additionInfo: z.object({
+  additionalInfo: z.object({
     religion: z.string().min(1, "Religion is required"),
     ethnicity: z.string().optional(),
     nationality: z.string().optional(),
@@ -28,7 +33,7 @@ export const employeeInfoSchema = z.object({
     streetName: z.string().optional(),
     subDistrict: z.string().optional(),
     province: z.string().optional(),
-    postalCode: z.string().regex(/^d+$/, "Postal Code must be numeric"),
+    postalCode: z.string().regex(/^\d+$/, "Postal Code must be numeric"),
   }),
   documents: z.object({
     idCard: z.string().url("Please upload your id card"),

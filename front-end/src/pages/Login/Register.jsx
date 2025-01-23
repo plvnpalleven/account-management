@@ -6,10 +6,13 @@ import Document from "../../components/register/Document";
 import Pagination from "../../components/register/Pagination";
 import AddPersonalInfo from "../../components/register/AddPersonalInfo";
 import axios from "axios";
+import { debounce } from "lodash";
+import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
+
 const Register = () => {
   const [currentTab, setCurrentTab] = useState(0); // Tab ปัจจุบัน
   const [isAnimating, setIsAnimating] = useState(false);
-
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     jobInfo: {},
     personalInfo: {},
@@ -18,29 +21,83 @@ const Register = () => {
     documents: [],
   });
 
+  const handleValidation = async (key, value) => {
+    // console.log(`Validating key: ${key}, value: ${value}`);
+    try {
+      const schema = employeeInfoSchema.shape.personalInfo.shape[key]; // ดึง schema ของ field ที่ต้องการ validate
+      await schema.parseAsync(value); //ตรวจสอบค่าของ  field
+      setErrors((prev) => ({ ...prev, [key]: null }));
+      // console.log(`Validation passed for key: ${key}`);
+    } catch (err) {
+      if (err.name === "ZodError") {
+        //เลือกเอาข้อความแรกของฟิลด์นั้น
+        const message = err.issues[0]?.message || "Invalid";
+        setErrors((prev) => ({ ...prev, [key]: message }));
+      }
+      // setErrors((prev) => ({ ...prev, [key]: err.message })); // ถ้าผิดให้ขึ้นข้อความ error
+      // console.log(`Validation failed for key: ${key}, error: ${err.message}`);
+    }
+  };
+
+  const debouncedValidation = debounce((key, value) => {
+    handleValidation(key, value);
+  }, 200); //300ms หลังจากที่หยุดพิมพ์
   // Array ของแต่ละ Tab
   const tabs = [
     {
       name: "Job Info",
-      component: <JobInfo formData={formData} setFormData={setFormData} />,
+      component: (
+        <JobInfo
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          debouncedValidation={debouncedValidation}
+        />
+      ),
     },
     {
       name: "Personal Info",
-      component: <PersonalInfo formData={formData} setFormData={setFormData} />,
+      component: (
+        <PersonalInfo
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          debouncedValidation={debouncedValidation}
+        />
+      ),
     },
     {
       name: "Additional Info",
-      component: 
-        <AddPersonalInfo formData={formData} setFormData={setFormData} />
-      ,
+      component: (
+        <AddPersonalInfo
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          debouncedValidation={debouncedValidation}
+        />
+      ),
     },
     {
       name: "Address Info",
-      component: <AddressInfo formData={formData} setFormData={setFormData} />,
+      component: (
+        <AddressInfo
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          debouncedValidation={debouncedValidation}
+        />
+      ),
     },
     {
       name: "Documents",
-      component: <Document formData={formData} setFormData={setFormData} />,
+      component: (
+        <Document
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          debouncedValidation={debouncedValidation}
+        />
+      ),
     },
   ];
 
@@ -52,35 +109,38 @@ const Register = () => {
 
   const handleSubmit = async () => {
     console.log("handleSubmit is called"); // ตรวจสอบว่าถูกเรียกใช้งาน
-    console.log("Submitted Data:",JSON.stringify(formData,null,2));
+    console.log("Submitted Data:", JSON.stringify(formData, null, 2));
 
-    const errors = [];
-    const personalInfo = formData.personalInfo || {};
-    if (!personalInfo.firstName) errors.push("First Name is required.");
-    if (!personalInfo.lastName) errors.push("Last Name is required.");
-    if (personalInfo.age && (personalInfo.age < 18 || personalInfo.age > 100)) {
-      errors.push("Age must be between 18 and 100.");
-    }
-    if (personalInfo.phone && !/^\d+$/.test(personalInfo.phone)) {
-      errors.push("Phone number must contain only digits.");
-    }
-    if (personalInfo.email && !/\S+@\S+\.\S+/.test(personalInfo.email)) {
-      errors.push("Please enter a valid email address.");
-    }
+    // const errors = [];
+    // const personalInfo = formData.personalInfo || {};
+    // if (!personalInfo.firstName) errors.push("First Name is required.");
+    // if (!personalInfo.lastName) errors.push("Last Name is required.");
+    // if (personalInfo.age && (personalInfo.age < 18 || personalInfo.age > 100)) {
+    //   errors.push("Age must be between 18 and 100.");
+    // }
+    // if (personalInfo.phone && !/^\d+$/.test(personalInfo.phone)) {
+    //   errors.push("Phone number must contain only digits.");
+    // }
+    // if (personalInfo.email && !/\S+@\S+\.\S+/.test(personalInfo.email)) {
+    //   errors.push("Please enter a valid email address.");
+    // }
 
-    // Validation for other sections can be added here...
+    // // Validation for other sections can be added here...
 
-    // Check if there are errors
-    if (errors.length > 0) {
-      alert(`Please fix the following errors:\n\n${errors.join("\n")}`);
-      return;
-    }
+    // // Check if there are errors
+    // if (errors.length > 0) {
+    //   alert(`Please fix the following errors:\n\n${errors.join("\n")}`);
+    //   return;
+    // }
 
-    try{
-      const response = await axios.post("http://localhost:5000/api/employees/register", formData);
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/employees/register",
+        formData
+      );
       alert("Registration Successful!");
       console.log("Response from server:", response.data);
-    }catch (error){
+    } catch (error) {
       console.error("Error during registration:", error);
       alert("Failed to register. Please try again.");
     }
