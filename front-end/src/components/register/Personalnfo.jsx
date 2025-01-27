@@ -1,5 +1,4 @@
 import React from "react";
-import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
 
 const PersonalInfo = ({
   formData,
@@ -10,7 +9,7 @@ const PersonalInfo = ({
   // ฟังก์ชันอัปเดตข้อมูลใน formData
   const handleChange = (e) => {
     const { name, value } = e.target; // ดึง name และ value จาก input
-    console.log(`Input changed: ${name}, value: ${value}`);
+    // console.log(`Input changed: ${name}, value: ${value}`);
     setFormData((prev) => ({
       ...prev, // คัดลอกค่าก่อนหน้า
       personalInfo: {

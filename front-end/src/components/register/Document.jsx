@@ -1,22 +1,22 @@
 import axios from "axios";
 import React from "react";
 
-const Document = ({ formData, setFormData }) => {
+const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
   const handleFileChange = async (e) => {
     const { name, files } = e.target;
     const file = files[0];
     if (!file) return;
-  
+
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
-  
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
+
       const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/dzfug6mj5/raw/upload", 
-        formData
+        "https://api.cloudinary.com/v1_1/dzfug6mj5/raw/upload",
+        uploadData
       );
-  
+
       const fileURL = res.data.secure_url;
       setFormData((prev) => ({
         ...prev,
@@ -25,11 +25,12 @@ const Document = ({ formData, setFormData }) => {
           [name]: fileURL, // เก็บ URL ของไฟล์ใน documents
         },
       }));
+
+      debouncedValidation(name, fileURL);
     } catch (error) {
       console.error("Error uploading file:", error);
     }
   };
-  
 
   return (
     <div>
@@ -47,8 +48,12 @@ const Document = ({ formData, setFormData }) => {
                        file:rounded-full file:border-0
                        file:text-sm file:font-semibold
                        file:bg-green-50 file:text-green-700
-                       hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-in-out"
+                       hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-in-out 
+                       "
           />
+          {errors.idCard && (
+            <div className="text-red-500 text-sm">{errors.idCard}</div>
+          )}
         </div>
         <div>
           <label className="block mb-3 ml-4 font-medium text-gray-700">
@@ -65,6 +70,11 @@ const Document = ({ formData, setFormData }) => {
                        file:bg-green-50 file:text-green-700
                        hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-in-out"
           />
+          {errors.houseRegistration && (
+            <div className="text-red-500 text-sm">
+              {errors.houseRegistration}
+            </div>
+          )}
         </div>
         <div>
           <label className="block mb-3 ml-4 font-medium text-gray-700">
@@ -81,6 +91,9 @@ const Document = ({ formData, setFormData }) => {
                        file:bg-green-50 file:text-green-700
                        hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-in-out "
           />
+          {errors.diploma && (
+            <div className="text-red-500 text-sm">{errors.diploma}</div>
+          )}
         </div>
         <div>
           <label className="block mb-3 ml-4 font-medium text-gray-700">
@@ -97,6 +110,9 @@ const Document = ({ formData, setFormData }) => {
                        file:bg-green-50 file:text-green-700
                        hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-in-out"
           />
+          {errors.bankAccount && (
+            <div className="text-red-500 text-sm">{errors.bankAccount}</div>
+          )}
         </div>
       </div>
     </div>

@@ -1,13 +1,47 @@
 import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import ไอคอน
 
-const Pagination = ({ currentTab, setCurrentTab, totalTabs }) => {
+const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab }) => {
   const handlePrev = () => {
-    if (currentTab > 0) setCurrentTab(currentTab - 1);
+    if (currentTab > 0) {
+      //จะย้อนกลับไม่ต้อง validate
+      setCurrentTab(currentTab - 1);
+    }
   };
+
   const handleNext = () => {
-    if (currentTab < totalTabs - 1) setCurrentTab(currentTab + 1);
+    // ถ้าจะไปข้างหน้า -> validate tab ปัจจุบันก่อน
+    if (currentTab < totalTabs - 1) {
+      const isValid = validateTab(currentTab);
+      if (isValid) {
+        setCurrentTab(currentTab + 1);
+      } else {
+        alert("Please fill an informations in this section before going next.");
+        setIsError(true);
+      }
+    }
   };
+
+  const handleDotClick = (index) => {
+    // ถ้ากดไป tab ที่น้อยกว่าปัจจุบัน => ย้อนกลับไปได้เสมอ
+    if(index <= currentTab){
+      setCurrentTab(index);
+      return;
+    }
+    //อยากข้ามจาก currentTab => index
+    //validate ทีละเเท็บก่อนหน้า
+    for(let tab = currentTab; tab < index; tab++){
+      const isValid = validateTab(tab);
+      if(!isValid){
+        alert("Please fill an informations in this section before going next.");
+        setIsError(true);
+        return;
+      }
+    }
+    //ถ้าผ่านหมด => ไปหน้าที่ต้องการ
+    setCurrentTab(index);
+  };
+
   return (
     <div className="flex justify-center items-center ">
       {/* prev btn */}
@@ -23,11 +57,10 @@ const Pagination = ({ currentTab, setCurrentTab, totalTabs }) => {
         <FaChevronLeft />
       </button>
 
-
       {Array.from({ length: totalTabs }).map((_, index) => (
         <div
           key={index}
-          onClick={() => setCurrentTab(index)}
+          onClick={() => handleDotClick(index)}
           className={`cursor-pointer ${
             index === currentTab
               ? "w-12 h-4 bg-green-500 rounded-lg" // Active: ยาวขึ้นและเป็นสีเขียว

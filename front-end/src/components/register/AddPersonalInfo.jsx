@@ -26,7 +26,9 @@ const AddPersonalInfo = ({
           name="religion" // ชื่อ key ใน formData
           value={formData.additionalInfo.religion || ""} // ค่าใน Dropdown อิงจาก formData
           onChange={handleChange} // อัปเดตค่าข้อมูล
-          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+          className={`w-full px-3 py-2 border ${
+            errors.religion ? "border-red-500" : "border-gray-300"
+          } rounded-md`}
         >
           <option value="">Select Religion</option>
           <option value="Buddhism">Buddhism</option>
@@ -40,25 +42,25 @@ const AddPersonalInfo = ({
         )}
         {/* แสดงฟิลด์อินพุตเมื่อเลือก "Other" */}
         {/* {formData.additionalInfo.religion === "Other" && (
-          <div>
-            <label className="block mb-2 font-medium text-gray-700">
-              Specify Religion
-            </label>
-            <input
-              type="text"
-              name="otherReligion" // ใช้ name ใหม่สำหรับค่าอื่น
-              value={formData.additionalInfo.otherReligion || ""} // ดึงค่าจาก formData
-              onChange={handleChange} // อัปเดตค่าข้อมูล
-              placeholder="Please specify your religion"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-            />
-            {errors.otherReligion && (
-              <span className="text-red-500 text-sm">
-                {errors.otherReligion}
-              </span>
-            )}
-          </div>
-        )} */}
+            <div>
+              <label className="block mb-2 font-medium text-gray-700">
+                Specify Religion
+              </label>
+              <input
+                type="text"
+                name="otherReligion" // ใช้ name ใหม่สำหรับค่าอื่น
+                value={formData.additionalInfo.otherReligion || ""} // ดึงค่าจาก formData
+                onChange={handleChange} // อัปเดตค่าข้อมูล
+                placeholder="Please specify your religion"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+              />
+              {errors.otherReligion && (
+                <span className="text-red-500 text-sm">
+                  {errors.otherReligion}
+                </span>
+              )}
+            </div>
+          )} */}
       </div>
       <div className="flex flex-row justify-between gap-4">
         <div className="flex-1">
@@ -71,7 +73,9 @@ const AddPersonalInfo = ({
             value={formData.additionalInfo.ethnicity || ""} // ดึงค่าจาก formData.personalInfo.fullName
             onChange={handleChange} // อัปเดตค่าเมื่อผู้ใช้กรอกข้อมูล
             placeholder="Enter your ethnicity"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+            className={`w-full px-3 py-2 border ${
+              errors.ethnicity ? "border-red-500" : "border-gray-300"
+            } rounded-md`}
           />
           {errors.ethnicity && (
             <span className="text-red-500 text-sm">{errors.ethnicity}</span>
@@ -87,7 +91,9 @@ const AddPersonalInfo = ({
             value={formData.additionalInfo.nationality || ""} // ดึงค่าจาก formData.personalInfo.fullName
             onChange={handleChange} // อัปเดตค่าเมื่อผู้ใช้กรอกข้อมูล
             placeholder="Enter your nationality"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+            className={`w-full px-3 py-2 border ${
+              errors.nationality ? "border-red-500" : "border-gray-300"
+            } rounded-md`}
           />
           {errors.nationality && (
             <span className="text-red-500 text-sm">{errors.nationality}</span>
@@ -103,7 +109,9 @@ const AddPersonalInfo = ({
             name="militaryStatus" // ชื่อ key ใน formData
             value={formData.additionalInfo.militaryStatus || ""} // ค่าใน Dropdown อิงจาก formData
             onChange={handleChange} // อัปเดตค่าข้อมูล
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+            className={`w-full px-3 py-2 border ${
+              errors.militaryStatus ? "border-red-500" : "border-gray-300"
+            } rounded-md`}
           >
             <option value="">Select Military Status</option>
             <option value="Exempted">Exempted</option>
@@ -125,7 +133,9 @@ const AddPersonalInfo = ({
             name="maritalStatus" // ชื่อ key ใน formData
             value={formData.additionalInfo.maritalStatus || ""} // ค่าใน Dropdown อิงจาก formData
             onChange={handleChange} // อัปเดตค่าข้อมูล
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+            className={`w-full px-3 py-2 border ${
+              errors.maritalStatus ? "border-red-500" : "border-gray-300"
+            } rounded-md`}
           >
             <option value="">Select Marital Status</option>
             <option value="Single">Single</option>
