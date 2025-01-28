@@ -1,7 +1,7 @@
 import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import ไอคอน
 
-const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab }) => {
+const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab ,onError}) => {
   const handlePrev = () => {
     if (currentTab > 0) {
       //จะย้อนกลับไม่ต้อง validate
@@ -16,8 +16,7 @@ const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab }) => {
       if (isValid) {
         setCurrentTab(currentTab + 1);
       } else {
-        alert("Please fill an informations in this section before going next.");
-        setIsError(true);
+        onError();
       }
     }
   };
@@ -33,8 +32,7 @@ const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab }) => {
     for(let tab = currentTab; tab < index; tab++){
       const isValid = validateTab(tab);
       if(!isValid){
-        alert("Please fill an informations in this section before going next.");
-        setIsError(true);
+        onError();
         return;
       }
     }

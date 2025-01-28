@@ -1,6 +1,19 @@
 const mongoose = require('mongoose');
+const hashPassword = require("../middleware/hashPassword");
 
 const employeeSchema = new mongoose.Schema({
+    accountInfo:{
+      username:{
+        type:String,
+        required:true,
+        unique:true,
+      },
+      password:{
+        type:String,
+        required:true,
+      },
+    },
+
     personalInfo: {
       firstName: { type: String, required: true },
       lastName: { type: String, required: true },
@@ -51,5 +64,7 @@ const employeeSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
   });
   
+  employeeSchema.pre("save", hashPassword);
+
   module.exports = mongoose.model("Employee", employeeSchema);
   
