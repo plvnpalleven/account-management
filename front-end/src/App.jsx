@@ -7,14 +7,18 @@ import {
 } from "react-router-dom";
 import Dashboard from "./Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
-import Register from "./pages/Login/Register.jsx";
-
+import Register from "./pages/Login/register.jsx";
+import { Toaster } from "sonner"; //sonner's toaster
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // state for login
 
   return (
     <Router>
+        {/* Toaster */}
+        <Toaster position="top-center" richColors  visibleToasts={1}/>
       <Routes>
+      
+
         {/* Login Route */}
         <Route
           path="/login"

@@ -12,6 +12,7 @@ import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
 import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
 import RegisterFailedModal from "../../components/modals/RegisterFailedModal";
+import { toast } from "sonner";
 
 const Register = () => {
   const navigate = useNavigate(); // ใช้ navigate สำหรับเปลี่ยนหน้า
@@ -36,10 +37,10 @@ const Register = () => {
     additionalInfo: {},
     addressInfo: {},
     documents: {
-      idCard: "",
-      houseRegistration: "",
-      diploma: "",
-      bankAccount: "",
+      idCard: null,
+      houseRegistration: null,
+      diploma: null,
+      bankAccount: null,
     },
   });
 
@@ -184,21 +185,32 @@ const Register = () => {
   }, [currentTab]);
 
   const handleSubmit = async () => {
-    // console.log("handleSubmit is called"); // ตรวจสอบว่าถูกเรียกใช้งาน
-    // console.log("Submitted Data:", JSON.stringify(formData, null, 2));
-
     try {
+      // ตรวจสอบข้อมูลทั้งฟอร์มก่อน
+      employeeInfoSchema.parse(formData);
+      // ถ้าparseผ่านค่อยยิง axios ต่อ
       const response = await axios.post(
         "http://localhost:5000/api/employees/register",
         formData
       );
-      // alert("Registration Successful!"); ไว้ค่อยลบ ถ้าเพิ่ม modal สำเร็จเเล้ว
-      setIsSuccessModalOpen(true); // เปิด modal สำเร็จ
+      toast.success("Registration Successful! Redirecting to Login...");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
       console.log("Response from server:", response.data);
     } catch (error) {
-      console.error("Error during registration:", error);
-      // alert("Failed to register. Please try again.");
-      setIsErrorModalOpen(true); // เปิด modal ล้มเหลว
+      // toast.error("Registration failed. Please enter your info before submit!");
+      // console.error("Error during registration:", error);
+      if (error.name === "ZodError"){
+        const {fieldErrors} = error.flatten();
+        setErrors(fieldErrors);
+        toast.error("Please fill all fields in the form before submitting!");
+      }else{
+        //ถ้าเป็น error อื่นๆ เช่น 500 , network error ก็จัดการตามสมควร
+        toast.error("Registration failed. Please try again.");
+        console.error("Error during registration",error);
+      }
     }
   };
 

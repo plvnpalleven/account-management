@@ -20,7 +20,7 @@ const Pagination = ({ currentTab, setCurrentTab, totalTabs, validateTab ,onError
       }
     }
   };
-
+  
   const handleDotClick = (index) => {
     // ถ้ากดไป tab ที่น้อยกว่าปัจจุบัน => ย้อนกลับไปได้เสมอ
     if(index <= currentTab){

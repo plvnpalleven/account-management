@@ -77,11 +77,7 @@ export const employeeInfoSchema = z.object({
   personalInfo: z.object({
     firstName: nonEmptyString("First name"),
     lastName: nonEmptyString("Last name"),
-    dateOfBirth: nonEmptyStringWithRegex(
-      "Date of Birth",
-      /^\d{4}-\d{2}-\d{2}$/,
-      "Date of Birth must be in the format YYYY-MM-DD"
-    ),
+    dateOfBirth: nonEmptyString("Date of Birth"),
 
     age: z.preprocess(
       (value) => {
@@ -130,18 +126,27 @@ export const employeeInfoSchema = z.object({
     streetName: z.string().optional().default(""),
     subDistrict: z.string().optional().default(""),
     province: nonEmptyString("Province"),
-    postalCode: nonEmptyStringWithRegex(
-      "Postal Code",
-      /^\d{5}$/,
-      "Postal Code must be exactly 5 digits"
+    postalCode: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.coerce.number({
+        required_error: "Postal Code is required",
+        invalid_type_error: "Postal Code must be a number",
+      }).int("Postal Code must be integer only")
+       .min(10000, "Postal Code must be 5 digits")
+       .max(99999, "Postal Code must be 5 digits")
     ),
   }),
   documents: z.object({
-    idCard: z.string().url("Please upload your id card"),
-    houseRegistration: z
-      .string()
-      .url("Please upload your house registration file"),
-    diploma: z.string().url("Please upload your diploma / certificate"),
-    bankAccount: z.string().url("Please upload your bank account file"),
-  }),
+    idCard: z.string().nullable().refine((val)=>val !== null && val !== "",{
+      message:"Please upload your ID card",
+    }),
+    houseRegistration: z.string().nullable().refine((val)=>val !== null && val !== "",{
+      message:"Please upload your house registration card",
+    }),
+    diploma: z.string().nullable().refine((val)=>val !== null && val !== "",{
+      message:"Please upload your diploma card",
+    }),
+    bankAccount: z.string().nullable().refine((val)=>val !== null && val !== "",{
+      message:"Please upload your bank account card",
+    }),  }),
 });

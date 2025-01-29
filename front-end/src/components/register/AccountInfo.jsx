@@ -23,7 +23,7 @@ const AccountInfo = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     setFormData((prev) => ({
       ...prev,
       accountInfo: {
@@ -31,10 +31,10 @@ const AccountInfo = ({
         [name]: value,
       },
     }));
-  
+
     debouncedValidation(name, value);
   };
-  
+
   return (
     <div>
       <label className="block mb-2 font-medium text-gray-700">Username</label>
