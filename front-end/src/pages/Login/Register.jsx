@@ -10,8 +10,9 @@ import { debounce } from "lodash";
 import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
 import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
-import ErrorModal from "../../components/modals/ErrorModal";
-import SuccessModal from "../../components/modals/SuccessModal";
+import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
+import RegisterFailedModal from "../../components/modals/RegisterFailedModal";
+
 const Register = () => {
   const navigate = useNavigate(); // ใช้ navigate สำหรับเปลี่ยนหน้า
 
@@ -19,7 +20,7 @@ const Register = () => {
     navigate("/login");
   };
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false); //สองอันนี้ เป็น state สำหรับใช้กับ modal ที่เอาไว้ขึ้นตอน handle submit
   const [currentTab, setCurrentTab] = useState(0); // Tab ปัจจุบัน
   const [isAnimating, setIsAnimating] = useState(false);
   const [errors, setErrors] = useState({});
@@ -69,18 +70,10 @@ const Register = () => {
       return true;
     } catch (err) {
       if (err.name === "ZodError") {
-        console.log("DEBUG: Validation Error", err.flatten());
-        // เก็บ error ลงในstate `errors` เพื่อแสดงกรอบแดง / ข้อความ
-        // ใช้ err.flatten() หรือ err.issues
         const { fieldErrors } = err.flatten();
-        //สร้าง obj เพื่อใส่ใน setErrors
-        const newErrors = {};
-        for (const path in fieldErrors) {
-          newErrors[path] = fieldErrors[path][0];
-        }
-        setErrors(newErrors);
+        setErrors(fieldErrors); // อัปเดต errors state
       }
-      return false; //แปลว่ามี error
+      return false;
     }
   };
 
@@ -191,16 +184,21 @@ const Register = () => {
   }, [currentTab]);
 
   const handleSubmit = async () => {
+    // console.log("handleSubmit is called"); // ตรวจสอบว่าถูกเรียกใช้งาน
+    // console.log("Submitted Data:", JSON.stringify(formData, null, 2));
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/employees/register",
         formData
       );
+      // alert("Registration Successful!"); ไว้ค่อยลบ ถ้าเพิ่ม modal สำเร็จเเล้ว
+      setIsSuccessModalOpen(true); // เปิด modal สำเร็จ
       console.log("Response from server:", response.data);
-      // setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Error during registration:", error);
-      // setIsErrorModalOpen(true);
+      // alert("Failed to register. Please try again.");
+      setIsErrorModalOpen(true); // เปิด modal ล้มเหลว
     }
   };
 
@@ -250,24 +248,24 @@ const Register = () => {
           </div>
         </div>
       </div>
-      {/* <div>
-        {isSuccessModalOpen && (
-          <SuccessModal
-            message="Registration Successful!"
-            onClose={() => {
-              setIsSuccessModalOpen(false); // ปิด Modal
-              navigate("/login"); // กลับไปหน้า Login
-            }}
-          />
-        )}
+      {/* Success Modal */}
+      {isSuccessModalOpen && (
+        <RegisterSuccessModal
+          message="Registration Successful!"
+          onClose={() => {
+            setIsSuccessModalOpen(false);
+            navigate("/login"); // Redirect to login page
+          }}
+        />
+      )}
 
-        {isErrorModalOpen && (
-          <ErrorModal
-            message="Something went wrong. Please check your inputs."
-            onClose={() => setIsErrorModalOpen(false)} // ปิด Modal
-          />
-        )}
-      </div> */}
+      {/* Error Modal */}
+      {isErrorModalOpen && (
+        <RegisterFailedModal
+          message="Failed to register. Please try again."
+          onClose={() => setIsErrorModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

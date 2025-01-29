@@ -3,15 +3,6 @@ const router = express.Router();
 const Employee = require("../models/employeeModel"); //Import Schema
 
 //Endpoint สำหรับ register พนักงานใหม่
-router.get("/", async (req, res) => {
-  try {
-    const employees = await Employee.find(); // ดึงข้อมูลทั้งหมดจาก MongoDB
-    res.status(200).json(employees); // ส่งข้อมูลกลับ
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch employees", error: error.message });
-  }
-});
-
 router.post("/register", async (req, res) => {
   try {
     const { accountInfo, personalInfo } = req.body;

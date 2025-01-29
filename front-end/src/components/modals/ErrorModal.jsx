@@ -1,6 +1,7 @@
+// src/components/modals/ErrorModal.jsx
 import React from "react";
 
-const ErrorModal = ({ isOpen, onClose }) => {
+const ErrorModal = ({ isOpen, onClose, message }) => {
   if (!isOpen) return null;
 
   return (
@@ -9,16 +10,16 @@ const ErrorModal = ({ isOpen, onClose }) => {
         <div className="flex flex-col items-center">
           <div className="text-red-500 text-6xl mb-4">❌</div>
           <h2 className="text-2xl font-bold mb-4 text-red-500">
-            การสมัครไม่สำเร็จ
+            Registration Failed!
           </h2>
           <p className="text-gray-700 mb-6">
-            กรุณาตรวจสอบข้อมูลของคุณอีกครั้ง
+            {message || "Please check your info again"}
           </p>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
           >
-            ปิด
+            Close
           </button>
         </div>
       </div>
