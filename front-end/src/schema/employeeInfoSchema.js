@@ -41,30 +41,25 @@ const nonEmptyStringWithRegex = (
       .regex(regex, message)
   );
 
+  const accountInfoSchema = z.object({
+    username: z.string().trim().min(3,"User must be at least 3 characters long"),
+    password: z.string().trim().min(8,"Password must be at least 8 characters long"),
+    confirmPassword:z.string().trim(),
+  });
+
+  export const refinedAccountInfoSchema  = accountInfoSchema.superRefine((data,ctx)=>{
+    if(data.confirmPassword !== data.password){
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:"Password do not match",
+        path:["confirmPassword"],
+      });
+    }
+  });
+
 //สร้าง schema ครอบคลุมข้อมูลทั้งหมด
 export const employeeInfoSchema = z.object({
-  accountInfo: z
-    .object({
-      username: z
-        .string()
-        .min(3, "User must be at least 3 characters long")
-        .trim(),
-      password: z
-        .string()
-        .min(8, "Password must be at least 8 characters long")
-        .trim(),
-      confirmPassword: z.string().trim(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.confirmPassword !== data.password) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Passwords do not match",
-          path: ["confirmPassword"], // ระบุ field ที่มีปัญหา
-        });
-      }
-    }),
-
+  accountInfo: refinedAccountInfoSchema,
   jobInfo: z.object({
     position: nonEmptyString("Position"),
     expectedSalary: z.coerce
@@ -128,25 +123,40 @@ export const employeeInfoSchema = z.object({
     province: nonEmptyString("Province"),
     postalCode: z.preprocess(
       (val) => (val === "" ? undefined : val),
-      z.coerce.number({
-        required_error: "Postal Code is required",
-        invalid_type_error: "Postal Code must be a number",
-      }).int("Postal Code must be integer only")
-       .min(10000, "Postal Code must be 5 digits")
-       .max(99999, "Postal Code must be 5 digits")
+      z.coerce
+        .number({
+          required_error: "Postal Code is required",
+          invalid_type_error: "Postal Code must be a number",
+        })
+        .int("Postal Code must be integer only")
+        .min(10000, "Postal Code must be 5 digits")
+        .max(99999, "Postal Code must be 5 digits")
     ),
   }),
   documents: z.object({
-    idCard: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your ID card",
-    }),
-    houseRegistration: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your house registration card",
-    }),
-    diploma: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your diploma card",
-    }),
-    bankAccount: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your bank account card",
-    }),  }),
+    idCard: z
+      .string()
+      .nullable()
+      .refine((val) => val !== null && val !== "", {
+        message: "Please upload your ID card",
+      }),
+    houseRegistration: z
+      .string()
+      .nullable()
+      .refine((val) => val !== null && val !== "", {
+        message: "Please upload your house registration card",
+      }),
+    diploma: z
+      .string()
+      .nullable()
+      .refine((val) => val !== null && val !== "", {
+        message: "Please upload your diploma card",
+      }),
+    bankAccount: z
+      .string()
+      .nullable()
+      .refine((val) => val !== null && val !== "", {
+        message: "Please upload your bank account card",
+      }),
+  }),
 });

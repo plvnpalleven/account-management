@@ -7,7 +7,11 @@ import Pagination from "../../components/register/Pagination";
 import AddPersonalInfo from "../../components/register/AddPersonalInfo";
 import axios from "axios";
 import { debounce } from "lodash";
-import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
+// import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
+import {
+  refinedAccountInfoSchema,
+  employeeInfoSchema,
+} from "../../schema/employeeInfoSchema";
 import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
 import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
@@ -79,24 +83,44 @@ const Register = () => {
   };
 
   const shapesMap = [
-    employeeInfoSchema.shape.accountInfo.shape, //currentTab = 0
-    employeeInfoSchema.shape.jobInfo.shape,
-    employeeInfoSchema.shape.personalInfo.shape,
-    employeeInfoSchema.shape.additionalInfo.shape,
-    employeeInfoSchema.shape.addressInfo.shape,
-    employeeInfoSchema.shape.documents.shape,
+    employeeInfoSchema.shape.accountInfo._def.schema.shape, //currentTab = 0
+    employeeInfoSchema.shape.jobInfo,
+    employeeInfoSchema.shape.personalInfo,
+    employeeInfoSchema.shape.additionalInfo,
+    employeeInfoSchema.shape.addressInfo,
+    employeeInfoSchema.shape.documents,
   ];
 
   const handleValidation = async (key, value) => {
     const shape = shapesMap[currentTab];
+
     if (!shape) return;
 
     const fieldSchema = shape[key];
-    if (!fieldSchema) return; // ถ้า field ไม่อยู่ใน shape
+    if (!fieldSchema) {
+      console.error("Field not found in shape:", key);
+      return;
+    } // ถ้า field ไม่อยู่ใน shape
 
     try {
       await fieldSchema.parseAsync(value);
       setErrors((prev) => ({ ...prev, [key]: null }));
+
+      //ลอง implement เช็คการซ้ำของ email , username
+      if (key === "username" || key === "email") {
+        const response = await axios.post(
+          `http://localhost:5000/api/employees/check-${key}`,
+          { [key]: value }
+        );
+        if (response.data.exists) {
+          setErrors((prev) => ({
+            ...prev,
+            [key]: `${
+              key.charAt(0).toUpperCase() + key.slice(1)
+            } already exists`,
+          }));
+        }
+      }
     } catch (err) {
       if (err.name === "ZodError") {
         const message = err.issues[0]?.message || "Invalid";
@@ -202,14 +226,14 @@ const Register = () => {
     } catch (error) {
       // toast.error("Registration failed. Please enter your info before submit!");
       // console.error("Error during registration:", error);
-      if (error.name === "ZodError"){
-        const {fieldErrors} = error.flatten();
+      if (error.name === "ZodError") {
+        const { fieldErrors } = error.flatten();
         setErrors(fieldErrors);
         toast.error("Please fill all fields in the form before submitting!");
-      }else{
+      } else {
         //ถ้าเป็น error อื่นๆ เช่น 500 , network error ก็จัดการตามสมควร
         toast.error("Registration failed. Please try again.");
-        console.error("Error during registration",error);
+        console.error("Error during registration", error);
       }
     }
   };

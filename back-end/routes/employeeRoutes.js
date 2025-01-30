@@ -3,6 +3,28 @@ const router = express.Router();
 const Employee = require("../models/employeeModel"); //Import Schema
 
 //Endpoint สำหรับ register พนักงานใหม่
+router.post("/check-username",async(req,res)=>{
+  const {username} = req.body;
+  try{
+    const existingUser = await Employee.findOne({"AccountInfo.username":username});
+    res.json({exists: !!existingUser}); //ถ้ามี user คืน exists:true
+  }catch(error){
+    res.status(500).json({message:"Error checking username"});
+  }
+});
+
+router.post("/check-email",async(req,res)=>{
+  const {email} = req.body;
+  try{
+    const existingEmail = await Employee.findOne({"personalInfo.email":email});
+    res.json({exists: !!existingEmail});
+  }catch(error){
+    res.status(500).json({message:"Error checking email"});
+  }
+});
+
+
+
 router.post("/register", async (req, res) => {
   try {
     const { accountInfo, personalInfo } = req.body;
