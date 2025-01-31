@@ -92,21 +92,24 @@ const Register = () => {
   ];
 
   const handleValidation = async (key, value) => {
-    const shape = shapesMap[currentTab];
-
+    const shape = shapesMap[currentTab]; // ดึง schema ของ tab ปัจจุบัน
     if (!shape) return;
 
-    const fieldSchema = shape[key];
-    if (!fieldSchema) {
-      console.error("Field not found in shape:", key);
-      return;
-    } // ถ้า field ไม่อยู่ใน shape
+    // อัปเดตค่าใน formData
+    setFormData((prev) => ({
+      ...prev,
+      [tabs[currentTab].name.toLowerCase()]: {
+        ...prev[tabs[currentTab].name.toLowerCase()],
+        [key]: value,
+      },
+    }));
 
     try {
-      await fieldSchema.parseAsync(value);
+      // Validate เฉพาะ field ที่เปลี่ยนแปลง
+      await shape[key].parseAsync(value);
       setErrors((prev) => ({ ...prev, [key]: null }));
 
-      //ลอง implement เช็คการซ้ำของ email , username
+      // เช็ค username และ email ซ้ำ
       if (key === "username" || key === "email") {
         const response = await axios.post(
           `http://localhost:5000/api/employees/check-${key}`,
@@ -123,12 +126,48 @@ const Register = () => {
       }
     } catch (err) {
       if (err.name === "ZodError") {
-        const message = err.issues[0]?.message || "Invalid";
-        setErrors((prev) => ({ ...prev, [key]: message }));
+        setErrors((prev) => ({
+          ...prev,
+          [key]: err.issues[0]?.message || "Invalid",
+        }));
+      }
+    }
+
+    // **เงื่อนไขพิเศษสำหรับ accountInfo**
+    if (currentTab === 0) {
+      try {
+        await refinedAccountInfoSchema.parseAsync(formData.accountInfo); // Validate ทั้ง accountInfo
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: null, // ถ้า validate ผ่าน ให้ลบ error
+        }));
+      } catch (err) {
+        if (err.name === "ZodError") {
+          const fieldErrors = err.flatten().fieldErrors;
+          setErrors((prev) => ({ ...prev, ...fieldErrors }));
+        }
+      }
+    }
+
+    // **Validate ทุก field ใน tab ปัจจุบัน**
+    try {
+      await shape.parseAsync(formData[tabs[currentTab].name.toLowerCase()]);
+      setErrors((prev) => {
+        const updatedErrors = { ...prev };
+        Object.keys(shape).forEach((field) => {
+          updatedErrors[field] = null;
+        });
+        return updatedErrors;
+      });
+    } catch (err) {
+      if (err.name === "ZodError") {
+        const fieldErrors = err.flatten().fieldErrors;
+        setErrors((prev) => ({ ...prev, ...fieldErrors }));
       }
     }
   };
 
+  // Debounce validation เพื่อไม่ให้ validate ทุก keypress
   const debouncedValidation = debounce((key, value) => {
     handleValidation(key, value);
   }, 200);
