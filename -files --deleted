@@ -1,0 +1,27 @@
+[33m39fcb7f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: commit (cherry-pick): git push origin main
+[33m693f7a0[m HEAD@{1}: checkout: moving from b8b03dcacf5e23a92689a40a0a0a09eae82180dd to main
+[33mb8b03dc[m HEAD@{2}: commit: 200->300
+[33mb94179f[m HEAD@{3}: commit: register -superRefine (password validate bug fixed)
+[33m9ed286e[m[33m ([m[1;31morigin/backup[m[33m, [m[1;32mbackup[m[33m)[m HEAD@{4}: checkout: moving from main to 9ed286e
+[33m693f7a0[m HEAD@{5}: commit: before switch branches
+[33m80efa93[m HEAD@{6}: checkout: moving from backup to main
+[33m9ed286e[m[33m ([m[1;31morigin/backup[m[33m, [m[1;32mbackup[m[33m)[m HEAD@{7}: commit: Backup before rollback validation changes
+[33m80efa93[m HEAD@{8}: checkout: moving from main to backup
+[33m80efa93[m HEAD@{9}: commit: superRefine Bug fixed
+[33md8fe071[m HEAD@{10}: commit: -modal + toaster
+[33m9c85234[m HEAD@{11}: commit: register complete 100% + include modal
+[33m74571ff[m HEAD@{12}: commit: register debug
+[33mdc6c278[m HEAD@{13}: commit: register (validation 100% completed)
+[33m7d60952[m HEAD@{14}: commit: try to use zod in AddPersonalInfo.jsx
+[33m1423258[m HEAD@{15}: commit: validation 30%
+[33mdfeab89[m HEAD@{16}: commit: backup
+[33me91924e[m HEAD@{17}: commit: Register (Database Connected)
+[33m6c2af25[m HEAD@{18}: commit: register all tab complete (front-end)
+[33m92262f1[m HEAD@{19}: commit: register 70% frontend (include animations)
+[33mfcef66f[m HEAD@{20}: commit: register (front-end completed)
+[33m2e7b0de[m HEAD@{21}: commit: login , register (hard-coded) / project structure fixed
+[33m269d887[m HEAD@{22}: reset: moving to HEAD
+[33m269d887[m HEAD@{23}: commit: Sidebar 100% + Recruitment UI
+[33m5c341f3[m HEAD@{24}: commit: Routes Complete + External CSS
+[33m3a53f22[m HEAD@{25}: Branch: renamed refs/heads/master to refs/heads/main
+[33m3a53f22[m HEAD@{27}: commit (initial): Initial commit

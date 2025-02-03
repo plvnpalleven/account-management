@@ -7,11 +7,7 @@ import Pagination from "../../components/register/Pagination";
 import AddPersonalInfo from "../../components/register/AddPersonalInfo";
 import axios from "axios";
 import { debounce } from "lodash";
-// import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
-import {
-  refinedAccountInfoSchema,
-  employeeInfoSchema,
-} from "../../schema/employeeInfoSchema";
+import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
 import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
 import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
@@ -83,91 +79,57 @@ const Register = () => {
   };
 
   const shapesMap = [
-    employeeInfoSchema.shape.accountInfo._def.schema.shape, //currentTab = 0
-    employeeInfoSchema.shape.jobInfo,
-    employeeInfoSchema.shape.personalInfo,
-    employeeInfoSchema.shape.additionalInfo,
-    employeeInfoSchema.shape.addressInfo,
-    employeeInfoSchema.shape.documents,
+    employeeInfoSchema.shape.accountInfo.shape, //currentTab = 0
+    employeeInfoSchema.shape.jobInfo.shape,
+    employeeInfoSchema.shape.personalInfo.shape,
+    employeeInfoSchema.shape.additionalInfo.shape,
+    employeeInfoSchema.shape.addressInfo.shape,
+    employeeInfoSchema.shape.documents.shape,
   ];
 
   const handleValidation = async (key, value) => {
-    const shape = shapesMap[currentTab]; // ดึง schema ของ tab ปัจจุบัน
+    const shape = shapesMap[currentTab];
     if (!shape) return;
 
-    // อัปเดตค่าใน formData
-    setFormData((prev) => ({
-      ...prev,
-      [tabs[currentTab].name.toLowerCase()]: {
-        ...prev[tabs[currentTab].name.toLowerCase()],
-        [key]: value,
-      },
-    }));
+    const fieldSchema = shape[key];
+    if (!fieldSchema) return; // ถ้า field ไม่อยู่ใน shape
 
     try {
-      // Validate เฉพาะ field ที่เปลี่ยนแปลง
-      await shape[key].parseAsync(value);
+      await fieldSchema.parseAsync(value);
       setErrors((prev) => ({ ...prev, [key]: null }));
-
-      // เช็ค username และ email ซ้ำ
-      if (key === "username" || key === "email") {
-        const response = await axios.post(
-          `http://localhost:5000/api/employees/check-${key}`,
-          { [key]: value }
-        );
-        if (response.data.exists) {
-          setErrors((prev) => ({
-            ...prev,
-            [key]: `${
-              key.charAt(0).toUpperCase() + key.slice(1)
-            } already exists`,
-          }));
-        }
-      }
     } catch (err) {
       if (err.name === "ZodError") {
-        setErrors((prev) => ({
-          ...prev,
-          [key]: err.issues[0]?.message || "Invalid",
-        }));
+        const message = err.issues[0]?.message || "Invalid";
+        setErrors((prev) => ({ ...prev, [key]: message }));
       }
     }
 
-    // **เงื่อนไขพิเศษสำหรับ accountInfo**
-    if (currentTab === 0) {
-      try {
-        await refinedAccountInfoSchema.parseAsync(formData.accountInfo); // Validate ทั้ง accountInfo
+    if (key === "password") {
+      const confirmPassword = formData.accountInfo.confirmPassword;
+      if (confirmPassword && confirmPassword !== value) {
         setErrors((prev) => ({
           ...prev,
-          confirmPassword: null, // ถ้า validate ผ่าน ให้ลบ error
+          confirmPassword: "Passwords do not match",
         }));
-      } catch (err) {
-        if (err.name === "ZodError") {
-          const fieldErrors = err.flatten().fieldErrors;
-          setErrors((prev) => ({ ...prev, ...fieldErrors }));
-        }
+      } else {
+        setErrors((prev) => ({ ...prev, confirmPassword: null }));
       }
     }
 
-    // **Validate ทุก field ใน tab ปัจจุบัน**
-    try {
-      await shape.parseAsync(formData[tabs[currentTab].name.toLowerCase()]);
-      setErrors((prev) => {
-        const updatedErrors = { ...prev };
-        Object.keys(shape).forEach((field) => {
-          updatedErrors[field] = null;
-        });
-        return updatedErrors;
-      });
-    } catch (err) {
-      if (err.name === "ZodError") {
-        const fieldErrors = err.flatten().fieldErrors;
-        setErrors((prev) => ({ ...prev, ...fieldErrors }));
+    if (key === "confirmPassword") {
+      const currentPassword = formData.accountInfo.password;
+      if (value !== currentPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Passwords do not match",
+        }));
+      } else {
+        // ถ้าตรงกันก็ลบข้อความ error ออกจาก confirmPassword
+        setErrors((prev) => ({ ...prev, confirmPassword: null }));
       }
     }
   };
 
-  // Debounce validation เพื่อไม่ให้ validate ทุก keypress
   const debouncedValidation = debounce((key, value) => {
     handleValidation(key, value);
   }, 200);
@@ -323,24 +285,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-      {/* Success Modal */}
-      {isSuccessModalOpen && (
-        <RegisterSuccessModal
-          message="Registration Successful!"
-          onClose={() => {
-            setIsSuccessModalOpen(false);
-            navigate("/login"); // Redirect to login page
-          }}
-        />
-      )}
-
-      {/* Error Modal */}
-      {isErrorModalOpen && (
-        <RegisterFailedModal
-          message="Failed to register. Please try again."
-          onClose={() => setIsErrorModalOpen(false)}
-        />
-      )}
     </div>
   );
 };
