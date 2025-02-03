@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const hashPassword = require("../middleware/hashPassword");
+const hashPassword = require("../utils/hashPassword");
 
 const employeeSchema = new mongoose.Schema({
     accountInfo:{
