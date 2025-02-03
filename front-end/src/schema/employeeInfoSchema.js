@@ -140,4 +140,4 @@ export const employeeInfoSchema = z.object({
     bankAccount: z.string().nullable().refine((val)=>val !== null && val !== "",{
       message:"Please upload your bank account card",
     }),  }),
-}); 
+});

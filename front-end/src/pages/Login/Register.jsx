@@ -103,6 +103,31 @@ const Register = () => {
         setErrors((prev) => ({ ...prev, [key]: message }));
       }
     }
+
+    if (key === "password") {
+      const confirmPassword = formData.accountInfo.confirmPassword;
+      if (confirmPassword && confirmPassword !== value) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Passwords do not match",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, confirmPassword: null }));
+      }
+    }
+
+    if (key === "confirmPassword") {
+      const currentPassword = formData.accountInfo.password;
+      if (value !== currentPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Passwords do not match",
+        }));
+      } else {
+        // ถ้าตรงกันก็ลบข้อความ error ออกจาก confirmPassword
+        setErrors((prev) => ({ ...prev, confirmPassword: null }));
+      }
+    }
   };
 
   const debouncedValidation = debounce((key, value) => {
@@ -260,24 +285,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-      {/* Success Modal */}
-      {isSuccessModalOpen && (
-        <RegisterSuccessModal
-          message="Registration Successful!"
-          onClose={() => {
-            setIsSuccessModalOpen(false);
-            navigate("/login"); // Redirect to login page
-          }}
-        />
-      )}
-
-      {/* Error Modal */}
-      {isErrorModalOpen && (
-        <RegisterFailedModal
-          message="Failed to register. Please try again."
-          onClose={() => setIsErrorModalOpen(false)}
-        />
-      )}
     </div>
   );
 };
