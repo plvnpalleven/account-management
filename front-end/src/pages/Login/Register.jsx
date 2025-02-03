@@ -227,14 +227,14 @@ const Register = () => {
     } catch (error) {
       // toast.error("Registration failed. Please enter your info before submit!");
       // console.error("Error during registration:", error);
-      if (error.name === "ZodError") {
-        const { fieldErrors } = error.flatten();
+      if (error.name === "ZodError"){
+        const {fieldErrors} = error.flatten();
         setErrors(fieldErrors);
         toast.error("Please fill all fields in the form before submitting!");
-      } else {
+      }else{
         //ถ้าเป็น error อื่นๆ เช่น 500 , network error ก็จัดการตามสมควร
         toast.error("Registration failed. Please try again.");
-        console.error("Error during registration", error);
+        console.error("Error during registration",error);
       }
     }
   };

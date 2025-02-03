@@ -1,4 +1,4 @@
-import React from "react";
+import {React,useState} from "react";
 
 const AccountInfo = ({
   formData,
@@ -6,6 +6,8 @@ const AccountInfo = ({
   errors,
   debouncedValidation,
 }) => {
+  const [passwordMatchError, setPasswordMatchError] = useState("");
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,7 +20,19 @@ const AccountInfo = ({
     }));
 
     debouncedValidation(name, value);
+    if(
+      name === "password" ||
+      (name === "confirmPassword" && formData.accountInfo.password)
+    ){
+      if(formData.accountInfo.password !== value){
+        setPasswordMatchError("Passwords do not match");
+      }else{
+        setPasswordMatchError("");
+      }
+    }
   };
+
+  
 
   return (
     <div>
