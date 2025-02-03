@@ -1,4 +1,4 @@
-import {React,useState} from "react";
+import React from "react";
 
 const AccountInfo = ({
   formData,
@@ -6,9 +6,6 @@ const AccountInfo = ({
   errors,
   debouncedValidation,
 }) => {
-  const [passwordMatchError, setPasswordMatchError] = useState("");
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -20,28 +17,16 @@ const AccountInfo = ({
     }));
 
     debouncedValidation(name, value);
-    if(
-      name === "password" ||
-      (name === "confirmPassword" && formData.accountInfo.password)
-    ){
-      if(formData.accountInfo.password !== value){
-        setPasswordMatchError("Passwords do not match");
-      }else{
-        setPasswordMatchError("");
-      }
-    }
   };
-
-  
 
   return (
     <div>
       <label className="block mb-2 font-medium text-gray-700">Username</label>
       <input
         type="text"
-        name="username" 
+        name="username"
         value={formData.accountInfo.username || ""}
-        onChange={handleChange} 
+        onChange={handleChange}
         placeholder="Enter your username"
         className={`w-full px-3 py-2 border ${
           errors.username ? "border-red-500" : "border-gray-300"
@@ -51,11 +36,11 @@ const AccountInfo = ({
         <span className="text-red-500 text-sm">{errors.username}</span>
       )}
       <label className="block mb-2 font-medium text-gray-700">Password</label>
-      <input  
+      <input
         type="password"
-        name="password" 
-        value={formData.accountInfo.password || ""} 
-        onChange={handleChange} 
+        name="password"
+        value={formData.accountInfo.password || ""}
+        onChange={handleChange}
         placeholder="Enter your password"
         className={`w-full px-3 py-2 border ${
           errors.password ? "border-red-500" : "border-gray-300"

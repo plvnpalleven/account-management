@@ -97,35 +97,23 @@ const Register = () => {
     try {
       await fieldSchema.parseAsync(value);
       setErrors((prev) => ({ ...prev, [key]: null }));
+
+      if (key === "username" || key === "email") {
+        const response = await axios.post(
+          `http://localhost:5000/api/employees/check-${key}`,
+          { [key]: value }
+        );
+        if (response.data.exists) {
+          setErrors((prev) => ({
+            ...prev,
+            [key]: `${key} already exists`,
+          }));
+        }
+      }
     } catch (err) {
       if (err.name === "ZodError") {
         const message = err.issues[0]?.message || "Invalid";
         setErrors((prev) => ({ ...prev, [key]: message }));
-      }
-    }
-
-    if (key === "password") {
-      const confirmPassword = formData.accountInfo.confirmPassword;
-      if (confirmPassword && confirmPassword !== value) {
-        setErrors((prev) => ({
-          ...prev,
-          confirmPassword: "Passwords do not match",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, confirmPassword: null }));
-      }
-    }
-
-    if (key === "confirmPassword") {
-      const currentPassword = formData.accountInfo.password;
-      if (value !== currentPassword) {
-        setErrors((prev) => ({
-          ...prev,
-          confirmPassword: "Passwords do not match",
-        }));
-      } else {
-        // ถ้าตรงกันก็ลบข้อความ error ออกจาก confirmPassword
-        setErrors((prev) => ({ ...prev, confirmPassword: null }));
       }
     }
   };
@@ -227,14 +215,14 @@ const Register = () => {
     } catch (error) {
       // toast.error("Registration failed. Please enter your info before submit!");
       // console.error("Error during registration:", error);
-      if (error.name === "ZodError"){
-        const {fieldErrors} = error.flatten();
+      if (error.name === "ZodError") {
+        const { fieldErrors } = error.flatten();
         setErrors(fieldErrors);
         toast.error("Please fill all fields in the form before submitting!");
-      }else{
+      } else {
         //ถ้าเป็น error อื่นๆ เช่น 500 , network error ก็จัดการตามสมควร
         toast.error("Registration failed. Please try again.");
-        console.error("Error during registration",error);
+        console.error("Error during registration", error);
       }
     }
   };
