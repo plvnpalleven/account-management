@@ -12,13 +12,18 @@ import { Toaster } from "sonner"; //sonner's toaster
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // state for login
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // อาจจะ decode token หรือ call API ไป validate กับเซิร์ฟเวอร์ก็ได้
+      setIsAuthenticated(true);
+    }
+  }, []);
   return (
     <Router>
-        {/* Toaster */}
-        <Toaster position="top-center" richColors  visibleToasts={1}/>
+      {/* Toaster */}
+      <Toaster position="top-center" richColors visibleToasts={1} />
       <Routes>
-      
-
         {/* Login Route */}
         <Route
           path="/login"
@@ -28,7 +33,7 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         {/* Dashboard Route */}
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
         />
 

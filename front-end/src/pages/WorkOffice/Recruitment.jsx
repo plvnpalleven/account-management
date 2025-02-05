@@ -1,7 +1,7 @@
 import { useState } from "react";
 import logo from "../../assets/logo.png"; // อันนี้แค่เทสน่ะ
 import ff from "../../assets/ff.jpg";
-const Attendance = () => {
+const Recruitment = () => {
   const [activeTab, setActiveTab] = useState("employee"); // state สำหรับ tab ที่ active
 
   return (
@@ -95,4 +95,4 @@ const Attendance = () => {
   );
 };
 
-export default Attendance;
+export default Recruitment;

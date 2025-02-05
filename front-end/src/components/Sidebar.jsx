@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "./Sidebar.css";
-import logo from '../assets/logo.png';
+import logo from "../assets/logo.png";
 const Sidebar = () => {
   const location = useLocation(); //ดึง path ปัจจุบัน
   const [isWorkOfficeOpen, setIsWorkOfficeOpen] = useState(false);
@@ -42,9 +42,9 @@ const Sidebar = () => {
           {isWorkOfficeOpen && (
             <div className="flex flex-col">
               <Link
-                to="/WorkOffice/Recruitment"
+                to="/dashboard/WorkOffice/Recruitment"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/Recruitment"
+                  location.pathname === "/dashboard/WorkOffice/Recruitment"
                     ? "nav-active"
                     : ""
                 }`}
@@ -52,9 +52,9 @@ const Sidebar = () => {
                 Recruitment
               </Link>
               <Link
-                to="/WorkOffice/Attendance"
+                to="/dashboard/WorkOffice/Attendance"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/Attendance"
+                  location.pathname === "/dashboard/WorkOffice/Attendance"
                     ? "nav-active"
                     : ""
                 }`}
@@ -62,25 +62,29 @@ const Sidebar = () => {
                 Attendance
               </Link>
               <Link
-                to="/WorkOffice/ToDo"
+                to="/dashboard/WorkOffice/ToDo"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/ToDo" ? "nav-active" : ""
+                  location.pathname === "/dashboard/WorkOffice/ToDo"
+                    ? "nav-active"
+                    : ""
                 }`}
               >
                 To-Do List
               </Link>
               <Link
-                to="/WorkOffice/DayOff"
+                to="/dashboard/WorkOffice/DayOff"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/DayOff" ? "nav-active" : ""
+                  location.pathname === "/dashboard/WorkOffice/DayOff"
+                    ? "nav-active"
+                    : ""
                 }`}
               >
                 Day Off
               </Link>
               <Link
-                to="/WorkOffice/RoomBooking"
+                to="/dashboard/WorkOffice/RoomBooking"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/RoomBooking"
+                  location.pathname === "/dashboard/WorkOffice/RoomBooking"
                     ? "nav-active"
                     : ""
                 }`}
@@ -89,9 +93,9 @@ const Sidebar = () => {
               </Link>
 
               <Link
-                to="/WorkOffice/VehicleBooking"
+                to="/dashboard/WorkOffice/VehicleBooking"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/VehicleBooking"
+                  location.pathname === "/dashboard/WorkOffice/VehicleBooking"
                     ? "nav-active"
                     : ""
                 }`}
@@ -100,9 +104,10 @@ const Sidebar = () => {
               </Link>
 
               <Link
-                to="/WorkOffice/ExpenseReimbursement"
+                to="/dashboard/WorkOffice/ExpenseReimbursement"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/ExpenseReimbursement"
+                  location.pathname ===
+                  "/dashboard/WorkOffice/ExpenseReimbursement"
                     ? "nav-active"
                     : ""
                 }`}
@@ -111,9 +116,9 @@ const Sidebar = () => {
               </Link>
 
               <Link
-                to="/WorkOffice/Payroll"
+                to="/dashboard/WorkOffice/Payroll"
                 className={`nav-link ${
-                  location.pathname === "/WorkOffice/Payroll"
+                  location.pathname === "/dashboard/WorkOffice/Payroll"
                     ? "nav-active"
                     : ""
                 }`}
@@ -137,9 +142,9 @@ const Sidebar = () => {
           {isCustomerOpen && (
             <div className="flex flex-col">
               <Link
-                to="/CustomerService/AddInfo"
+                to="/dashboard/CustomerService/AddInfo"
                 className={`nav-link ${
-                  location.pathname === "/CustomerService/AddInfo"
+                  location.pathname === "/dashboard/CustomerService/AddInfo"
                     ? "nav-active"
                     : ""
                 }`}
@@ -147,9 +152,9 @@ const Sidebar = () => {
                 Add Info
               </Link>
               <Link
-                to="/CustomerService/Quotation"
+                to="/dashboard/CustomerService/Quotation"
                 className={`nav-link ${
-                  location.pathname === "/CustomerService/Quotation"
+                  location.pathname === "/dashboard/CustomerService/Quotation"
                     ? "nav-active"
                     : ""
                 }`}
@@ -157,9 +162,9 @@ const Sidebar = () => {
                 Quotation
               </Link>
               <Link
-                to="/CustomerService/Invoice"
+                to="/dashboard/CustomerService/Invoice"
                 className={`nav-link ${
-                  location.pathname === "/CustomerService/Invoice"
+                  location.pathname === "/dashboard/CustomerService/Invoice"
                     ? "nav-active"
                     : ""
                 }`}
@@ -167,9 +172,9 @@ const Sidebar = () => {
                 Invoice
               </Link>
               <Link
-                to="/CustomerService/Receipt"
+                to="/dashboard/CustomerService/Receipt"
                 className={`nav-link ${
-                  location.pathname === "/CustomerService/Receipt"
+                  location.pathname === "/dashboard/CustomerService/Receipt"
                     ? "nav-active"
                     : ""
                 }`}
@@ -177,9 +182,10 @@ const Sidebar = () => {
                 Receipt
               </Link>
               <Link
-                to="/CustomerService/MeetingSchedule"
+                to="/dashboard/CustomerService/MeetingSchedule"
                 className={`nav-link ${
-                  location.pathname === "/CustomerService/MeetingSchedule"
+                  location.pathname ===
+                  "/dashboard/CustomerService/MeetingSchedule"
                     ? "nav-active"
                     : ""
                 }`}
@@ -187,10 +193,10 @@ const Sidebar = () => {
                 Meeting Schedule
               </Link>
               <Link
-                to="/CustomerService/ConfidentialyAgreement"
+                to="/dashboard/CustomerService/ConfidentialyAgreement"
                 className={`nav-link ${
                   location.pathname ===
-                  "/CustomerService/ConfidentialyAgreement"
+                  "/dashboard/CustomerService/ConfidentialyAgreement"
                     ? "nav-active"
                     : ""
                 }`}
@@ -215,9 +221,10 @@ const Sidebar = () => {
           {isFinancialOpen && (
             <div className="flex flex-col">
               <Link
-                to="/FinancialSystem/AnnualExpenses"
+                to="/dashboard/FinancialSystem/AnnualExpenses"
                 className={`nav-link ${
-                  location.pathname === "/FinancialSystem/AnnualExpenses"
+                  location.pathname ===
+                  "/dashboard/FinancialSystem/AnnualExpenses"
                     ? "nav-active"
                     : ""
                 }`}
@@ -225,9 +232,10 @@ const Sidebar = () => {
                 Annual Expenses
               </Link>
               <Link
-                to="/FinancialSystem/AnnualRevenue"
+                to="/dashboard/FinancialSystem/AnnualRevenue"
                 className={`nav-link ${
-                  location.pathname === "/FinancialSystem/AnnualRevenue"
+                  location.pathname ===
+                  "/dashboard/FinancialSystem/AnnualRevenue"
                     ? "nav-active"
                     : ""
                 }`}
