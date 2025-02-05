@@ -1,19 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errror, setError] = useState(null);
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // e.preventDefault() เอาไว้ใช้กันการ refresh เมื่อเรากด submit
-    //จำลองการเข้าสู่ระบบ hard-coded ไปก่อน
-    if (username === "test" && password === "1234") {
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          username,
+          password,
+        }
+      );
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       setIsAuthenticated(true);
-      alert("Login successful!");
       navigate("/dashboard");
-    } else {
-      alert("Invalid username or password");
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong");
     }
   };
   return (
