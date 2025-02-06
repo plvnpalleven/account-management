@@ -12,7 +12,7 @@ const protect = (req, res, next) => {
       req.user = decoded.id;
       next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
   } else {
     return res.status(401).json({ message: "Not authorized, no token" });

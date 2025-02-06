@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,16 +9,20 @@ import Dashboard from "./Dashboard.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Register from "./pages/Login/register.jsx";
 import { Toaster } from "sonner"; //sonner's toaster
+import PrivateRoute from "./components/privateRoute.jsx";
+import axios from "axios";
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // state for login
-
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem("token");
+  });
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // อาจจะ decode token หรือ call API ไป validate กับเซิร์ฟเวอร์ก็ได้
       setIsAuthenticated(true);
     }
   }, []);
+
   return (
     <Router>
       {/* Toaster */}
@@ -34,7 +38,11 @@ const App = () => {
         {/* Dashboard Route */}
         <Route
           path="/dashboard/*"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <Dashboard />
+            </PrivateRoute>
+          }
         />
 
         {/* Default Route */}
