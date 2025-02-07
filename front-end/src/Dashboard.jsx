@@ -4,7 +4,7 @@ import Attendance from "./pages/WorkOffice/Attendance";
 import DayOff from "./pages/WorkOffice/DayOff";
 import ExpenseReimbursement from "./pages/WorkOffice/ExpenseReimbursement";
 import Payroll from "./pages/WorkOffice/Payroll";
-import Recruitment from "./pages/WorkOffice/recruitment";
+import Recruitment from "./pages/WorkOffice/Recruitment";
 import RoomBooking from "./pages/WorkOffice/RoomBooking";
 import ToDo from "./pages/WorkOffice/ToDo";
 import VehicleBooking from "./pages/WorkOffice/VehicleBooking";

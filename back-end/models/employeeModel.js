@@ -51,6 +51,7 @@ const employeeSchema = new mongoose.Schema({
       expectedSalary: { type: Number, required: true },
     },
     documents: {
+      profilePicture: { type: String },
       idCard: { type: String },
       houseRegistration: { type: String },
       diploma: { type: String },

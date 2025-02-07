@@ -128,6 +128,9 @@ export const employeeInfoSchema = z.object({
     ),
   }),
   documents: z.object({
+    profilePicture: z.string().nullable().refine((val) => val !== null && val !== "", {
+      message: "Please upload a profile picture",
+    }),
     idCard: z.string().nullable().refine((val)=>val !== null && val !== "",{
       message:"Please upload your ID card",
     }),

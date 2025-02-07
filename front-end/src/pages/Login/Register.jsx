@@ -110,6 +110,32 @@ const Register = () => {
           }));
         }
       }
+
+      if (key === "password") {
+        const confirmPassword = formData.accountInfo.confirmPassword;
+        if (confirmPassword && confirmPassword !== value) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "Passwords do not match",
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, confirmPassword: null }));
+        }
+      }
+    
+      if (key === "confirmPassword") {
+        const currentPassword = formData.accountInfo.password;
+        if (value !== currentPassword) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "Passwords do not match",
+          }));
+        } else {
+          // ถ้าตรงกันก็ลบข้อความ error ออกจาก confirmPassword
+          setErrors((prev) => ({ ...prev, confirmPassword: null }));
+        }
+      }
+    
     } catch (err) {
       if (err.name === "ZodError") {
         const message = err.issues[0]?.message || "Invalid";

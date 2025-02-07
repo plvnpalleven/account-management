@@ -8,6 +8,20 @@ const Employee = require("../models/employeeModel");
 // @desc    Login User
 // @access  Public
 
+router.get("/validate-token",(req,res)=>{
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if(!token){
+    return res.json({valid:false});
+  }
+  try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({valid:true,user:decoded});
+  }catch(error){
+    res.json({valid:false});
+  }
+});
+
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
