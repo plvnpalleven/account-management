@@ -1,7 +1,7 @@
 const Employee = require("../models/employeeModel");
 
 const checkUsernameExists = async (req, res) => {
-  const { username, email } = req.body;
+  const { username } = req.body;
   try {
     const existingUser = await Employee.findOne({
       "accountInfo.username": username,

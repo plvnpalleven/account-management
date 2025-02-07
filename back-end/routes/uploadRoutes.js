@@ -4,7 +4,7 @@ const upload = require("../middleware/multer");
 const cloudinary = require("../config/cloudinaryConfig");
 
 // Endpoint สำหรับอัปโหลดไฟล์
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
