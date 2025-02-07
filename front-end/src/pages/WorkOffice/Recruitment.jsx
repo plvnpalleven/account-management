@@ -7,27 +7,37 @@ const Recruitment = () => {
   return (
     <div className="p-6 bg-gray-300 min-h-screen">
       {/* Tabs Header */}
-      <div className="flex gap-1">
-        <button
-          className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
-            activeTab === "employee"
-              ? "bg-white font-bold"
-              : "bg-gray-200 text-gray-600"
-          }`}
-          onClick={() => setActiveTab("employee")}
-        >
-          สมัครงาน
-        </button>
+      <div className="flex gap-1 justify-between">
+        <div className="flex gap-1">
+          <button
+            className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
+              activeTab === "employee"
+                ? "bg-white font-bold"
+                : "bg-gray-200 text-gray-600"
+            }`}
+            onClick={() => setActiveTab("employee")}
+          >
+            สมัครงาน
+          </button>
+          <button
+            className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
+              activeTab === "hr"
+                ? "bg-white font-bold"
+                : "bg-gray-200 text-gray-600"
+            }`}
+            onClick={() => setActiveTab("hr")}
+          >
+            ทดลองงาน
+          </button>
+        </div>
         <button
           className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
             activeTab === "hr"
               ? "bg-white font-bold"
               : "bg-gray-200 text-gray-600"
           }`}
-          onClick={() => setActiveTab("hr")}
-        >
-          ทดลองงาน
-        </button>
+          onClick={() => setActiveTab("profile")}
+        >Profile</button>
       </div>
 
       {/* Tabs Content */}
@@ -64,10 +74,14 @@ const Recruitment = () => {
                 </div>
               </div>
               <div className="w-[300px] h-[500px] bg-[#FBFBFB] shadow-xl rounded-lg">
-                <div className="bg-yellow-300 text-white text-center py-2 rounded-t-lg font-bold">รอสัมภาษณ์</div>
+                <div className="bg-yellow-300 text-white text-center py-2 rounded-t-lg font-bold">
+                  รอสัมภาษณ์
+                </div>
               </div>
               <div className="w-[300px] h-[500px] bg-[#FBFBFB] shadow-xl rounded-lg">
-                <div className="bg-green-400 text-white text-center py-2 rounded-t-lg font-bold">ผ่านสัมภาษณ์</div>
+                <div className="bg-green-400 text-white text-center py-2 rounded-t-lg font-bold">
+                  ผ่านสัมภาษณ์
+                </div>
               </div>
             </div>
           </div>
@@ -91,6 +105,9 @@ const Recruitment = () => {
           </div>
         )}
       </div>
+      {activeTab === "profile" && (
+          <profileTab/>
+        )}
     </div>
   );
 };
