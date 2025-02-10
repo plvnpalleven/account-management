@@ -14,7 +14,7 @@ const Recruitment = () => {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const response = await axios.get("/employees");
+        const response = await axios.get("/api/recruit");
         setCandidates(response.data);
       } catch (error) {
         console.error("Error fetching candidates:", error);
@@ -25,10 +25,10 @@ const Recruitment = () => {
 
   const handleAccept = async (id, newStatus) => {
     try {
-      const response = await axios.patch(`/employees/${id}/status`, {
+      const response = await axios.patch(`/api/recruit/${id}/status`, {
         newStatus,
       });
-      const updatedCandidate = response.datal;
+      const updatedCandidate = response.data;
 
       setCandidates((prev) =>
         prev.map((candidate) =>
@@ -45,30 +45,33 @@ const Recruitment = () => {
     }
   };
 
-  const handleReject = async (id) =>{
-    try{
+  const handleReject = async (id) => {
+    try {
       await axios.delete(`/employees/${id}`);
-      setCandidates((prev)=>prev.filter((candidate)=>candidate._id !== id));
-    }catch(error){
-      console.error("Error deleting candidate:",error); 
+      setCandidates((prev) => prev.filter((candidate) => candidate._id !== id));
+    } catch (error) {
+      console.error("Error deleting candidate:", error);
     }
   };
-
 
   return (
     <div className="flex gap-4 p-8">
       <BoxApplicant
-        candidates={candidates.filter((c)=>c.applicationStatus === "สมัครใหม่")}
+        candidates={candidates.filter((c) => c.applicationStatus === "new")}
         onAccept={handleAccept}
         onReject={handleReject}
       />
       <BoxInterview
-        candidates={candidates.filter((c)=>c.applicationStatus === "รอสัมภาษณ์")}
+        candidates={candidates.filter(
+          (c) => c.applicationStatus === "Interview"
+        )}
         onAccept={handleAccept}
         onReject={handleReject}
       />
       <BoxApproved
-        candidates={candidates.filter((c)=>c.applicationStatus === "ผ่านการสัมภาษณ์")}
+        candidates={candidates.filter(
+          (c) => c.applicationStatus === "Probation"
+        )}
         onAccept={handleAccept}
         onReject={handleReject}
       />

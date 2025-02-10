@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosCloudinary from "../../../../back-end/axiosCloudinary";
 import React from "react";
 
 const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
@@ -11,11 +11,7 @@ const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
       const uploadData = new FormData();
       uploadData.append("file", file);
       uploadData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
-
-      const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/dzfug6mj5/raw/upload",
-        uploadData
-      );
+      const res = await axiosCloudinary.post("/raw/upload", uploadData);
 
       const fileURL = res.data.secure_url;
       setFormData((prev) => ({
@@ -35,7 +31,7 @@ const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
   return (
     <div>
       <div className="flex flex-col gap-4">
-      <div>
+        <div>
           <label className="block mb-3 ml-4 font-medium text-gray-700">
             Profile Picture
           </label>
@@ -54,7 +50,7 @@ const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
           {errors.profilePicture && (
             <div className="text-red-500 text-sm">{errors.profilePicture}</div>
           )}
-          </div>
+        </div>
         <div>
           <label className="block mb-3 ml-4 font-medium text-gray-700">
             National ID Card

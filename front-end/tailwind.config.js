@@ -10,6 +10,7 @@ export default {
         customBeige: '#EAE0D5',
         sideInactive: '#576F73',
         sideActive: '#7D9D9C',
+        recruitHeader: '#637a7d',
       },
     },
   },

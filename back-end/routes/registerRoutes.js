@@ -8,6 +8,6 @@ const router = express.Router();
 
 router.post("/check-username", checkUsernameExists);
 router.post("/check-email", checkEmailExists);
-router.post("/", registerEmployee);
+router.post("/register", registerEmployee);
 
 module.exports = router;
