@@ -9,7 +9,7 @@ const CandidateCard = ({
   onReject,
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-white shadow rounded-lg">
+    <div className="flex items-center justify-between p-4 bg-white shadow rounded-lg ml-2 mr-2">
       {/* Profile Info */}
       <div className="flex items-center gap-4">
         <img

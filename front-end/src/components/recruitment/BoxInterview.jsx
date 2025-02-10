@@ -2,7 +2,7 @@ import React from 'react'
 import CandidateCard from './CandidateCard'
 const BoxInterview = ({ candidates, onAccept, onReject }) => {
   return (
-    <div className="w-[300px] bg-gray-100 shadow rounded-lg p-4">
+    <div className="flex-1 h-[500px] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
         Interview
       </div>
@@ -15,7 +15,7 @@ const BoxInterview = ({ candidates, onAccept, onReject }) => {
                     name={`${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`}
                     profileImage={candidate.documents.profilePicture}
                     applicationStatus={candidate.applicationStatus}
-                    onAccept={()=>onAccept(candidate._id,"Probation")}
+                    onAccept={()=>onAccept(candidate._id,"Approved")}
                     onReject={()=>onReject(candidate._id)}
                 />
             ))

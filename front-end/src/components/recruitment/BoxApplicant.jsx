@@ -2,8 +2,8 @@ import React from "react";
 import CandidateCard from "./CandidateCard";
 const BoxApplicant = ({ candidates, onAccept, onReject }) => {
   return (
-    <div className="w-[300px] bg-gray-100 shadow rounded-lg p-4">
-      <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
+    <div className="flex-1 h-[500px] bg-gray-100 shadow rounded-lg">
+      <div className="bg-recruitHeader text-white text-center  py-2 rounded-t-lg font-semibold">
         New Applicant
       </div>
       <div className="mt-4 space-y-4">

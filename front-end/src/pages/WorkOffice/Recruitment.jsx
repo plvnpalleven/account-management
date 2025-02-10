@@ -3,12 +3,11 @@ import axios from "../../../../back-end/axios";
 import BoxApplicant from "../../components/recruitment/BoxApplicant";
 import BoxInterview from "../../components/recruitment/BoxInterview";
 import BoxApproved from "../../components/recruitment/BoxApproved";
-
-import logo from "../../assets/logo.png"; // อันนี้แค่เทสน่ะ
-import ff from "../../assets/ff.jpg";
 import TabHeader from "../../components/TabHeader";
+import BoxProbation from "../../components/recruitment/BoxProbation";
+
 const Recruitment = () => {
-  const [activeTab, setActiveTab] = useState("employee"); // state สำหรับ tab ที่ active
+  const [activeTab, setActiveTab] = useState("Applicant"); // state สำหรับ tab ที่ active
   const [candidates, setCandidates] = useState([]);
 
   useEffect(() => {
@@ -54,27 +53,63 @@ const Recruitment = () => {
     }
   };
 
+  const mainTabs = [
+    { label: "Applicant", value: "applicants" },
+    { label: "Probation", value: "probation" },
+  ];
+
+  const profileTabs = {
+    label: "Profile",
+    value: "profile",
+  };
+
   return (
-    <div className="flex gap-4 p-8">
-      <BoxApplicant
-        candidates={candidates.filter((c) => c.applicationStatus === "new")}
-        onAccept={handleAccept}
-        onReject={handleReject}
+    <div className="p-6 bg-gray-300 min-h-screen">
+      <TabHeader
+        mainTabs={mainTabs}
+        profileTabs={profileTabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
-      <BoxInterview
-        candidates={candidates.filter(
-          (c) => c.applicationStatus === "Interview"
+      <div className=" bg-white p-6 shadow-md  min-h-[640px]">
+        {activeTab === "applicants" && (
+          <div className="flex gap-4">
+            <BoxApplicant
+              candidates={candidates.filter(
+                (c) => c.applicationStatus === "new"
+              )}
+              onAccept={handleAccept}
+              onReject={handleReject}
+            />
+            <BoxInterview
+              candidates={candidates.filter(
+                (c) => c.applicationStatus === "Interview"
+              )}
+              onAccept={handleAccept}
+              onReject={handleReject}
+            />
+            <BoxApproved
+              candidates={candidates.filter(
+                (c) => c.applicationStatus === "Approved"
+              )}
+              onAccept={handleAccept}
+              onReject={handleReject}
+            />
+          </div>
         )}
-        onAccept={handleAccept}
-        onReject={handleReject}
-      />
-      <BoxApproved
-        candidates={candidates.filter(
-          (c) => c.applicationStatus === "Probation"
+
+        {activeTab === "probation" && (
+          <div>
+            <BoxProbation
+              candidates={candidates.filter(
+                (c) => c.applicationStatus === "Probation"
+              )}
+              onAccept={handleAccept}
+              onReject={handleReject}
+            />
+          </div>
         )}
-        onAccept={handleAccept}
-        onReject={handleReject}
-      />
+      </div>
     </div>
   );
 };
