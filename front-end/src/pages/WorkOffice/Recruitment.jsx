@@ -73,7 +73,7 @@ const Recruitment = () => {
       />
       <div className=" bg-white p-6 shadow-md  min-h-[640px]">
         {activeTab === "applicants" && (
-          <div className="flex gap-4">
+          <div className="flex gap-4 h-[590px] w-full">
             <BoxApplicant
               candidates={candidates.filter(
                 (c) => c.applicationStatus === "new"

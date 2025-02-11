@@ -2,11 +2,11 @@ import React from 'react'
 import CandidateCard from './CandidateCard'
 const BoxInterview = ({ candidates, onAccept, onReject }) => {
   return (
-    <div className="flex-1 h-[500px] bg-gray-100 shadow rounded-lg">
+    <div className="flex flex-col flex-1 h-full bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
-        Interview
+      Interview
       </div>
-      <div className="mt-4 space-y-4">
+      <div className="custom-scrollbar mt-4 space-y-4 overflow-y-auto h-[440px] px-2">
         {candidates.length > 0 ?(
             candidates.map((candidate)=>(
                 <CandidateCard

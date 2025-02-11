@@ -18,7 +18,9 @@ const CandidateCard = ({
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <h3 className="text-lg font-semibold">{name}</h3>
+          <h3 className="text-lg font-semibold leading-tight line-clamp-2">
+            {name}
+          </h3>
           {/* <p className="text-sm text-gray-500">{applicationStatus}</p> */}
         </div>
       </div>
@@ -26,14 +28,14 @@ const CandidateCard = ({
       <div className="flex items-center gap-2">
         <button
           onClick={() => onAccept(id)}
-          className="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600"
-        >
+          className="w-10 h-10 flex items-center justify-center gap-1 bg-green-500 text-white font-bold px-4 py-2 rounded-full shadow-md transition-colors duration-150 ease-in-out hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 active:bg-green-700"
+          >
           ✓
         </button>
         <button
           onClick={() => onReject(id)}
-          className="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-green-600"
-        >
+          className="w-10 h-10 flex items-center justify-center gap-1 bg-red-500 text-white font-bold px-4 py-2 rounded-full shadow-md transition-colors duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 active:bg-red-700"
+          >
           ✕
         </button>
       </div>
