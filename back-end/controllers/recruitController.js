@@ -13,14 +13,20 @@ const getEmployees = async (req, res) => {
 //อัปเดตสถานะผู้สมัคร
 const updateEmployeeStatus = async (req, res) => {
   const { id } = req.params;
-  const { newStatus } = req.body;
+  const { applicationStatus, accessStatus } = req.body;
 
   try {
-    const updatedEmployee = await Employee.findByIdAndUpdate(
-      id,
-      { applicationStatus: newStatus },
-      { new: true }
-    );
+    const updateFields = {};
+    if (applicationStatus) {
+      updateFields.applicationStatus = applicationStatus;
+    }
+    if (accessStatus) {
+      updateFields.accessStatus = accessStatus;
+    }
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
     if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }

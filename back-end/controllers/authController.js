@@ -25,13 +25,25 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid username or password" });
     }
 
+    if (user.accessStatus === "revoked") {
+      return res.status(403).json({
+        message: "Your account has been revoked. Please contact admin.",
+      });
+    }
+    if (user.accessStatus === "pending") {
+      return res.status(403).json({
+        message:
+          "Your account is pending approval. Please wait for admin approval.",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.accountInfo.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid username or password" });
     }
 
     const token = jwt.sign(
-      { id: user._id, username: user.accountInfo.username },
+      { id: user._id, username: user.accountInfo.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -43,7 +55,8 @@ const login = async (req, res) => {
         id: user._id,
         username: user.accountInfo.username,
         email: user.personalInfo.email,
-        role: user.applicationStatus,
+        role: user.role,
+        accessStatus:user.accessStatus,
       },
     });
   } catch (error) {

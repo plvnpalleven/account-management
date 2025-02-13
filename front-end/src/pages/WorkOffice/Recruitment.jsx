@@ -26,9 +26,20 @@ const Recruitment = () => {
 
   const handleAccept = async (id, newStatus) => {
     try {
-      const response = await axios.patch(`/api/recruit/${id}/status`, {
-        newStatus,
-      });
+      const updateData = { applicationStatus: newStatus };
+
+      if (newStatus === "probation" || newStatus === "employee") {
+        updateData.accessStatus = "granted";
+      }
+
+      else{
+        updateData.accessStatus = "pending";
+      }
+
+      const response = await axios.patch(
+        `/api/recruit/${id}/status`,
+        updateData
+      );
       const updatedCandidate = response.data;
 
       setCandidates((prev) =>
@@ -37,6 +48,7 @@ const Recruitment = () => {
             ? {
                 ...candidate,
                 applicationStatus: updatedCandidate.applicationStatus,
+                accessStatus:updatedCandidate.accessStatus || candidate.accessStatus,
               }
             : candidate
         )
@@ -48,11 +60,30 @@ const Recruitment = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.delete(`/employees/${id}`);
-      setCandidates((prev) => prev.filter((candidate) => candidate._id !== id));
-    } catch (error) {
-      console.error("Error deleting candidate:", error);
-    }
+     const updateData = {
+      accessStatus:"revoked", //revoked = login ไม่ได้
+     };
+
+     //เปลี่ยนapplication status เป็น rejected
+     updateData.applicationStatus = "rejected";
+
+     const response = await axios.patch(`/api/recruit/${id}/status`,updateData);
+     const updatedCandidate = response.data;
+
+     setCandidates((prev)=>
+      prev.map((candidate)=>
+        candidate._id === id
+          ?{
+            ...candidate,
+            applicationStatus: updatedCandidate.applicationStatus,
+            accessStatus: updatedCandidate.accessStatus,
+          }
+          : candidate
+      )
+    );
+  }catch(error){
+    console.error("Error rejecting candidate:", error);
+  }
   };
 
   // กรอง candidates โดยตรวจสอบชื่อและนามสกุล (แปลงเป็น lowercase เพื่อความแม่นยำ)

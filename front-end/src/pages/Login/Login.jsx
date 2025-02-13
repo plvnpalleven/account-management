@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "sonner";
 
 const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState("");
@@ -21,13 +22,26 @@ const Login = ({ setIsAuthenticated }) => {
         }
       );
 
+      if (data.user.accessStatus === "revoked") {
+        toast.error("Your account has been revoked.Please contact admin.");
+        return;
+      }
+      if (data.user.accessStatus === "pending") {
+        toast.warning(
+          "Your account is pending approval.Please wait for admin approval."
+        );
+        return;
+      }
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       // localStorage.setItem("user", JSON.stringify(data.user));
 
       setIsAuthenticated(true);
+
+      toast.success("Login successful! Redirecting...");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
   return (
