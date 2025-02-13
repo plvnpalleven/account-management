@@ -6,7 +6,7 @@ const BoxInterview = ({ candidates, onAccept, onReject }) => {
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
       Interview
       </div>
-      <div className="custom-scrollbar mt-4 space-y-4 overflow-y-auto h-[440px] px-2">
+      <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2">
         {candidates.length > 0 ?(
             candidates.map((candidate)=>(
                 <CandidateCard
@@ -15,7 +15,7 @@ const BoxInterview = ({ candidates, onAccept, onReject }) => {
                     name={`${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`}
                     profileImage={candidate.documents.profilePicture}
                     applicationStatus={candidate.applicationStatus}
-                    onAccept={()=>onAccept(candidate._id,"Approved")}
+                    onAccept={()=>onAccept(candidate._id,"approved")}
                     onReject={()=>onReject(candidate._id)}
                 />
             ))

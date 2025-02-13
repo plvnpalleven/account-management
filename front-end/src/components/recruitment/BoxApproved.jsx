@@ -4,9 +4,9 @@ const BoxApproved = ({ candidates, onAccept, onReject }) => {
   return (
     <div className="flex flex-col flex-1 h-full bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
-        Approved
+      Approved
       </div>
-      <div className="custom-scrollbar mt-4 space-y-4 overflow-y-auto flex-1 px-2">
+      <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2">
         {candidates.length > 0 ? (
           candidates.map((candidate) => (
             <CandidateCard
@@ -15,7 +15,7 @@ const BoxApproved = ({ candidates, onAccept, onReject }) => {
               name={`${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`}
               profileImage={candidate.documents.profilePicture}
               applicationStatus={candidate.applicationStatus}
-              onAccept={() => onAccept(candidate._id, "Probation")}
+              onAccept={() => onAccept(candidate._id, "probation")}
               onReject={() => onReject(candidate._id)}
             />
           ))

@@ -62,7 +62,19 @@ const employeeSchema = new mongoose.Schema({
     enum: ["new", "interview", "approved", "probation", "employee"],
     default: "new",
   },
-  isEmployee: { type: Boolean, default: false },
+
+  accessStatus:{
+    type:String,
+    enum:["pending","granted","revoked"],
+    default:"pending",
+  },
+
+  role: {
+    type: String,
+    enum: ["user", "admin"], // "admin" = HR / Manager / Boss
+    default: "user",
+  },
+
   
   createdAt: { type: Date, default: Date.now },
 });

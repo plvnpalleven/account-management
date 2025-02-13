@@ -5,10 +5,12 @@ import BoxInterview from "../../components/recruitment/BoxInterview";
 import BoxApproved from "../../components/recruitment/BoxApproved";
 import TabHeader from "../../components/TabHeader";
 import BoxProbation from "../../components/recruitment/BoxProbation";
+import RecruitSearch from "../../components/recruitment/RecruitSearch";
 
 const Recruitment = () => {
   const [activeTab, setActiveTab] = useState("Applicant"); // state สำหรับ tab ที่ active
   const [candidates, setCandidates] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // state สำหรับเก็บค่า search
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -53,6 +55,15 @@ const Recruitment = () => {
     }
   };
 
+  // กรอง candidates โดยตรวจสอบชื่อและนามสกุล (แปลงเป็น lowercase เพื่อความแม่นยำ)
+  const filteredCandidates = candidates.filter((candidate) => {
+    const firstName = candidate.personalInfo.firstName.toLowerCase();
+    const lastName = candidate.personalInfo.lastName.toLowerCase();
+    const fullName = `${firstName} ${lastName}`; // รวมชื่อและนามสกุล
+    const term = searchTerm.toLowerCase();
+    return fullName.includes(term); // ตรวจสอบ fullName ว่ามี term หรือไม่
+  });
+
   const mainTabs = [
     { label: "Applicant", value: "applicants" },
     { label: "Probation", value: "probation" },
@@ -64,33 +75,35 @@ const Recruitment = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-300 min-h-screen">
+    <div className="flex flex-col p-6 bg-gray-300 min-h-screen">
       <TabHeader
         mainTabs={mainTabs}
         profileTabs={profileTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      <div className=" bg-white p-6 shadow-md  min-h-[640px]">
+      <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-hidden">
+        {/* ส่งค่า searchTerm และฟังก์ชัน setSearchTerm ไปให้ RecruitSearch */}
+        <RecruitSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         {activeTab === "applicants" && (
-          <div className="flex gap-4 h-[590px] w-full">
+          <div className="flex gap-4 h-[530px] w-full mt-4">
             <BoxApplicant
-              candidates={candidates.filter(
+              candidates={filteredCandidates.filter(
                 (c) => c.applicationStatus === "new"
               )}
               onAccept={handleAccept}
               onReject={handleReject}
             />
             <BoxInterview
-              candidates={candidates.filter(
-                (c) => c.applicationStatus === "Interview"
+              candidates={filteredCandidates.filter(
+                (c) => c.applicationStatus === "interview"
               )}
               onAccept={handleAccept}
               onReject={handleReject}
             />
             <BoxApproved
-              candidates={candidates.filter(
-                (c) => c.applicationStatus === "Approved"
+              candidates={filteredCandidates.filter(
+                (c) => c.applicationStatus === "approved"
               )}
               onAccept={handleAccept}
               onReject={handleReject}
@@ -99,10 +112,10 @@ const Recruitment = () => {
         )}
 
         {activeTab === "probation" && (
-          <div>
+          <div className="flex gap-4 h-[530px] w-full mt-4">
             <BoxProbation
-              candidates={candidates.filter(
-                (c) => c.applicationStatus === "Probation"
+              candidates={filteredCandidates.filter(
+                (c) => c.applicationStatus === "probation"
               )}
               onAccept={handleAccept}
               onReject={handleReject}
