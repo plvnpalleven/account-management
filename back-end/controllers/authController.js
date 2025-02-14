@@ -37,6 +37,8 @@ const login = async (req, res) => {
       });
     }
 
+    console.log("User found:", user); // 🛠 Debug: ดูว่า user มี role หรือเปล่า
+
     const isMatch = await bcrypt.compare(password, user.accountInfo.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid username or password" });
@@ -48,6 +50,8 @@ const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    console.log("Login Response:", { id: user._id, role: user.role }); // 🛠 Debug ตรงนี้
+
     res.json({
       message: "Login successful",
       token,
@@ -56,7 +60,7 @@ const login = async (req, res) => {
         username: user.accountInfo.username,
         email: user.personalInfo.email,
         role: user.role,
-        accessStatus:user.accessStatus,
+        accessStatus: user.accessStatus,
       },
     });
   } catch (error) {

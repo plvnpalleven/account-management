@@ -1,11 +1,17 @@
-import React from "react";
+import React , { useContext }  from "react";
 import { Navigate } from "react-router-dom";
+import { AuthContext, AuthProvider } from "../context/AuthContext";
 
-// เราจะรับ prop isAuthenticated มาจาก App หรือ Context ก็ได้
-const PrivateRoute = ({ isAuthenticated, children }) => {
-  // ถ้าล็อกอินอยู่ ให้ render children (เช่น Dashboard)
-  // ถ้าไม่ ให้ Redirect ไป /login
-  return isAuthenticated ? children : <Navigate to="/login" />;
+const PrivateRoute = ({ children, roles }) => {
+  const { user } = useContext(AuthContext);
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;

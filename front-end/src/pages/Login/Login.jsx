@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
+import {AuthContext} from "../../context/AuthContext";
 
-const Login = ({ setIsAuthenticated }) => {
+const Login = () => {
+  const {login} = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,11 +33,7 @@ const Login = ({ setIsAuthenticated }) => {
         );
         return;
       }
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      // localStorage.setItem("user", JSON.stringify(data.user));
-
-      setIsAuthenticated(true);
+      login(data.token,data.user);
 
       toast.success("Login successful! Redirecting...");
       navigate("/dashboard");

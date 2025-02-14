@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,40 +11,43 @@ import Register from "./pages/Login/register.jsx";
 import { Toaster } from "sonner"; //sonner's toaster
 import PrivateRoute from "./components/privateRoute.jsx";
 import axios from "axios";
+import { AuthContext } from "./context/AuthContext.jsx";
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkTokenValidity = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setIsAuthenticated(false);
-        setLoading(false);
-        return;
-      }
-      try {
-        const { data } = await axios.get(
-          "http://localhost:5000/api/auth/validate-token",
-          {
-            headers: { authorization: `Bearer ${token}` },
-          }
-        );
-        if (data.valid) {
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem("token");
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        localStorage.removeItem("token");
-        setIsAuthenticated(false);
-      }
-      setLoading(false);
-    };
+  const { user, loading } = useContext(AuthContext);
 
-    checkTokenValidity();
-  }, []);
+  // useEffect(() => {
+  //   const checkTokenValidity = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       setIsAuthenticated(false);
+  //       setLoading(false);
+  //       return;
+  //     }
+  //     try {
+  //       const { data } = await axios.get(
+  //         "http://localhost:5000/api/auth/validate-token",
+  //         {
+  //           headers: { authorization: `Bearer ${token}` },
+  //         }
+  //       );
+  //       if (data.valid) {
+  //         setIsAuthenticated(true);
+  //       } else {
+  //         localStorage.removeItem("token");
+  //         setIsAuthenticated(false);
+  //       }
+  //     } catch (error) {
+  //       localStorage.removeItem("token");
+  //       setIsAuthenticated(false);
+  //     }
+  //     setLoading(false);
+  //   };
+
+  //   checkTokenValidity();
+  // }, []);
 
   if (loading) {
     return (
@@ -58,15 +61,12 @@ const App = () => {
     <Router>
       <Toaster position="top-center" richColors visibleToasts={1} />
       <Routes>
-        <Route
-          path="/login"
-          element={<Login setIsAuthenticated={setIsAuthenticated} />}
-        />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
           path="/dashboard/*"
           element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
+            <PrivateRoute>
               <Dashboard />
             </PrivateRoute>
           }
@@ -74,13 +74,11 @@ const App = () => {
         <Route
           path="/"
           element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Navigate to="/login" />
-            )
+            user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
           }
         />
+         {/* 404 */}
+         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </Router>
   );

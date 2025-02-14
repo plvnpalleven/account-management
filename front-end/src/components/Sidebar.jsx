@@ -1,9 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import "./Sidebar.css";
 import logo from "../assets/logo.png";
+import { AuthContext } from "../context/AuthContext";
 const Sidebar = () => {
   const location = useLocation(); //ดึง path ปัจจุบัน
+  const { user } = useContext(AuthContext);
+
   const [isWorkOfficeOpen, setIsWorkOfficeOpen] = useState(false);
   const [isCustomerOpen, setIsCustomerOpen] = useState(false);
   const [isFinancialOpen, setIsFinancialOpen] = useState(false);
@@ -41,16 +44,19 @@ const Sidebar = () => {
           {/* Work Office Child*/}
           {isWorkOfficeOpen && (
             <div className="flex flex-col">
-              <Link
-                to="/dashboard/WorkOffice/Recruitment"
-                className={`nav-link ${
-                  location.pathname === "/dashboard/WorkOffice/Recruitment"
-                    ? "nav-active"
-                    : ""
-                }`}
-              >
-                Recruitment
-              </Link>
+              {user?.role === "admin" && (
+                <Link
+                  to="/dashboard/WorkOffice/Recruitment"
+                  className={`nav-link ${
+                    location.pathname === "/dashboard/WorkOffice/Recruitment"
+                      ? "nav-active"
+                      : ""
+                  }`}
+                >
+                  Recruitment
+                </Link>
+              )}
+
               <Link
                 to="/dashboard/WorkOffice/Attendance"
                 className={`nav-link ${
