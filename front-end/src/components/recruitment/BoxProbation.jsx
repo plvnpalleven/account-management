@@ -1,7 +1,7 @@
 import React from "react";
 import CandidateCard from "./CandidateCard";
 
-const BoxProbation = ({ candidates, onAccept, onReject }) => {
+const BoxProbation = ({ candidates, onAccept, onReject, onClick }) => {
   return (
     <div className="flex flex-col h-full w-[394.4px] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
@@ -18,6 +18,7 @@ const BoxProbation = ({ candidates, onAccept, onReject }) => {
               applicationStatus={candidate.applicationStatus}
               onAccept={() => onAccept(candidate._id, "employee")}
               onReject={() => onReject(candidate._id)}
+              onClick={() => onClick(candidate)}
             />
           ))
         ) : (

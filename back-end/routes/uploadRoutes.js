@@ -14,6 +14,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     // อัปโหลดไฟล์ไปยัง Cloudinary
     const result = await cloudinary.uploader.upload(file.path, {
       folder: "employees/documents", // ระบุโฟลเดอร์ใน Cloudinary
+      resource_type:"auto",
     });
 
     res.status(200).json({

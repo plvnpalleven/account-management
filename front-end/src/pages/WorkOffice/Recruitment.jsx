@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "../../../../back-end/axios";
 import BoxApplicant from "../../components/recruitment/BoxApplicant";
 import BoxInterview from "../../components/recruitment/BoxInterview";
@@ -6,23 +6,31 @@ import BoxApproved from "../../components/recruitment/BoxApproved";
 import TabHeader from "../../components/TabHeader";
 import BoxProbation from "../../components/recruitment/BoxProbation";
 import RecruitSearch from "../../components/recruitment/RecruitSearch";
-
+import { AuthContext } from "../../context/AuthContext";
+import ProfileModal from "../../components/recruitment/ProfileModal";
 const Recruitment = () => {
+  const { user, loading } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("Applicant"); // state สำหรับ tab ที่ active
   const [candidates, setCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // state สำหรับเก็บค่า search
 
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+
   useEffect(() => {
+    if (!user || loading) return;
+
     const fetchCandidates = async () => {
       try {
-        const response = await axios.get("/api/recruit");
+        const response = await axios.get("/api/recruit", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
         setCandidates(response.data);
       } catch (error) {
         console.error("Error fetching candidates:", error);
       }
     };
     fetchCandidates();
-  }, []);
+  }, [user, loading]);
 
   const handleAccept = async (id, newStatus) => {
     try {
@@ -30,9 +38,7 @@ const Recruitment = () => {
 
       if (newStatus === "probation" || newStatus === "employee") {
         updateData.accessStatus = "granted";
-      }
-
-      else{
+      } else {
         updateData.accessStatus = "pending";
       }
 
@@ -48,7 +54,8 @@ const Recruitment = () => {
             ? {
                 ...candidate,
                 applicationStatus: updatedCandidate.applicationStatus,
-                accessStatus:updatedCandidate.accessStatus || candidate.accessStatus,
+                accessStatus:
+                  updatedCandidate.accessStatus || candidate.accessStatus,
               }
             : candidate
         )
@@ -60,30 +67,33 @@ const Recruitment = () => {
 
   const handleReject = async (id) => {
     try {
-     const updateData = {
-      accessStatus:"revoked", //revoked = login ไม่ได้
-     };
+      const updateData = {
+        accessStatus: "revoked", //revoked = login ไม่ได้
+      };
 
-     //เปลี่ยนapplication status เป็น rejected
-     updateData.applicationStatus = "rejected";
+      //เปลี่ยนapplication status เป็น rejected
+      updateData.applicationStatus = "rejected";
 
-     const response = await axios.patch(`/api/recruit/${id}/status`,updateData);
-     const updatedCandidate = response.data;
+      const response = await axios.patch(
+        `/api/recruit/${id}/status`,
+        updateData
+      );
+      const updatedCandidate = response.data;
 
-     setCandidates((prev)=>
-      prev.map((candidate)=>
-        candidate._id === id
-          ?{
-            ...candidate,
-            applicationStatus: updatedCandidate.applicationStatus,
-            accessStatus: updatedCandidate.accessStatus,
-          }
-          : candidate
-      )
-    );
-  }catch(error){
-    console.error("Error rejecting candidate:", error);
-  }
+      setCandidates((prev) =>
+        prev.map((candidate) =>
+          candidate._id === id
+            ? {
+                ...candidate,
+                applicationStatus: updatedCandidate.applicationStatus,
+                accessStatus: updatedCandidate.accessStatus,
+              }
+            : candidate
+        )
+      );
+    } catch (error) {
+      console.error("Error rejecting candidate:", error);
+    }
   };
 
   // กรอง candidates โดยตรวจสอบชื่อและนามสกุล (แปลงเป็น lowercase เพื่อความแม่นยำ)
@@ -124,6 +134,7 @@ const Recruitment = () => {
               )}
               onAccept={handleAccept}
               onReject={handleReject}
+              onClick={(candidate) => setSelectedCandidate(candidate)}
             />
             <BoxInterview
               candidates={filteredCandidates.filter(
@@ -131,6 +142,7 @@ const Recruitment = () => {
               )}
               onAccept={handleAccept}
               onReject={handleReject}
+              onClick={(candidate) => setSelectedCandidate(candidate)}
             />
             <BoxApproved
               candidates={filteredCandidates.filter(
@@ -138,6 +150,7 @@ const Recruitment = () => {
               )}
               onAccept={handleAccept}
               onReject={handleReject}
+              onClick={(candidate) => setSelectedCandidate(candidate)}
             />
           </div>
         )}
@@ -150,10 +163,17 @@ const Recruitment = () => {
               )}
               onAccept={handleAccept}
               onReject={handleReject}
+              onClick={(candidate) => setSelectedCandidate(candidate)}
             />
           </div>
         )}
       </div>
+      {selectedCandidate && (
+        <ProfileModal
+          candidate={selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
+        />
+      )}
     </div>
   );
 };

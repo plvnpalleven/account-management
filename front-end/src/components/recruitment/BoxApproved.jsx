@@ -1,10 +1,10 @@
 import React from "react";
 import CandidateCard from "./CandidateCard";
-const BoxApproved = ({ candidates, onAccept, onReject }) => {
+const BoxApproved = ({ candidates, onAccept, onReject, onClick }) => {
   return (
     <div className="flex flex-col flex-1 h-full bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
-      Approved
+        Approved
       </div>
       <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2">
         {candidates.length > 0 ? (
@@ -17,6 +17,7 @@ const BoxApproved = ({ candidates, onAccept, onReject }) => {
               applicationStatus={candidate.applicationStatus}
               onAccept={() => onAccept(candidate._id, "probation")}
               onReject={() => onReject(candidate._id)}
+              onClick={() => onClick(candidate)}
             />
           ))
         ) : (
