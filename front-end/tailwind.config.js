@@ -13,6 +13,7 @@ export default {
         sideInactive: '#576F73',
         sideActive: '#7D9D9C',
         recruitHeader: '#637a7d',
+        profileModalHeader: '#576F73',
       },
     },
   },

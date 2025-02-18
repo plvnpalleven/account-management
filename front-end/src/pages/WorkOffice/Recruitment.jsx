@@ -8,9 +8,10 @@ import BoxProbation from "../../components/recruitment/BoxProbation";
 import RecruitSearch from "../../components/recruitment/RecruitSearch";
 import { AuthContext } from "../../context/AuthContext";
 import ProfileModal from "../../components/recruitment/ProfileModal";
+import ProfileTab from "../../components/ProfileTab";
 const Recruitment = () => {
   const { user, loading } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState("Applicant"); // state สำหรับ tab ที่ active
+  const [activeTab, setActiveTab] = useState("applicants"); // state สำหรับ tab ที่ active
   const [candidates, setCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // state สำหรับเก็บค่า search
 
@@ -167,6 +168,8 @@ const Recruitment = () => {
             />
           </div>
         )}
+        {activeTab === "profile" && <ProfileTab user={user} />}
+
       </div>
       {selectedCandidate && (
         <ProfileModal
