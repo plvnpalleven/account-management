@@ -1,10 +1,11 @@
 import React from "react";
-const TabHeader = ({ mainTabs, profileTabs, activeTab, onTabChange }) => {
+
+const TabHeader = ({ pageTabs, activeTab, onTabChange }) => {
   return (
     <div className="flex justify-between items-center">
-      {/* กลุ่มปุ่มหลัก (Main Tabs) */}
+      {/* กลุ่มปุ่มหลัก (Tabs เฉพาะของหน้านั้น) */}
       <div className="flex gap-1">
-        {mainTabs.map((tab) => (
+        {pageTabs.map((tab) => (
           <button
             key={tab.value}
             className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
@@ -21,11 +22,11 @@ const TabHeader = ({ mainTabs, profileTabs, activeTab, onTabChange }) => {
       <div className="ml-auto">
         <button
           className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
-            activeTab === profileTabs.value ? "bg-white font-bold" : "bg-gray-200 text-gray-600"
+            activeTab === "profile" ? "bg-white font-bold" : "bg-gray-200 text-gray-600"
           }`}
-          onClick={() => onTabChange(profileTabs.value)}
+          onClick={() => onTabChange("profile")}
         >
-          {profileTabs.label}
+          Profile
         </button>
       </div>
     </div>

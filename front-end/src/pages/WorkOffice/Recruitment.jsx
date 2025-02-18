@@ -1,25 +1,29 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "../../../../back-end/axios";
+import { AuthContext } from "../../context/AuthContext";
+
+import TabHeader from "../../components/TabHeader";
+import RecruitSearch from "../../components/recruitment/RecruitSearch";
+import ProfileModal from "../../components/recruitment/ProfileModal";
+import ProfileTab from "../../components/ProfileTab";
+
 import BoxApplicant from "../../components/recruitment/BoxApplicant";
 import BoxInterview from "../../components/recruitment/BoxInterview";
 import BoxApproved from "../../components/recruitment/BoxApproved";
-import TabHeader from "../../components/TabHeader";
 import BoxProbation from "../../components/recruitment/BoxProbation";
-import RecruitSearch from "../../components/recruitment/RecruitSearch";
-import { AuthContext } from "../../context/AuthContext";
-import ProfileModal from "../../components/recruitment/ProfileModal";
-import ProfileTab from "../../components/ProfileTab";
+
 const Recruitment = () => {
   const { user, loading } = useContext(AuthContext);
+
+  //State
   const [activeTab, setActiveTab] = useState("applicants"); // state สำหรับ tab ที่ active
   const [candidates, setCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // state สำหรับเก็บค่า search
-
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
+  //Fetch Candidates
   useEffect(() => {
     if (!user || loading) return;
-
     const fetchCandidates = async () => {
       try {
         const response = await axios.get("/api/recruit", {
@@ -106,27 +110,30 @@ const Recruitment = () => {
     return fullName.includes(term); // ตรวจสอบ fullName ว่ามี term หรือไม่
   });
 
-  const mainTabs = [
+  const pageTabs = [
     { label: "Applicant", value: "applicants" },
     { label: "Probation", value: "probation" },
   ];
 
-  const profileTabs = {
-    label: "Profile",
-    value: "profile",
-  };
-
   return (
     <div className="flex flex-col p-6 bg-gray-300 min-h-screen">
+      {/* ใช้ TabHeader ส่ง pageTabs */}
       <TabHeader
-        mainTabs={mainTabs}
-        profileTabs={profileTabs}
+        pageTabs={pageTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
+
       <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-hidden">
-        {/* ส่งค่า searchTerm และฟังก์ชัน setSearchTerm ไปให้ RecruitSearch */}
-        <RecruitSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        {/* ทำให้เห็นก็ต่อเมื่อไม่เป็น Profile */}
+        {activeTab !== "profile" && (
+          <RecruitSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+        )}
+
+        {/* สลับแสดง BoxApplicant/Interview/Approved/Probation ตามแท็บ */}
         {activeTab === "applicants" && (
           <div className="flex gap-4 h-[530px] w-full mt-4">
             <BoxApplicant
@@ -155,7 +162,6 @@ const Recruitment = () => {
             />
           </div>
         )}
-
         {activeTab === "probation" && (
           <div className="flex gap-4 h-[530px] w-full mt-4">
             <BoxProbation
@@ -168,8 +174,8 @@ const Recruitment = () => {
             />
           </div>
         )}
+        
         {activeTab === "profile" && <ProfileTab user={user} />}
-
       </div>
       {selectedCandidate && (
         <ProfileModal
