@@ -1,154 +1,315 @@
 import React from "react";
 import { formatDate } from "../../utils/formatDate";
+import EditIcon from "@mui/icons-material/Edit";
 
 const ProfileTabReadOnly = ({ profileData, onEdit }) => {
   return (
     <div className="p-4 space-y-6 max-h-[590px] overflow-y-auto custom-scrollbar">
-      <h2 className="text-3xl font-bold mb-2">My Profile</h2>
-      {/* Header Section (Profile Picture + Name + Position) */}
-      <section className="flex items-center gap-4 bg-gray-50 p-4 rounded shadow">
-        <img
-          src={profileData.documents?.profilePicture}
-          alt="Profile"
-          className="w-24 h-24 rounded-full border object-cover"
-        />
-        <div className="flex-col ">
-          <h3 className="text-xl font-semibold">
-            {profileData.personalInfo?.firstName}{" "}
-            {profileData.personalInfo?.lastName}
-          </h3>
-          <p className="text-gray-500">{profileData.jobInfo?.position}</p>
-          <p className="text-gray-500">
-            {profileData.jobInfo?.expectedSalary?.toLocaleString()} / month
-          </p>
+      <h2 className="text-3xl font-bold text-center">My Profile</h2>
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section (Profile Picture + Name + Position) */}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center bg-transparent relative">
+            {/* <section className="flex flex-col items-center bg-gray-50 p-4 rounded shadow relative"> */}
+            {/* ส่วนบน */}
+            <div className="relative">
+              <img
+                src={profileData.documents?.profilePicture}
+                alt="Profile"
+                className="w-28 h-28 rounded-full border object-cover"
+              />
+              <button
+                onClick={onEdit}
+                className="absolute bottom-0 right-0 transform bg-sideInactive text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-sideActive"
+              >
+                <EditIcon fontSize="small" />
+              </button>
+            </div>
+            <div className="mt-3 text-center">
+              <h3 className="text-2xl font-semibold mt-2">
+                {profileData.personalInfo?.firstName}{" "}
+                {profileData.personalInfo?.lastName}
+              </h3>
+              <p className="text-xl text-gray-500">
+                {profileData.jobInfo?.position}
+              </p>
+            </div>
+          </div>
+          {/* Personal Info */}
+          <section className="p-4 rounded shadow-profile-section space-y-4 max-w-4xl w-full mx-auto">
+            <h4 className="text-2xl font-bold mb-2">Personal Info</h4>
+            <div className="grid grid-cols-2 gap-80 text-lg">
+              {/* Left - Column */}
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Name :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.personalInfo.firstName}{" "}
+                    {profileData.personalInfo.lastName}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Age :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.personalInfo.age} Years old
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Email :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.personalInfo.email}
+                  </span>
+                </div>
+              </div>
+              {/* Right - Col */}
+              <div className="space-y-2 ml-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Position :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.jobInfo.position}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">DOB :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {formatDate(profileData.personalInfo.dateOfBirth)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Phone :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.personalInfo.phone}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Additional Info */}
+          <section className="p-4 rounded shadow-profile-section space-y-4 max-w-4xl w-full mx-auto">
+            <h4 className="text-2xl font-bold mb-2">Additional Info</h4>
+            <div className="grid grid-cols-2 gap-80 text-lg">
+              {/* Left - Column */}
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Nationality :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.additionalInfo.nationality}
+                  </span>
+                </div>
+
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Religion :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.additionalInfo.religion}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">
+                    Marital Status :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.additionalInfo.maritalStatus}
+                  </span>
+                </div>
+              </div>
+              {/* Right - Col */}
+              <div className="space-y-2  ml-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Ethnicity :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.additionalInfo.ethnicity}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">
+                    Military Status :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.additionalInfo.militaryStatus}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Address Info */}
+          <section className="p-4 rounded shadow-profile-section space-y-4 max-w-4xl w-full mx-auto">
+            <h4 className="text-2xl font-bold mb-2">Address</h4>
+            <div className="space-y-2">
+              <div className="text-lg col-span-2 flex items-center">
+                <span className="font-bold text-gray-800 whitespace-nowrap">
+                  Current Address :
+                </span>
+                <span className="ml-2 font-semibold text-gray-600">
+                  {profileData.addressInfo.currentAddress}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-80 text-lg">
+                {/* Left - Column */}
+
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">Street :</span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      {profileData.addressInfo.streetName}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">Province :</span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      {profileData.addressInfo.province}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">
+                      Postal Code :
+                    </span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      {profileData.addressInfo.postalCode}
+                    </span>
+                  </div>
+                </div>
+                {/* Right - Col */}
+                <div className="space-y-2 ml-2">
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">
+                      Sub District :
+                    </span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      {profileData.addressInfo.subDistrict}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">Village :</span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      {profileData.addressInfo.villageName}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="font-bold text-gray-800">Country:</span>
+                    <span className="ml-2 font-semibold text-gray-600">
+                      Thailand
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Job Info */}
+          <section className="p-4 rounded shadow-profile-section space-y-4 max-w-4xl w-full mx-auto">
+            <h4 className="text-2xl font-bold mb-2">Job Info</h4>
+            <div className="grid grid-cols-2 gap-80 text-lg">
+              {/* Left - Column */}
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Postion :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.jobInfo.position}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800 whitespace-nowrap">
+                    Expected Salary :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600  whitespace-nowrap">
+                    {profileData.jobInfo.expectedSalary} / Month
+                  </span>
+                </div>
+              </div>
+              {/* Right - Col */}
+              <div className="space-y-2  ml-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Role :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.role}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">
+                    Access Status :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    {profileData.accessStatus}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Documents */}
+
+          {/* Documents */}
+          <section className="p-4 rounded shadow-profile-section space-y-4 max-w-4xl w-full mx-auto">
+            <h4 className="text-2xl font-bold mb-2">Documents</h4>
+            <div className="grid grid-cols-2 gap-80 text-lg">
+              {/* Left - Column */}
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">ID Card :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    <a
+                      href={profileData.documents?.idCard}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-profileTabText font-bold"
+                    >
+                      Click me
+                    </a>
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">
+                    House Registration :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    <a
+                      href={profileData.documents?.houseRegistration}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-profileTabText font-bold"
+                    >
+                      Click me
+                    </a>
+                  </span>
+                </div>
+              </div>
+              {/* Right - Column */}
+              <div className="space-y-2 ml-2">
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">Diploma :</span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    <a
+                      href={profileData.documents?.diploma}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-profileTabText font-bold"
+                    >
+                      Click me
+                    </a>
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="font-bold text-gray-800">
+                    Bank Account :
+                  </span>
+                  <span className="ml-2 font-semibold text-gray-600">
+                    <a
+                      href={profileData.documents?.bankAccount}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-profileTabText font-bold"
+                    >
+                      Click me
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-        <button
-          onClick={onEdit}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Edit Profile
-        </button>
-      </section>
-
-      {/* Personal Info */}
-      <section className="bg-gray-50 p-4 rounded shadow space-y-1">
-        <h3 className="text-lg font-semibold mb-2">Personal Info</h3>
-        <p>
-          <strong>Phone:</strong> {profileData.personalInfo?.phone}
-        </p>
-        <p>
-          <strong>Email:</strong> {profileData.personalInfo?.email}
-        </p>
-      </section>
-
-      {/* Additional Info */}
-      <section className="bg-gray-50 p-4 rounded shadow space-y-1">
-        <h3 className="text-lg font-semibold mb-2">Additional Info</h3>
-        <p>
-          <strong>Religion:</strong> {profileData.additionalInfo?.religion}
-        </p>
-        <p>
-          <strong>Ethnicity:</strong> {profileData.additionalInfo?.ethnicity}
-        </p>
-        <p>
-          <strong>Nationality:</strong>{" "}
-          {profileData.additionalInfo?.nationality}
-        </p>
-        <p>
-          <strong>Military Status:</strong>{" "}
-          {profileData.additionalInfo?.militaryStatus}
-        </p>
-        <p>
-          <strong>Marital Status:</strong>{" "}
-          {profileData.additionalInfo?.maritalStatus}
-        </p>
-      </section>
-
-      {/* Address Info */}
-      <section className="bg-gray-50 p-4 rounded shadow space-y-1">
-        <h3 className="text-lg font-semibold mb-2">Address Info</h3>
-        <p>
-          <strong>Current Address:</strong>{" "}
-          {profileData.addressInfo?.currentAddress}
-        </p>
-        <p>
-          <strong>Village Number:</strong>{" "}
-          {profileData.addressInfo?.villageNumber}
-        </p>
-        <p>
-          <strong>Street Name:</strong> {profileData.addressInfo?.streetName}
-        </p>
-        <p>
-          <strong>Sub District:</strong> {profileData.addressInfo?.subDistrict}
-        </p>
-        <p>
-          <strong>Province:</strong> {profileData.addressInfo?.province}
-        </p>
-        <p>
-          <strong>Postal Code:</strong> {profileData.addressInfo?.postalCode}
-        </p>
-      </section>
-
-      {/* Job Info */}
-      <section className="bg-gray-50 p-4 rounded shadow space-y-1">
-        <h3 className="text-lg font-semibold mb-2">Job Info</h3>
-        <p>
-          <strong>Position:</strong> {profileData.jobInfo?.position}
-        </p>
-        <p>
-          <strong>Expected Salary:</strong>{" "}
-          {profileData.jobInfo?.expectedSalary}
-        </p>
-      </section>
-
-      {/* Documents */}
-      <section className="bg-gray-50 p-4 rounded shadow space-y-1">
-        <h3 className="text-lg font-semibold mb-2">Documents</h3>
-        <p>
-          <strong>ID Card:</strong>{" "}
-          <a
-            href={profileData.documents?.idCard}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-600 underline"
-          >
-            View
-          </a>
-        </p>
-        <p>
-          <strong>House Registration:</strong>{" "}
-          <a
-            href={profileData.documents?.houseRegistration}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-600 underline"
-          >
-            View
-          </a>
-        </p>
-        <p>
-          <strong>Diploma:</strong>{" "}
-          <a
-            href={profileData.documents?.diploma}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-600 underline"
-          >
-            View
-          </a>
-        </p>
-        <p>
-          <strong>Bank Account:</strong>{" "}
-          <a
-            href={profileData.documents?.bankAccount}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-600 underline"
-          >
-            View
-          </a>
-        </p>
-      </section>
+      </div>
     </div>
   );
 };

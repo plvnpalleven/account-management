@@ -35,7 +35,7 @@ const updatedProfile = async (req, res) => {
 
     const updatedEmployee = await Employee.findByIdAndUpdate(
       req.user.id,
-      updateData,
+      { $set: updateData },
       { new: true }
     ).select("-password");
 

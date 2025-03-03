@@ -43,20 +43,20 @@ const AddressInfo = ({
         </div>
         <div className="flex-[3]">
           <label className="block mb-2 font-medium text-gray-700">
-            Village No.
+            Village
           </label>
           <input
             type="text"
-            name="villageNumber"
-            value={formData.addressInfo.villageNumber || ""}
+            name="villageName"
+            value={formData.addressInfo.villageName || ""}
             onChange={handleChange}
-            placeholder="Village No."
+            placeholder="Village"
             className={`w-full px-3 py-2 border ${
-              errors.villageNumber ? "border-red-500" : "border-gray-300"
+              errors.villageName ? "border-red-500" : "border-gray-300"
             } rounded-md`}
           />
-          {errors.villageNumber && (
-            <span className="text-red-500 text-sm">{errors.villageNumber}</span>
+          {errors.villageName && (
+            <span className="text-red-500 text-sm">{errors.villageName}</span>
           )}
         </div>
       </div>

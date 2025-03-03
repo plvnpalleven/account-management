@@ -16,6 +16,12 @@ const ProfileTab = () => {
         const res = await axios.get("/api/profile/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        const data = res.data;
+
+        if (data.personalInfo?.dateOfBirth?.includes("T")) {
+          data.personalInfo.dateOfBirth = data.personalInfo.dateOfBirth.split("T")[0];
+        }
+
         setProfileData(res.data);
       } catch (err) {
         console.error("Error fetching profile:", err);

@@ -40,7 +40,7 @@ const employeeSchema = new mongoose.Schema({
   },
   addressInfo: {
     currentAddress: { type: String },
-    villageNumber: { type: Number },
+    villageName: { type: String },
     streetName: { type: String },
     subDistrict: { type: String },
     province: { type: String },
