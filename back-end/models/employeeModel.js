@@ -51,22 +51,42 @@ const employeeSchema = new mongoose.Schema({
     expectedSalary: { type: Number, required: true },
   },
   documents: {
-    profilePicture: { type: String },
-    idCard: { type: String },
-    houseRegistration: { type: String },
-    diploma: { type: String },
-    bankAccount: { type: String },
+    profilePicture: {
+      secure_url: { type: String },
+      public_id: { type: String },
+      resource_type: { type: String },
+    },
+    idCard: {
+      secure_url: { type: String },
+      public_id: { type: String },
+      resource_type: { type: String },
+    },
+    houseRegistration: {
+      secure_url: { type: String },
+      public_id: { type: String },
+      resource_type: { type: String },
+    },
+    diploma: {
+      secure_url: { type: String },
+      public_id: { type: String },
+      resource_type: { type: String },
+    },
+    bankAccount: {
+      secure_url: { type: String },
+      public_id: { type: String },
+      resource_type: { type: String },
+    },
   },
   applicationStatus: {
     type: String,
-    enum: ["new", "interview", "approved", "probation", "employee" , "rejected"],
+    enum: ["new", "interview", "approved", "probation", "employee", "rejected"],
     default: "new",
   },
 
-  accessStatus:{
-    type:String,
-    enum:["pending","granted","revoked"],
-    default:"pending",
+  accessStatus: {
+    type: String,
+    enum: ["pending", "granted", "revoked"],
+    default: "pending",
   },
 
   role: {
@@ -74,8 +94,6 @@ const employeeSchema = new mongoose.Schema({
     enum: ["user", "admin"], // "admin" = HR / Manager / Boss
     default: "user",
   },
-
-  
   createdAt: { type: Date, default: Date.now },
 });
 

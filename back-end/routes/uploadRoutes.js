@@ -19,7 +19,10 @@ router.post("/", upload.single("file"), async (req, res) => {
 
     res.status(200).json({
       message: "File uploaded successfully",
-      fileURL: result.secure_url, // URL ของไฟล์ใน Cloudinary
+      // fileURL: result.secure_url, // URL ของไฟล์ใน Cloudinary
+      secure_url:result.secure_url,
+      public_id:result.public_id,
+      resource_type:result.resource_type,
     });
   } catch (error) {
     console.error(error);

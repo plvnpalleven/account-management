@@ -1,15 +1,14 @@
-import React ,{useState} from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeEditSchema } from "../../schema/employeeEditSchema";
 import { flattenObject } from "../../utils/flattenObject";
 import axiosCloudinary from "../../../../back-end/axiosCloudinary";
 import axios from "../../../../back-end/axios";
-import { object } from "zod";
+import ProfileImageUpload from "./ProfileImageUpload";
 
 const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
   //state สำหรับเก็บ metadata (public_id , resource_type) ของไฟล์ที่อัปโหลด
-  const [uploadedDocs, setUploadedDocs] = useState({});
   const {
     register,
     handleSubmit,
@@ -23,6 +22,24 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
     mode: "onBlur",
   });
 
+  const [uploadedDocs, setUploadedDocs] = useState({});
+
+  const currentProfileUrl = initialData.documents?.profilePicture?.secure_url || null;
+  const handleProfileUpload = ({ secure_url, public_id, resource_type }) => {
+    // setValue ใน react-hook-form
+    // สมมติว่าเราจะเก็บที่ documents.profilePicture
+    setValue(
+      "documents.profilePicture",
+      { secure_url, public_id, resource_type },
+      { shouldDirty: true, shouldValidate: true }
+    );
+
+    // ถ้าใช้ uploadedDocs เพื่อ handleCancel
+    setUploadedDocs((prev) => ({
+      ...prev,
+      profilePicture: { public_id, resource_type },
+    }));
+  };
   //ฟังก์ชันสำหรับ documents โดยเฉพาะเพื่อแสดง preview ไฟล์ที่อัปโหลดแล้ว
   const watchDocuments = watch("documents");
 
@@ -42,15 +59,19 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
       console.log(`${name} uploaded, URL: `, secure_url);
 
       //ใช้ setValue ใน react-hook-form เพื่ออัปเดตฟิลด์ documents.[name] ด้วย secure_url ที่ได้มา
-      setValue(`documents.${name}`, secure_url, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
+      setValue(
+        `documents.${name}`,
+        { secure_url, public_id, resource_type },
+        {
+          shouldDirty: true,
+          shouldValidate: true,
+        }
+      );
 
-      setUploadedDocs((prev)=>({
+      setUploadedDocs((prev) => ({
         ...prev,
-        [name]:{public_id,resource_type},
-      }))
+        [name]: { public_id, resource_type },
+      }));
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -87,10 +108,32 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
     return updated;
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("Raw form data:", data);
     console.log("Dirty fields:", dirtyFields);
 
+    for (const key in initialData.documents) {
+      const oldDoc = initialData.documents[key];
+      const newDoc = getValues(`documents.${key}`);
+
+      //ใช้ deep equally เพื่อเปรียบเทียบ object
+      if (oldDoc && JSON.stringify(oldDoc) !== JSON.stringify(newDoc)) {
+        //ถ้าไฟล์เก่ามี public_id อยู่ ให้ลบไฟล์เก่าทิ้ง
+        if (oldDoc.public_id) {
+          try {
+            await axios.delete("/api/delete-file", {
+              data: {
+                publicId: oldDoc.public_id,
+                resource_type: oldDoc.resource_type,
+              },
+            });
+            console.log(`Delete old ${key} file from cloudinary`);
+          } catch (error) {
+            console.error(`Error deleting old ${key} file:`, error);
+          }
+        }
+      }
+    }
     // สร้าง diff data จาก hybrid approach
     const diffData = getHybridData(data, initialData, dirtyFields);
     console.log("Diff data (before flatten):", diffData);
@@ -99,6 +142,7 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
     const flattenData = flattenObject(diffData);
     console.log("Flatten data to send:", flattenData);
 
+    console.log("Form Data:", data); // ตรวจสอบค่าที่จะถูกส่งไป backend
     //ตอนแรกใช้ diffData แต่เปลี่ยนเป็น flattenData
     onSave(flattenData);
     // ส่งข้อมูลทั้งหมดที่แก้ไขใน form ไปให้ onSave
@@ -116,31 +160,31 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
       const docValue = watchDocuments[key];
       //เปรียบเทียบว่าไฟล์ที่มีใน state metadata ไม่ตรงกับ initiaData หรือกับค่าปัจจุบันในฟอร์ม
       if (
-        !initialData.documents?.[key]||
+        !initialData.documents?.[key] ||
         initialData.documents[key] !== getValues(`documents.${key}`)
       ) {
         const deletePromise = axios
-        .delete("/api/delete-file",{
-          data:{
-            publicId:uploadedDocs[key].public_id,
-            resource_type:uploadedDocs[key].resource_type,
-          },
-        })
-        .then(()=>{
-          console.log(`Deleted ${key} file from cloudinary`);
-        })
-        .catch((error)=>{
-          console.error(`Error deleting ${key} file:`,error);
-        });
+          .delete("/api/delete-file", {
+            data: {
+              publicId: uploadedDocs[key].public_id,
+              resource_type: uploadedDocs[key].resource_type,
+            },
+          })
+          .then(() => {
+            console.log(`Deleted ${key} file from cloudinary`);
+          })
+          .catch((error) => {
+            console.error(`Error deleting ${key} file:`, error);
+          });
         promises.push(deletePromise);
       }
     }
 
-    try{
+    try {
       await Promise.all(promises);
       console.log("All delete operations finished");
-    }catch(err){
-      console.error("Some delete operations failed",err);
+    } catch (err) {
+      console.error("Some delete operations failed", err);
     }
     onCancel();
   };
@@ -150,7 +194,16 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
       onSubmit={handleSubmit(onSubmit, onError)}
       className="p-4 space-y-6 max-h-[590px] overflow-y-auto custom-scrollbar"
     >
-      <h2 className="text-2xl font-bold mb-2">Edit Profile</h2>
+      
+      <h2 className="text-3xl font-bold mb-2 text-center">Edit Profile</h2>
+      <section className="max-w-4xl w-full mx-auto mb-4">
+        <div className="flex items-center justify-center">
+        <ProfileImageUpload
+          initialValue={currentProfileUrl}
+          onUpload={handleProfileUpload}
+        />
+        </div>
+      </section>
 
       {/* Personal Info Section */}
       <section className="bg-gray-50 p-4 rounded shadow-profile-section max-w-4xl w-full mx-auto">
@@ -451,67 +504,31 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
       <section className="p-4 rounded shadow-profile-section max-w-4xl w-full mx-auto">
         <h4 className="text-2xl font-bold mb-2">Documents</h4>
         <div className="grid grid-cols-2 gap-4 text-lg">
-          <div className="space-y-2">
-            <label className="block font-semibold">ID Card:</label>
-            <input type="hidden" {...register("documents.idCard")} />
-
-            <input
-              type="file"
-              name="idCard"
-              onChange={handleFileChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-            {errors.documents?.idCard && (
-              <p className="text-red-500 text-sm">
-                {errors.documents?.idCard.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label className="block font-semibold">House Registration:</label>
-            <input type="hidden" {...register("documents.houseRegistration")} />
-            <input
-              type="file"
-              name="houseRegistration"
-              onChange={handleFileChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-            {errors.documents?.houseRegistration && (
-              <p className="text-red-500 text-sm">
-                {errors.documents?.houseRegistration.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label className="block font-semibold">Diploma:</label>
-            <input type="hidden" {...register("documents.diploma")} />
-            <input
-              type="file"
-              name="diploma"
-              onChange={handleFileChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-            {errors.documents?.diploma && (
-              <p className="text-red-500 text-sm">
-                {errors.documents?.diploma.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label className="block font-semibold">Bank Account:</label>
-            <input type="hidden" {...register("documents.bankAccount")} />
-            <input
-              type="file"
-              name="bankAccount"
-              onChange={handleFileChange}
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-            {errors.documents?.bankAccount && (
-              <p className="text-red-500 text-sm">
-                {errors.documents?.bankAccount.message}
-              </p>
-            )}
-          </div>
+          {[
+            { label: "ID Card", name: "idCard" },
+            { label: "House Registration", name: "houseRegistration" },
+            { label: "Diploma", name: "diploma" },
+            { label: "Bank Account", name: "bankAccount" },
+          ].map(({ label, name }) => (
+            <div key={name} className="space-y-2">
+              <label className="block font-semibold">{label}:</label>
+              <input
+                type="hidden"
+                value={JSON.stringify(watchDocuments?.[name] || "")}
+              />
+              <input
+                type="file"
+                name={name}
+                onChange={handleFileChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-200 file:transition-all file:duration-300 file:ease-out"
+              />
+              {errors.documents?.[name] && (
+                <p className="text-red-500 text-sm">
+                  {errors.documents?.[name].message}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 

@@ -25,7 +25,7 @@ const ProfileModal = ({ candidate, onClose }) => {
         {/* Profile Header */}
         <div className="flex items-center space-x-4 mb-4">
           <img
-            src={candidate.documents.profilePicture}
+            src={candidate.documents.profilePicture.secure_url}
             alt="Profile"
             className="w-24 h-24 rounded-full border"
           />
@@ -135,15 +135,15 @@ const ProfileModal = ({ candidate, onClose }) => {
         <div className="mt-2 text-gray-600">
           <h3 className="text-xl font-bold text-profileModalHeader mb-2">Documents</h3>
           <div className="grid grid-cols-2 gap-2 mt-1">
-            <ViewButton label="ID Card" link={candidate.documents.idCard} />
+            <ViewButton label="ID Card" link={candidate.documents.idCard.secure_url} />
             <ViewButton
               label="House Registration"
-              link={candidate.documents.houseRegistration}
+              link={candidate.documents.houseRegistration.secure_url}
             />
-            <ViewButton label="Diploma" link={candidate.documents.diploma} />
+            <ViewButton label="Diploma" link={candidate.documents.diploma.secure_url} />
             <ViewButton
               label="Bank Account"
-              link={candidate.documents.bankAccount}
+              link={candidate.documents.bankAccount.secure_url}
             />
           </div>
         </div>

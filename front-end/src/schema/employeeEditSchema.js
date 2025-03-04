@@ -113,34 +113,54 @@ export const employeeEditSchema = z.object({
   }),
   documents: z.object({
     profilePicture: z
-      .string()
+      .object({
+        secure_url:z.string().url("Invalid file url"),
+        public_id:z.string().optional(),
+        resource_type:z.string().optional(),
+      })
       .nullable()
-      .refine((val) => val !== null && val !== "", {
-        message: "Please upload a profile picture",
+      .refine((val)=>val!== null && val.secure_url !== "",{
+        message:"Please upload a profile picture",
       }),
     idCard: z
-      .string()
-      .nullable()
-      .refine((val) => val !== null && val !== "", {
-        message: "Please upload your ID card",
-      }),
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a id card",
+    }),
     houseRegistration: z
-      .string()
-      .nullable()
-      .refine((val) => val !== null && val !== "", {
-        message: "Please upload your house registration card",
-      }),
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a house registration",
+    }),
     diploma: z
-      .string()
-      .nullable()
-      .refine((val) => val !== null && val !== "", {
-        message: "Please upload your diploma card",
-      }),
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a diploma",
+    }),
     bankAccount: z
-      .string()
-      .nullable()
-      .refine((val) => val !== null && val !== "", {
-        message: "Please upload your bank account card",
-      }),
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a bank account",
+    }),
   }),
 });

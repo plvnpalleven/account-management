@@ -13,7 +13,7 @@ const BoxApproved = ({ candidates, onAccept, onReject, onClick }) => {
               key={candidate._id}
               id={candidate._id}
               name={`${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`}
-              profileImage={candidate.documents.profilePicture}
+              profileImage={candidate.documents.profilePicture.secure_url}
               applicationStatus={candidate.applicationStatus}
               onAccept={() => onAccept(candidate._id, "probation")}
               onReject={() => onReject(candidate._id)}

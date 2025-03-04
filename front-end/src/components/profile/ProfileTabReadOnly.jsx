@@ -14,7 +14,7 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
             {/* ส่วนบน */}
             <div className="relative">
               <img
-                src={profileData.documents?.profilePicture}
+                src={profileData.documents?.profilePicture.secure_url}
                 alt="Profile"
                 className="w-28 h-28 rounded-full border object-cover"
               />
@@ -250,7 +250,7 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
                   <span className="font-bold text-gray-800">ID Card :</span>
                   <span className="ml-2 font-semibold text-gray-600">
                     <a
-                      href={profileData.documents?.idCard}
+                      href={profileData.documents?.idCard.secure_url}
                       target="_blank"
                       rel="noreferrer"
                       className="text-profileTabText font-bold"
@@ -265,7 +265,7 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
                   </span>
                   <span className="ml-2 font-semibold text-gray-600">
                     <a
-                      href={profileData.documents?.houseRegistration}
+                      href={profileData.documents?.houseRegistration.secure_url}
                       target="_blank"
                       rel="noreferrer"
                       className="text-profileTabText font-bold"
@@ -281,7 +281,7 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
                   <span className="font-bold text-gray-800">Diploma :</span>
                   <span className="ml-2 font-semibold text-gray-600">
                     <a
-                      href={profileData.documents?.diploma}
+                      href={profileData.documents?.diploma.secure_url}
                       target="_blank"
                       rel="noreferrer"
                       className="text-profileTabText font-bold"
@@ -296,7 +296,7 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
                   </span>
                   <span className="ml-2 font-semibold text-gray-600">
                     <a
-                      href={profileData.documents?.bankAccount}
+                      href={profileData.documents?.bankAccount.secure_url}
                       target="_blank"
                       rel="noreferrer"
                       className="text-profileTabText font-bold"
