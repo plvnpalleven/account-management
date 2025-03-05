@@ -13,16 +13,29 @@ const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
       uploadData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
       const res = await axiosCloudinary.post("/raw/upload", uploadData);
 
-      const fileURL = res.data.secure_url;
+      console.log("Cloudinary response:", res.data);
+
+      //เพิ่มการ destructuring
+      const { secure_url, public_id, resource_type } = res.data;
+      console.log("public_id =>", public_id, "resource_type =>", resource_type);
+
       setFormData((prev) => ({
         ...prev,
         documents: {
           ...prev.documents,
-          [name]: fileURL, // เก็บ URL ของไฟล์ใน documents
+          [name]: {
+            secure_url,
+            public_id: public_id || "",
+            resource_type: resource_type || "",
+          },
         },
       }));
 
-      debouncedValidation(name, fileURL);
+      debouncedValidation(name, {
+        secure_url,
+        public_id:public_id || "",
+        resource_type:resource_type || "",
+      });
     } catch (error) {
       console.error("Error uploading file:", error);
     }

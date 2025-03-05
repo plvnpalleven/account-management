@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import axiosCloudinary from "../../../../back-end/axiosCloudinary";
 import EditIcon from "@mui/icons-material/Edit";
+import { toast } from "sonner";
 
 const ProfileImageUpload = ({ initialValue, onUpload }) => {
   const [previewUrl, setPreviewUrl] = useState(initialValue);
@@ -14,6 +15,10 @@ const ProfileImageUpload = ({ initialValue, onUpload }) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (!file.type.startsWith("image/")){
+      toast.error("Image only!");
+      return
+    }
     // สร้าง preview ชั่วคราว
     const preview = URL.createObjectURL(file);
     setPreviewUrl(preview);

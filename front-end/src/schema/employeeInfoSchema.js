@@ -128,19 +128,55 @@ export const employeeInfoSchema = z.object({
     ),
   }),
   documents: z.object({
-    profilePicture: z.string().nullable().refine((val) => val !== null && val !== "", {
-      message: "Please upload a profile picture",
+    profilePicture: z
+      .object({
+        secure_url:z.string().url("Invalid file url"),
+        public_id:z.string().optional(),
+        resource_type:z.string().optional(),
+      })
+      .nullable()
+      .refine((val)=>val!== null && val.secure_url !== "",{
+        message:"Please upload a profile picture",
+      }),
+    idCard: z
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a id card",
     }),
-    idCard: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your ID card",
+    houseRegistration: z
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a house registration",
     }),
-    houseRegistration: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your house registration card",
+    diploma: z
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a diploma",
     }),
-    diploma: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your diploma card",
+    bankAccount: z
+    .object({
+      secure_url:z.string().url("Invalid file url"),
+      public_id:z.string().optional(),
+      resource_type:z.string().optional(),
+    })
+    .nullable()
+    .refine((val)=>val!== null && val.secure_url !== "",{
+      message:"Please upload a bank account",
     }),
-    bankAccount: z.string().nullable().refine((val)=>val !== null && val !== "",{
-      message:"Please upload your bank account card",
-    }),  }),
+  }),
 });
