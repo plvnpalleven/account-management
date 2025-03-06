@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const recruitRoutes = require("./routes/recruitRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const deleteFileRoute = require("./routes/deleteFileRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const cors = require("cors");
 
 dotenv.config();
@@ -23,7 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/recruit",recruitRoutes);
 app.use("/api/profile",profileRoutes);
 app.use("/api/delete-file", deleteFileRoute);
-
+app.use("/attendance",attendanceRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

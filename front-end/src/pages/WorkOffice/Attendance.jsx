@@ -4,7 +4,7 @@ import TabHeader from "../../components/TabHeader";
 
 // สมมติถ้าอยากโชว์ชื่อ User
 const mockUser = {
-  firstName: "John",
+  firstName: "Jane",
   lastName: "Doe",
 };
 
@@ -139,16 +139,16 @@ const Attendance = () => {
                 <div className="flex gap-4 w-full">
                   {/* Card: Check In */}
                   <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                    <div className="text-sm font-medium">Check In</div>
-                    <div className="text-sm mt-1">
+                    <div className="text-lg font-medium">Check In</div>
+                    <div className="text-lg mt-1">
                       {checkInTime ? checkInTime : "9:00"}
                     </div>
                   </div>
 
                   {/* Card: Check Out */}
                   <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                    <div className="text-sm font-medium">Check Out</div>
-                    <div className="text-sm mt-1">
+                    <div className="text-lg font-medium">Check Out</div>
+                    <div className="text-lg mt-1">
                       {checkOutTime ? checkOutTime : "9:00"}
                     </div>
                   </div>
@@ -156,21 +156,16 @@ const Attendance = () => {
 
                 {/* ปุ่ม Check-in / Check-out (เต็มความกว้าง) */}
                 <div className="w-full">
-                  {!isCheckedIn ? (
-                    <button
-                      className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
-                      onClick={handleCheckIn}
-                    >
-                      Check In
-                    </button>
-                  ) : (
-                    <button
-                      className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
-                      onClick={handleCheckOut}
-                    >
-                      Check Out
-                    </button>
-                  )}
+                  <button
+                    className={`w-full py-2 rounded-lg transition-all duration-300 ${
+                      isCheckedIn
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-green-500 hover:bg-green-600 text-white"
+                    }`}
+                    onClick={isCheckedIn ? handleCheckOut : handleCheckIn}
+                  >
+                    {isCheckedIn ? "Check Out" : "Check In"}
+                  </button>
                 </div>
               </div>
 
@@ -180,14 +175,14 @@ const Attendance = () => {
                 <div className="flex gap-4 w-full">
                   {/* Card: Start OT */}
                   <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                    <div className="text-sm font-medium">Start</div>
-                    <div className="text-sm mt-1">-- : --</div>
+                    <div className="text-lg font-medium">Start</div>
+                    <div className="text-lg mt-1">-- : --</div>
                   </div>
 
                   {/* Card: End OT */}
                   <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                    <div className="text-sm font-medium">End</div>
-                    <div className="text-sm mt-1">-- : --</div>
+                    <div className="text-lg font-medium">End</div>
+                    <div className="text-lg mt-1">-- : --</div>
                   </div>
                 </div>
 
