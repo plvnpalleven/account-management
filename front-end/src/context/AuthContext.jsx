@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       setLoading(false);
       return;
@@ -19,7 +20,13 @@ export const AuthProvider = ({ children }) => {
       })
       .then((res) => {
         if (res.data.valid) {
-          setUser(res.data.user);
+          //แปล id -> _id
+          const userFromAPI = res.data.user;
+          if (!userFromAPI._id && userFromAPI.id) {
+            setUser({ ...userFromAPI, _id: userFromAPI.id });
+          } else {
+            setUser(userFromAPI);
+          }
         } else {
           localStorage.removeItem("token");
         }

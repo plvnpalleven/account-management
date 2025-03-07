@@ -7,13 +7,13 @@ const attendanceSchema = new mongoose.Schema(
       ref: "Employee",
       required: true,
     },
-    date: { type: Date, require: true },
-    checkIn: { type: String, require: true }, //"HH:MM"
-    checkOut: { type: String, require: false }, //อาจยังไม่มีในตอนแรก
+    date: { type: Date, required: true },
+    checkIn: { type: String, required: true }, //"HH:MM"
+    checkOut: { type: String, required: false }, //อาจยังไม่มีในตอนแรก
     status: {
       type: String,
       enum: ["on time", "late", "leave", "absent"],
-      require: true,
+      required: true,
     },
     overtime: {
       isRequested: { type: Boolean, default: false },
