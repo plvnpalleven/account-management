@@ -1,6 +1,8 @@
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 import axios from "../../../../back-end/axios";
 import { AuthContext } from "../../context/AuthContext";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 // สมมติถ้าอยากโชว์ชื่อ User จาก Context จริงๆ
 const getTodayString = () => {
@@ -23,21 +25,15 @@ const AttendanceTab = ({
   loadingAttendance,
 }) => {
   const { user, loading } = useContext(AuthContext);
+  const [otHours, setOtHours] = useState(1);
 
-   if (loading) {
+  if (loading) {
     return (
-      <div className="text-center text-gray-600">
-        🔄 Loading user data...
-      </div>
+      <div className="text-center text-gray-600">🔄 Loading user data...</div>
     );
   }
   // API: Check-in
   const handleCheckIn = async () => {
-    // console.log("🔍 Debug: Checking User from Context", user);
-    // if (!user || !user._id) {
-    //     alert("⚠️ User data is not available. Please wait a moment.");
-    //     return;
-    //   }
     try {
       const now = new Date().toLocaleTimeString("en-GB", {
         hour: "2-digit",
@@ -77,13 +73,21 @@ const AttendanceTab = ({
     }
   };
 
+  const handleIncreaseOt = () => {
+    setOtHours((prev) => prev + 1);
+  };
+
+  const handleDecreaseOt = () => {
+    setOtHours((prev) => (prev > 1 ? prev - 1 : prev));
+  };
+
   // API: Request OT
   const handleRequestOT = async () => {
     try {
-      const requestedHours = 2; // ตัวอย่างขอ OT 2 ชั่วโมง
+      // const requestedHours = 2; // ตัวอย่างขอ OT 2 ชั่วโมง
       const res = await axios.post("/attendance/request-ot", {
         userId: user._id,
-        requestedHours,
+        requestedHours: otHours,
       });
       setIsOTRequested(true);
       alert(res.data.message);
@@ -132,13 +136,28 @@ const AttendanceTab = ({
           <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
           <div className="flex gap-4 w-full">
             <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-              <div className="text-lg font-medium">Start</div>
-              <div className="text-lg mt-1">-- : --</div>
+              <div className="text-lg font-medium">Add Hour</div>
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <button
+                  className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                  onClick={handleDecreaseOt}
+                >
+                  <RemoveIcon sx={{ fontSize: "16px" }} />
+                </button>
+                <div className="text-lg ml-2 mr-2">{otHours}</div>
+
+                <button
+                  className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                  onClick={handleIncreaseOt}
+                >
+                  <AddIcon sx={{ fontSize: "16px" }} />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-              <div className="text-lg font-medium">End</div>
-              <div className="text-lg mt-1">-- : --</div>
+              <div className="text-lg font-medium">Total Hours</div>
+              <div className="text-lg mt-1">{otHours} Hours</div>
             </div>
           </div>
 
