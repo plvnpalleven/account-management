@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "../../../../back-end/axios";
 import { AuthContext } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
@@ -26,6 +26,8 @@ const AttendanceTab = ({
 }) => {
   const { user, loading } = useContext(AuthContext);
   const [otHours, setOtHours] = useState(1);
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [isOTActive, setIsOTActive] = useState(false);
 
   if (loading) {
     return (
@@ -96,6 +98,39 @@ const AttendanceTab = ({
     }
   };
 
+  // time remain calculate function
+  const calculateTimeToEndOfWork = () => {
+    const now = new Date();
+    const endOfWork = new Date();
+    endOfWork.setHours(17, 30, 0, 0); //เลิก 17.30
+
+    let diff = Math.floor((endOfWork - now) / 1000);
+    return diff > 0 ? diff : 0;
+  };
+
+  useEffect(() => {
+    let timer;
+
+    if (!isOTActive) {
+      setRemainingTime(calculateTimeToEndOfWork()); //ถ้านับปกติ
+    } else {
+      setRemainingTime(otHours * 3600); //ถ้าเริ่ม OT -> แปลงชั่วโมงเป็นนาที
+    }
+
+    timer = setInterval(() => {
+      setRemainingTime((prev) => {
+        if (prev > 0) {
+          return prev - 1;
+        } else {
+          clearInterval(timer);
+          alert("Time ups!");
+          return 0;
+        }
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isOTActive, otHours]);
+
   return (
     <div>
       <div className="flex justify-between items-start mb-4">
@@ -104,6 +139,19 @@ const AttendanceTab = ({
             Hi {user.firstName} {user.lastName} !!
           </h2>
           <p className="text-lg text-gray-600">It's {getTodayString()}</p>
+        </div>
+      </div>
+
+      {/* display countdown */}
+
+      <div className="flex flex-col items-center justify-center mb-10">
+        <div className="text-4xl font-semibold mb-5">Remaining Time</div>
+        <div className="text-6xl font-semibold mt-1">
+          {/* {Math.floor(remainingTime / 3600)} :{" "}
+          {Math.floor((remainingTime % 3600) / 60)} : {remainingTime % 60} */}
+          {String(Math.floor(remainingTime / 3600)).padStart(2, "0")}:
+          {String(Math.floor((remainingTime % 3600) / 60)).padStart(2, "0")}:
+          {String(remainingTime % 60).padStart(2, "0")}
         </div>
       </div>
 
