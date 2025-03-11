@@ -11,6 +11,8 @@ export default {
         recruitHeader: "#637a7d",
         profileModalHeader: "#576F73",
         profileTabText: "#576F73",
+        jpSystemGreen: "#576F73",
+
       },
       boxShadow: {
         "profile-section":

@@ -108,6 +108,25 @@ const AttendanceTab = ({
     return diff > 0 ? diff : 0;
   };
 
+  const fetchAttendance = async () => {
+    try {
+      const res = await axios.get(`/attendance/${user._id}/today`); //API ดึงข้อมูลวันนี้
+      if (res.data) {
+        setCheckInTime(res.data.checkInTime || "--:--");
+        setCheckInTime(res.data.checkOutTime || "--:--");
+        setIsCheckedIn(!!res.data.checkInTime && !res.data.checkOutTime);
+      }
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchAttendance();
+    }
+  }, [user]);
+
   useEffect(() => {
     let timer;
 

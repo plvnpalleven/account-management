@@ -9,6 +9,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const deleteFileRoute = require("./routes/deleteFileRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const cors = require("cors");
+const cronJobs = require("./utils/cronJobs");
 
 dotenv.config();
 connectDB();
@@ -25,6 +26,8 @@ app.use("/api/recruit",recruitRoutes);
 app.use("/api/profile",profileRoutes);
 app.use("/api/delete-file", deleteFileRoute);
 app.use("/attendance",attendanceRoutes);
+require("./utils/cronJobs");
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

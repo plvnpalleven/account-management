@@ -8,5 +8,6 @@ router.post('/request-ot',attendanceController.requestOT);
 router.post('/start-ot',attendanceController.startOT);
 router.post('/end-ot',attendanceController.endOT);
 router.patch('/update-ot',attendanceController.updateOTHours);
+router.get('/:userId/today',attendanceController.getTodayAttendance);
 
 module.exports = router;

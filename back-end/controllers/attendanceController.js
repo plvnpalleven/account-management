@@ -1,6 +1,6 @@
 const Attendance = require("../models/attendance");
 const { calculateOTHours } = require("../utils/timeUtils");
-
+const mongoose = require("mongoose");
 exports.checkIn = async (req, res) => {
   const { userId, checkInTime } = req.body;
 
@@ -217,6 +217,29 @@ exports.updateOTHours = async (req, res) => {
       message: "OT hours updated successfully.",
       attendanceRecord,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getTodayAttendance = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); //ตั้งเวลาเป็น 00:00:00 ของวันนี้ ไม่งั้นจะหาไม่เจอ
+
+    const attendanceRecord = await Attendance.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      date: today,
+    });
+
+    if (!attendanceRecord) {
+      return res
+        .status(404)
+        .json({ message: "No attendance record found for today." });
+    }
+
+    res.status(200).json(attendanceRecord);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
