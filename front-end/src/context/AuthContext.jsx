@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../../../back-end/axios";
 
 export const AuthContext = createContext();
 
@@ -22,11 +22,7 @@ export const AuthProvider = ({ children }) => {
         if (res.data.valid) {
           //แปล id -> _id
           const userFromAPI = res.data.user;
-          if (!userFromAPI._id && userFromAPI.id) {
-            setUser({ ...userFromAPI, _id: userFromAPI.id });
-          } else {
-            setUser(userFromAPI);
-          }
+          setUser(userFromAPI);
         } else {
           localStorage.removeItem("token");
         }
@@ -45,6 +41,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, userData) => {
     localStorage.setItem("token", token);
+
+    console.log("Before setting token:", axios.defaults.headers.common);
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    console.log("After setting token:", axios.defaults.headers.common);
+
     setUser(userData);
   };
 

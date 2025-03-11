@@ -102,8 +102,8 @@ const AttendanceTab = ({
   const calculateTimeToEndOfWork = () => {
     const now = new Date();
     const endOfWork = new Date();
-    endOfWork.setHours(17, 30, 0, 0); //เลิก 17.30
-
+    endOfWork.setHours(20, 30, 0, 0); //เลิก 17.30
+    //ตรงนี้แก้เพราะเอากลับไปทำที่บ้าน อย่าลืมเปลี่ยนกลับเป็น 17.30
     let diff = Math.floor((endOfWork - now) / 1000);
     return diff > 0 ? diff : 0;
   };
@@ -112,8 +112,8 @@ const AttendanceTab = ({
     try {
       const res = await axios.get(`/attendance/${user._id}/today`); //API ดึงข้อมูลวันนี้
       if (res.data) {
-        setCheckInTime(res.data.checkInTime || "--:--");
-        setCheckInTime(res.data.checkOutTime || "--:--");
+        setCheckInTime(res.data.checkIn || "--:--");
+        setCheckOutTime(res.data.checkOut || "--:--");
         setIsCheckedIn(!!res.data.checkInTime && !res.data.checkOutTime);
       }
     } catch (error) {
@@ -122,10 +122,10 @@ const AttendanceTab = ({
   };
 
   useEffect(() => {
-    if (user?._id) {
+    if (!loading && user?._id) {
       fetchAttendance();
     }
-  }, [user]);
+  }, [loading,user]);
 
   useEffect(() => {
     let timer;

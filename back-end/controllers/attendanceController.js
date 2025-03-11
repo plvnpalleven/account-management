@@ -1,9 +1,10 @@
 const Attendance = require("../models/attendance");
 const { calculateOTHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
-exports.checkIn = async (req, res) => {
-  const { userId, checkInTime } = req.body;
 
+exports.checkIn = async (req, res) => {
+  const { checkInTime } = req.body;
+  const userId = req.user._id;
   try {
     //ตั้งเวลาเป็น 00:00:00 ของวันนี้
     const today = new Date();

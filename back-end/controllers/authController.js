@@ -10,7 +10,11 @@ const validateToken = (req, res) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ valid: true, user: decoded });
+    // res.json({ valid: true, user: decoded }); ตรงนี้แก้แบบ optional แก้ก็ได้ไม่แก้ก็ได้ ถ้าไม่ใช้โค้ดด้านล่างเมื่อไหร่ก็กลับมาใช้อันนี้ได้เลย
+    res.json({
+      valid: true,
+      user: { _id: decoded.id, username: decoded.username, role: decoded.role },
+    });
   } catch (error) {
     res.json({ valid: false });
   }
@@ -18,7 +22,6 @@ const validateToken = (req, res) => {
 
 const login = async (req, res) => {
   const { username, password } = req.body;
-
   try {
     const user = await Employee.findOne({ "accountInfo.username": username });
     if (!user) {
@@ -60,7 +63,7 @@ const login = async (req, res) => {
       message: "Login successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.accountInfo.username,
         email: user.personalInfo.email,
         role: user.role,

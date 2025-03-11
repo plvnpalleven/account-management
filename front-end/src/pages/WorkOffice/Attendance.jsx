@@ -40,8 +40,8 @@ const Attendance = () => {
 
         if(todayData){
           setTodayAttendance(todayData);
-          setCheckInTime(todayData.checkIn);
-          setCheckOutTime(todayData.checkOut);
+          setCheckIn(todayData.checkIn);
+          setCheckOut(todayData.checkOut);
           setIsCheckedIn(todayData.checkIn && !todayData.checkOut);
           setIsOTRequested(todayData.overtime.isRequested);
         }
