@@ -91,7 +91,7 @@ const AttendanceTab = ({
         userId: user._id,
         requestedHours: otHours,
       });
-      setIsOTRequested(true);
+      setIsOTRequested(res.data.attendanceRecord.overtime.isRequested);
       alert(res.data.message);
     } catch (error) {
       alert(error.response?.data.message || "OT Request Error");
@@ -102,7 +102,7 @@ const AttendanceTab = ({
   const calculateTimeToEndOfWork = () => {
     const now = new Date();
     const endOfWork = new Date();
-    endOfWork.setHours(20, 30, 0, 0); //เลิก 17.30
+    endOfWork.setHours(17, 30, 0, 0); //เลิก 17.30
     //ตรงนี้แก้เพราะเอากลับไปทำที่บ้าน อย่าลืมเปลี่ยนกลับเป็น 17.30
     let diff = Math.floor((endOfWork - now) / 1000);
     return diff > 0 ? diff : 0;
@@ -115,6 +115,7 @@ const AttendanceTab = ({
         setCheckInTime(res.data.checkIn || "--:--");
         setCheckOutTime(res.data.checkOut || "--:--");
         setIsCheckedIn(!!res.data.checkInTime && !res.data.checkOutTime);
+        setIsOTRequested(res.data.overtime.isRequested || false);
       }
     } catch (error) {
       console.error("Error fetching attendance:", error);

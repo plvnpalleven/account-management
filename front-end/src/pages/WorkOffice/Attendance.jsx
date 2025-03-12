@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import TabHeader from "../../components/TabHeader";
 import AttendanceTab from "../../components/attendance/AttendanceTab";
 import SummaryTab from "../../components/attendance/SummaryTab";
-import axios from "../../../../back-end/axios"; 
+import axios from "../../../../back-end/axios";
 
 const Attendance = () => {
   const [activeTab, setActiveTab] = useState("attendance"); // Tab ปัจจุบัน
@@ -13,47 +13,48 @@ const Attendance = () => {
   // จัดเก็บเวลาปัจจุบัน (โชว์บนจอแบบเรียลไทม์)
   const [currentTime, setCurrentTime] = useState("");
 
-  const [todayAttendance , setTodayAttendance] = useState(null);
+  const [todayAttendance, setTodayAttendance] = useState(null);
   const [loadingAttendance, setLoadingAttendance] = useState(null);
 
   const [checkInTime, setCheckInTime] = useState(null);
   const [checkOutTime, setCheckOutTime] = useState(null);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [isOTRequested, setIsOTRequested] = useState(false);
-  
+
   useEffect(() => {
     if (loading || !user || !user._id) return;
 
-    const fetchTodayAttendance = async ()=>{
-      setLoadingAttendance(true);
-
-      try{
-        const res = await axios.get(`/attendance/${user._id}/${new Date().getMonth()+1}/${new Date().getFullYear()}`);
+    const fetchTodayAttendance = async () => {
+      try {
+        const res = await axios.get(
+          `/attendance/${user._id}/${
+            new Date().getMonth() + 1
+          }/${new Date().getFullYear()}`
+        );
         console.log(res.data);
 
-
         //หาข้อมูล attendance ของวันนี้
-        const today = new Date().toISOString().split("T")[0];//yyyy-mm-dd
+        const today = new Date().toISOString().split("T")[0]; //yyyy-mm-dd
         const todayData = res.data.records.find(
-            (record) => record.date.split("T")[0] === today
+          (record) => record.date.split("T")[0] === today
         );
 
-        if(todayData){
+        if (todayData) {
           setTodayAttendance(todayData);
           setCheckIn(todayData.checkIn);
           setCheckOut(todayData.checkOut);
           setIsCheckedIn(todayData.checkIn && !todayData.checkOut);
           setIsOTRequested(todayData.overtime.isRequested);
         }
-      }catch(error){
-        console.error("Error fetching today's attendance: ",error);
-      }finally{
+      } catch (error) {
+        console.error("Error fetching today's attendance: ", error);
+      } finally {
         setLoadingAttendance(false);
       }
     };
 
     fetchTodayAttendance();
-  },[loading,user]);
+  }, [loading, user]);
 
   // อัปเดตเวลาปัจจุบันทุก 1 วินาที
   useEffect(() => {
@@ -79,7 +80,9 @@ const Attendance = () => {
   }
 
   if (!user || !user._id) {
-    return <div className="text-center">⚠️ ไม่พบข้อมูลผู้ใช้ กรุณา Login ใหม่</div>;
+    return (
+      <div className="text-center">⚠️ ไม่พบข้อมูลผู้ใช้ กรุณา Login ใหม่</div>
+    );
   }
 
   // ฟังก์ชัน Check-in
@@ -128,7 +131,7 @@ const Attendance = () => {
       {/* Content Area */}
       <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-auto">
         {activeTab === "attendance" && (
-          <AttendanceTab 
+          <AttendanceTab
             currentTime={currentTime}
             checkInTime={checkInTime}
             setCheckInTime={setCheckInTime}
