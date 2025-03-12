@@ -8,8 +8,8 @@ const recruitRoutes = require("./routes/recruitRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const deleteFileRoute = require("./routes/deleteFileRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const attendanceControllerAdmin = require("./routes/attendanceRoutesAdmin");
 const cors = require("cors");
-const cronJobs = require("./utils/cronJobs");
 
 dotenv.config();
 connectDB();
@@ -26,6 +26,7 @@ app.use("/api/recruit",recruitRoutes);
 app.use("/api/profile",profileRoutes);
 app.use("/api/delete-file", deleteFileRoute);
 app.use("/attendance",attendanceRoutes);
+app.use("/attendanceAdmin",attendanceControllerAdmin);
 require("./utils/cronJobs");
 
 

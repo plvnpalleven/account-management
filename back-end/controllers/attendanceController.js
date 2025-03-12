@@ -37,8 +37,8 @@ exports.checkIn = async (req, res) => {
 };
 
 exports.checkOut = async (req, res) => {
-  const { userId, checkOutTime } = req.body;
-
+  const userId = req.user._id;
+  const { checkOutTime } = req.body;
   try {
     // หาวันนี้ (ตั้งเวลาเป็นเที่ยงคืน 00:00)
     const today = new Date();
@@ -65,8 +65,8 @@ exports.checkOut = async (req, res) => {
 };
 
 exports.requestOT = async (req, res) => {
-  const { userId, requestedHours } = req.body;
-
+  const userId = req.user._id;
+  const { requestedHours } = req.body;
   try {
     //ตั้งเวลาเป็นเที่ยงคืนของวันนี้
     const today = new Date();
@@ -104,7 +104,8 @@ exports.requestOT = async (req, res) => {
 };
 
 exports.startOT = async (req, res) => {
-  const { userId, startTime } = req.body;
+  const { startTime } = req.body;
+  const userId = req.user._id;
 
   try {
     //ตั้งเวลาเป็นเที่ยงคืนวันนี้(จะได้ตรงกับdb ไม่งั้นหาไม่เจอ)
@@ -143,7 +144,8 @@ exports.startOT = async (req, res) => {
 };
 
 exports.endOT = async (req, res) => {
-  const { userId, endTime } = req.body;
+  const { endTime } = req.body;
+  const userId = req.user._id;
 
   try {
     const today = new Date();
@@ -191,7 +193,8 @@ exports.endOT = async (req, res) => {
 };
 
 exports.updateOTHours = async (req, res) => {
-  const { userId, additionalHours } = req.body;
+  const { additionalHours } = req.body;
+  const userId = req.user._id;
 
   try {
     const today = new Date();
@@ -225,12 +228,12 @@ exports.updateOTHours = async (req, res) => {
 
 exports.getTodayAttendance = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user._id;
     const today = new Date();
     today.setHours(0, 0, 0, 0); //ตั้งเวลาเป็น 00:00:00 ของวันนี้ ไม่งั้นจะหาไม่เจอ
 
     const attendanceRecord = await Attendance.findOne({
-      userId: new mongoose.Types.ObjectId(userId),
+      userId,
       date: today,
     });
 

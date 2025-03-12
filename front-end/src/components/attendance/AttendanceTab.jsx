@@ -1,39 +1,44 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "../../../../back-end/axios";
 import { AuthContext } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
-// สมมติถ้าอยากโชว์ชื่อ User จาก Context จริงๆ
 const getTodayString = () => {
   const now = new Date();
   const options = { day: "numeric", month: "long", year: "numeric" };
   return now.toLocaleDateString("en-GB", options);
 };
 
-const AttendanceTab = ({
-  currentTime,
-  checkInTime,
-  setCheckInTime,
-  checkOutTime,
-  setCheckOutTime,
-  isCheckedIn,
-  setIsCheckedIn,
-  isOTRequested,
-  setIsOTRequested,
-  todayAttendance,
-  loadingAttendance,
-}) => {
+const AttendanceTab = ({ currentTime }) => {
   const { user, loading } = useContext(AuthContext);
+
+  const [checkInTime, setCheckInTime] = useState("--:--");
+  const [checkOutTime, setCheckOutTime] = useState("--:--");
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isOTRequested, setIsOTRequested] = useState(false);
   const [otHours, setOtHours] = useState(1);
+
+  // สำหรับนับเวลาถอยหลัง
   const [remainingTime, setRemainingTime] = useState(0);
   const [isOTActive, setIsOTActive] = useState(false);
+  //เอาไว้กันกด checkin 2 รอบ
+  const hasCheckOut = checkOutTime !== "--:--";
 
-  if (loading) {
-    return (
-      <div className="text-center text-gray-600">🔄 Loading user data...</div>
-    );
-  }
+  const fetchAttendanceToday = async () => {
+    try {
+      const res = await axios.get(`/attendance/today`);
+      if (res.data) {
+        setCheckInTime(res.data.checkIn || "--:--");
+        setCheckOutTime(res.data.checkOut || "--:--");
+        setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
+        setIsOTRequested(res.data.overtime?.isRequested || false);
+      }
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
+  };
+
   // API: Check-in
   const handleCheckIn = async () => {
     try {
@@ -42,15 +47,11 @@ const AttendanceTab = ({
         minute: "2-digit",
       });
 
-      console.log("🚀 Sending Check-in Request with User ID:", user._id);
-
-      const res = await axios.post("/attendance/check-in", {
+      await axios.post("/attendance/check-in", {
         userId: user._id,
         checkInTime: now,
       });
-
-      setCheckInTime(res.data.checkIn);
-      setIsCheckedIn(true);
+      await fetchAttendanceToday();
     } catch (error) {
       alert(error.response?.data.message || "Check-in error");
     }
@@ -64,12 +65,11 @@ const AttendanceTab = ({
         minute: "2-digit",
       });
 
-      const res = await axios.post("/attendance/check-out", {
+      await axios.post("/attendance/check-out", {
         userId: user._id,
         checkOutTime: now,
       });
-      setCheckOutTime(now);
-      setIsCheckedIn(false);
+      await fetchAttendanceToday();
     } catch (error) {
       alert(error.response?.data.message || "Check-out error");
     }
@@ -98,39 +98,24 @@ const AttendanceTab = ({
     }
   };
 
-  // time remain calculate function
-  const calculateTimeToEndOfWork = () => {
-    const now = new Date();
-    const endOfWork = new Date();
-    endOfWork.setHours(17, 30, 0, 0); //เลิก 17.30
-    //ตรงนี้แก้เพราะเอากลับไปทำที่บ้าน อย่าลืมเปลี่ยนกลับเป็น 17.30
-    let diff = Math.floor((endOfWork - now) / 1000);
-    return diff > 0 ? diff : 0;
-  };
-
-  const fetchAttendance = async () => {
-    try {
-      const res = await axios.get(`/attendance/${user._id}/today`); //API ดึงข้อมูลวันนี้
-      if (res.data) {
-        setCheckInTime(res.data.checkIn || "--:--");
-        setCheckOutTime(res.data.checkOut || "--:--");
-        setIsCheckedIn(!!res.data.checkInTime && !res.data.checkOutTime);
-        setIsOTRequested(res.data.overtime.isRequested || false);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    }
-  };
-
   useEffect(() => {
     if (!loading && user?._id) {
-      fetchAttendance();
+      fetchAttendanceToday();
     }
-  }, [loading,user]);
+  }, [loading, user]);
+
+  const alertShownRef = useRef(false);
 
   useEffect(() => {
     let timer;
 
+    const calculateTimeToEndOfWork = () => {
+      const now = new Date();
+      const endOfWork = new Date();
+      endOfWork.setHours(17, 30, 0, 0); // เวลาเลิกงาน
+      const diff = Math.floor((endOfWork - now) / 1000);
+      return diff > 0 ? diff : 0;
+    };
     if (!isOTActive) {
       setRemainingTime(calculateTimeToEndOfWork()); //ถ้านับปกติ
     } else {
@@ -143,13 +128,22 @@ const AttendanceTab = ({
           return prev - 1;
         } else {
           clearInterval(timer);
-          alert("Time ups!");
+          if (!alertShownRef.current) {
+            alert("Time ups!");
+            alertShownRef.current = true;
+          }
           return 0;
         }
       });
     }, 1000);
     return () => clearInterval(timer);
   }, [isOTActive, otHours]);
+
+  if (loading) {
+    return (
+      <div className="text-center text-gray-600">🔄 Loading user data...</div>
+    );
+  }
 
   return (
     <div>
@@ -167,8 +161,6 @@ const AttendanceTab = ({
       <div className="flex flex-col items-center justify-center mb-10">
         <div className="text-4xl font-semibold mb-5">Remaining Time</div>
         <div className="text-6xl font-semibold mt-1">
-          {/* {Math.floor(remainingTime / 3600)} :{" "}
-          {Math.floor((remainingTime % 3600) / 60)} : {remainingTime % 60} */}
           {String(Math.floor(remainingTime / 3600)).padStart(2, "0")}:
           {String(Math.floor((remainingTime % 3600) / 60)).padStart(2, "0")}:
           {String(remainingTime % 60).padStart(2, "0")}
@@ -181,22 +173,26 @@ const AttendanceTab = ({
           <div className="flex gap-4 w-full">
             <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
               <div className="text-lg font-medium">Check In</div>
-              <div className="text-lg mt-1">{checkInTime || "--:--"}</div>
+              <div className="text-lg mt-1">{checkInTime}</div>
             </div>
             <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
               <div className="text-lg font-medium">Check Out</div>
-              <div className="text-lg mt-1">{checkOutTime || "-- : --"}</div>
+              <div className="text-lg mt-1">{checkOutTime}</div>
             </div>
           </div>
           <button
+            disabled={hasCheckOut}
             className={`w-full py-2 rounded-lg transition-all duration-300 ${
-              isCheckedIn
+              hasCheckOut
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : isCheckedIn
                 ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-green-500 hover:bg-green-600 text-white"
             }`}
             onClick={isCheckedIn ? handleCheckOut : handleCheckIn}
           >
-            {isCheckedIn ? "Check Out" : "Check In"}
+            {/* {isCheckedIn ? "Check Out" : "Check In"} */}
+            {hasCheckOut ? "Already Checked Out" : isCheckedIn ? "CheckOut" : "Check In"}
           </button>
         </div>
 
