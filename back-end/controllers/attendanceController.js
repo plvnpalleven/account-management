@@ -1,3 +1,4 @@
+const attendance = require("../models/attendance");
 const Attendance = require("../models/attendance");
 const { calculateOTHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
@@ -91,6 +92,7 @@ exports.requestOT = async (req, res) => {
     //อัปเดตข้อมูลการขอ OT
     attendanceRecord.overtime.isRequested = true;
     attendanceRecord.overtime.requestedHours = requestedHours;
+    attendanceRecord.overtime.plannedHours = requestedHours; // ตั้งค่าเท่ากันครั้งแรก
 
     await attendanceRecord.save();
 
@@ -103,55 +105,14 @@ exports.requestOT = async (req, res) => {
   }
 };
 
-exports.startOT = async (req, res) => {
-  const { startTime } = req.body;
-  const userId = req.user._id;
-
+exports.adjustPlannedHours = async (req, res) => {
   try {
-    //ตั้งเวลาเป็นเที่ยงคืนวันนี้(จะได้ตรงกับdb ไม่งั้นหาไม่เจอ)
+    const userId = req.user._id;
+    const { hours } = req.body;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    //หา Attendance ของวันนี้
-    const attendanceRecord = await Attendance.findOne({ userId, date: today });
-
-    if (!attendanceRecord) {
-      return res
-        .status(404)
-        .json({ message: "No Attendance record for today." });
-    }
-
-    // เช็คว่าได้ขอ OT และผ่านการอนุมัติ (สมมุติว่า approved = true หรือไม่?)
-    // แต่กรณีนี้เรายังไม่ได้ทำ API อนุมัติ OT จริงจัง เลยข้ามไปก่อน ไว้ทำส่วน admin เสร็จแล้วจะกลับมาใหม่
-    // ถ้ามีระบบจริงควรเช็ค: if(!attendance Record.overtime.isApproved)...
-
-    // ตรวจสอบว่ามีการระบุ otStart ไปแล้วหรือไม่ (กันซ้ำ)
-    if (attendanceRecord.overtime.otStart) {
-      return res.status(400).json({ message: "OT has already started." });
-    }
-
-    //อัปเดต otStart
-    attendanceRecord.overtime.otStart = startTime; //เช่น 18:00
-    await attendanceRecord.save();
-
-    return res.status(200).json({
-      message: "OT started successfully.",
-      attendanceRecord,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-exports.endOT = async (req, res) => {
-  const { endTime } = req.body;
-  const userId = req.user._id;
-
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    //หา attendance ของวันนี้
     const attendanceRecord = await Attendance.findOne({ userId, date: today });
     if (!attendanceRecord) {
       return res
@@ -159,26 +120,99 @@ exports.endOT = async (req, res) => {
         .json({ message: "No attendance record for today." });
     }
 
-    //เช็คว่าเคย start OT ไปแล้วไหม
-    if (!attendanceRecord.overtime.otStart) {
-      return res.status(400).json({ message: "You haven't started OT yet." });
+    // ต้องมีการขอ OT ก่อน
+    if (!attendanceRecord.overtime.isRequested) {
+      return res
+        .status(400)
+        .json({ message: "You have not requested OT today." });
     }
 
-    //ถ้า otEnd เคยถูกเช็คแล้ว แปลว่าจบ OT ไปแล้ว
+    // ถ้าจะกันไม่ให้ลดเมื่อ OT active:
+    if (attendanceRecord.overtime.isOTActive && hours < 0) {
+      return res
+        .status(400)
+        .json({ message: "Cannot reduce hours while OT is active." });
+    }
+
+    attendanceRecord.overtime.plannedHours += hours;
+
+    await attendanceRecord.save();
+
+    return res.status(200).json({
+      message: "Planned hous updated successfully.",
+      attendanceRecord,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.startOT = async (req, res) => {
+  try {
+    const { startTime } = req.body;
+    const userId = req.user._id;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const attendanceRecord = await Attendance.findOne({ userId, date: today });
+    if (!attendanceRecord) {
+      return res
+        .status(404)
+        .json({ message: "No Attendance record for today." });
+    }
+
+    if (!attendanceRecord.overtime.isApproved) {
+      return res
+        .status(400)
+        .json({ message: "OT not approved, cannot start yet." });
+    }
+
+    if (!attendanceRecord.overtime.otStart) {
+      return res.status(400).json({ message: "OT has already started." });
+    }
+
+    attendanceRecord.overtime.isOTActive = true;
+    attendanceRecord.overtime.otStart = startTime;
+    await attendanceRecord.save();
+
+    return res.status(200).json({
+      message: "OT started successfully.",
+      attendanceRecord,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.endOT = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { endTime } = req.body;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const attendanceRecord = await Attendance.findOne({ userId, date: today });
+    if (!attendanceRecord) {
+      return res
+        .status(404)
+        .json({ message: "No attendance record for today." });
+    }
+    if (attendanceRecord.overtime.otStart) {
+      return res.status(400).json({ message: "You haven't started OT yet." });
+    }
     if (attendanceRecord.overtime.otEnd) {
       return res.status(400).json({ message: "OT has already ended." });
     }
 
-    // update otEnd
     attendanceRecord.overtime.otEnd = endTime;
+    attendanceRecord.overtime.isOTActive = false;
 
-    //คำนวณ totalOTHours
-
-    const totalHours = calculateOTHours(
+    const totalHours = calculateOTHour(
       attendanceRecord.overtime.otStart,
       endTime
     );
-
     attendanceRecord.overtime.totalOTHours = totalHours;
 
     await attendanceRecord.save();
@@ -192,39 +226,6 @@ exports.endOT = async (req, res) => {
   }
 };
 
-exports.updateOTHours = async (req, res) => {
-  const { additionalHours } = req.body;
-  const userId = req.user._id;
-
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const attendanceRecord = await Attendance.findOne({ userId, date: today });
-
-    if (!attendanceRecord) {
-      return res
-        .status(404)
-        .json({ message: "No attendance record found for today." });
-    }
-
-    if (!attendanceRecord.overtime.isRequested) {
-      return res.status(404).json({ message: "You haven't request OT today." });
-    }
-
-    //อัปเดตชั่วโมง OT ที่ขอเพิ่มเติม
-    attendanceRecord.overtime.requestedHours += additionalHours;
-
-    await attendanceRecord.save();
-
-    res.status(200).json({
-      message: "OT hours updated successfully.",
-      attendanceRecord,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 exports.getTodayAttendance = async (req, res) => {
   try {

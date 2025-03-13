@@ -13,17 +13,21 @@ const getTodayString = () => {
 const AttendanceTab = ({ currentTime }) => {
   const { user, loading } = useContext(AuthContext);
 
+  // attendance state
   const [checkInTime, setCheckInTime] = useState("--:--");
   const [checkOutTime, setCheckOutTime] = useState("--:--");
   const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const [isOTRequested, setIsOTRequested] = useState(false);
-  const [otHours, setOtHours] = useState(1);
-
-  // สำหรับนับเวลาถอยหลัง
-  const [remainingTime, setRemainingTime] = useState(0);
-  const [isOTActive, setIsOTActive] = useState(false);
-  //เอาไว้กันกด checkin 2 รอบ
   const hasCheckOut = checkOutTime !== "--:--";
+
+  // ot state
+  const [adjustHours, setAdjustHours] = useState(1);
+  const [plannedHours, setPlannedHours] = useState(0);
+  const [isOTRequested, setIsOTRequested] = useState(false);
+  const [isOTApproved, setIsOTApproved] = useState(false);
+  const [isOTActive, setIsOTActive] = useState(false);
+
+  // countdown state
+  const [remainingTime, setRemainingTime] = useState(0);
 
   const fetchAttendanceToday = async () => {
     try {
@@ -32,7 +36,12 @@ const AttendanceTab = ({ currentTime }) => {
         setCheckInTime(res.data.checkIn || "--:--");
         setCheckOutTime(res.data.checkOut || "--:--");
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
-        setIsOTRequested(res.data.overtime?.isRequested || false);
+      }
+      if (res.data.overtime) {
+        setIsOTRequested(res.data.overtime.isRequested);
+        setIsOTApproved(res.data.overtime.isApproved);
+        setPlannedHours(res.data.overtime.plannedHours);
+        setIsOTActive(res.data.overtime.isOTActive);
       }
     } catch (error) {
       console.error("Error fetching attendance:", error);
@@ -75,13 +84,81 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
-  const handleIncreaseOt = () => {
-    setOtHours((prev) => prev + 1);
+  const handleIncreaseAdjust = () => {
+    setAdjustHours((prev) => prev + 1);
   };
 
-  const handleDecreaseOt = () => {
-    setOtHours((prev) => (prev > 1 ? prev - 1 : prev));
+  const handleDecreaseAdjust = () => {
+    setAdjustHours((prev) => (prev > 1 ? prev - 1 : prev));
   };
+
+  const handleIncreasePlanned = async () => {
+    try{
+      const res = await axios.post("/attendance/adjust-planned-hours",{
+        hours: 1, // +1 hour
+      });
+      const updated = res.data.attendanceRecord.overtime.plannedHours;
+      setPlannedHours(updated);
+    }catch(error){
+      alert(error.response?.data.message || "Adjust planned hours failed");
+    }
+  };
+
+  const handleDecreasePlanned = async () =>{
+    try{
+      const res = await axios.post("/attendance/adjust-planned-hours",{
+        hours:-1, //-1 hour
+      });
+      const updated = res.data.attendanceRecord.overtime.plannedHours;
+      setPlannedHours(updated);
+    }catch(error){
+      alert(error.response?.data.message||"Adjust planned hours failed");
+    }
+  };
+
+  const handleStartOT = async () =>{
+    try{
+      //ส่งเวลาเริ่มแบบ HH:MM 
+      const nowTime = new Date().toLocaleTimeString("en-GB",{
+        hour:"2-digit",
+        minute:"2-digit",
+      });
+
+      const res = await axios.post("/attendance/start-ot",{
+        startTime:nowTime,
+      });
+      alert(res.data.message);
+
+      // update state
+      const newRecord = res.data.attendanceRecord;
+      setIsOTActive(newRecord.overtime.isOTActive);
+      // (ถ้ามี field otStart ก็อาจเก็บ state ไว้แสดงได้)
+    }catch(error){
+      alert(error.response?.data.message || "Start OT failed");
+    }
+  };
+
+  const handleEndOT = async () =>{
+    try{
+      const nowTime = new Date().toLocaleTimeString("en-GB",{
+        hour:"2-digit",
+        minute:"2-digit",
+      });
+
+      const res = await axios.post("/attendance/end-ot",{
+        endTime:nowTime,
+      });
+      alert(res.data.message);
+
+      //update state
+      const newRecord = res.data.attendanceRecord;
+      setIsOTActive(newRecord.overtime.isOTActive);
+      //อาจเก็บ totalHours มาโชว์ หรือเก็บ otEnd มาโชว์ได้
+    }catch(error){
+      alert(error.response?.data.message || "End OT failed");
+    }
+  };
+
 
   // API: Request OT
   const handleRequestOT = async () => {
@@ -89,9 +166,12 @@ const AttendanceTab = ({ currentTime }) => {
       // const requestedHours = 2; // ตัวอย่างขอ OT 2 ชั่วโมง
       const res = await axios.post("/attendance/request-ot", {
         userId: user._id,
-        requestedHours: otHours,
+        requestedHours: adjustHours,
       });
       setIsOTRequested(res.data.attendanceRecord.overtime.isRequested);
+      setIsOTApproved(res.data.attendanceRecord.overtime.isApproved);
+      setPlannedHours(res.data.attendanceRecord.overtime.plannedHours);
+
       alert(res.data.message);
     } catch (error) {
       alert(error.response?.data.message || "OT Request Error");
@@ -119,7 +199,7 @@ const AttendanceTab = ({ currentTime }) => {
     if (!isOTActive) {
       setRemainingTime(calculateTimeToEndOfWork()); //ถ้านับปกติ
     } else {
-      setRemainingTime(otHours * 3600); //ถ้าเริ่ม OT -> แปลงชั่วโมงเป็นนาที
+      setRemainingTime(plannedHours * 3600); //ถ้าเริ่ม OT -> แปลงชั่วโมงเป็นนาที
     }
 
     timer = setInterval(() => {
@@ -137,14 +217,14 @@ const AttendanceTab = ({ currentTime }) => {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isOTActive, otHours]);
+  }, [isOTActive, adjustHours]);
 
   if (loading) {
     return (
       <div className="text-center text-gray-600">🔄 Loading user data...</div>
     );
   }
-
+  
   return (
     <div>
       <div className="flex justify-between items-start mb-4">
@@ -192,7 +272,11 @@ const AttendanceTab = ({ currentTime }) => {
             onClick={isCheckedIn ? handleCheckOut : handleCheckIn}
           >
             {/* {isCheckedIn ? "Check Out" : "Check In"} */}
-            {hasCheckOut ? "Already Checked Out" : isCheckedIn ? "CheckOut" : "Check In"}
+            {hasCheckOut
+              ? "Already Checked Out"
+              : isCheckedIn
+              ? "CheckOut"
+              : "Check In"}
           </button>
         </div>
 
@@ -204,15 +288,17 @@ const AttendanceTab = ({ currentTime }) => {
               <div className="flex items-center justify-center gap-2 mt-2">
                 <button
                   className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                  onClick={handleDecreaseOt}
+                  onClick={handleDecreaseAdjust}
+                  disabled={isOTRequested} 
                 >
                   <RemoveIcon sx={{ fontSize: "16px" }} />
                 </button>
-                <div className="text-lg ml-2 mr-2">{otHours}</div>
+                <div className="text-lg ml-2 mr-2">{adjustHours}</div>
 
                 <button
                   className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                  onClick={handleIncreaseOt}
+                  onClick={handleIncreaseAdjust}
+                  disabled={isOTRequested} 
                 >
                   <AddIcon sx={{ fontSize: "16px" }} />
                 </button>
@@ -221,7 +307,7 @@ const AttendanceTab = ({ currentTime }) => {
 
             <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
               <div className="text-lg font-medium">Total Hours</div>
-              <div className="text-lg mt-1">{otHours} Hours</div>
+              <div className="text-lg mt-1">{adjustHours} Hours</div>
             </div>
           </div>
 
