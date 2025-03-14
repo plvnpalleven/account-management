@@ -82,19 +82,18 @@ exports.requestOT = async (req, res) => {
     }
 
     //ตรวจสอบว่ามีการขอ OT ไปแล้วหรือยัง
-    if (attendanceRecord.overtime.isRequested) {
+    // none , request ?
+    if (attendanceRecord.overtime.status !== "none") {
       return res
         .status(400)
         .json({ message: "You have already requested for OT today." });
     }
 
     //อัปเดตข้อมูลการขอ OT
-    attendanceRecord.overtime.isRequested = true;
+    attendanceRecord.overtime.status = "requested";
     attendanceRecord.overtime.requestedHours = requestedHours;
     attendanceRecord.overtime.plannedHours = requestedHours; // ตั้งค่าเท่ากันครั้งแรก
-
     await attendanceRecord.save();
-
     res.status(200).json({
       message: " OT request submitted successfully.",
       attendanceRecord,
@@ -120,14 +119,14 @@ exports.adjustPlannedHours = async (req, res) => {
     }
 
     // ต้องมีการขอ OT ก่อน
-    if (!attendanceRecord.overtime.isRequested) {
+    if (attendanceRecord.overtime.status !== "requested"  && attendanceRecord.overtime.status !== "approved") {
       return res
         .status(400)
         .json({ message: "You have not requested OT today." });
     }
 
     // ถ้าจะกันไม่ให้ลดเมื่อ OT active:
-    if (attendanceRecord.overtime.isOTActive && hours < 0) {
+    if (attendanceRecord.overtime.status === "active" && hours < 0) {
       return res
         .status(400)
         .json({ message: "Cannot reduce hours while OT is active." });
@@ -150,7 +149,6 @@ exports.startOT = async (req, res) => {
   try {
     const { startTime } = req.body;
     const userId = req.user._id;
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -161,18 +159,19 @@ exports.startOT = async (req, res) => {
         .json({ message: "No Attendance record for today." });
     }
 
-    if (!attendanceRecord.overtime.isApproved) {
+    if (attendanceRecord.overtime.status !== "approved") {
       return res
         .status(400)
         .json({ message: "OT not approved, cannot start yet." });
     }
 
-    if (attendanceRecord.overtime.otStart) {
-      return res.status(400).json({ message: "OT has already started." });
-    }
+    //มีปัญหาที่บรรทัดนี้
+    // if (attendanceRecord.overtime.otStart) {
+    //   return res.status(400).json({ message: "OT has already started." });
+    // }
 
-    attendanceRecord.overtime.isOTActive = true;
-    attendanceRecord.overtime.otStart = startTime;
+    attendanceRecord.overtime.status = "active";
+    attendanceRecord.overtime.otStart = new Date();
     await attendanceRecord.save();
 
     return res.status(200).json({
@@ -201,14 +200,14 @@ exports.endOT = async (req, res) => {
     if (!attendanceRecord.overtime.otStart) {
       return res.status(400).json({ message: "You haven't started OT yet." });
     }
-    if (attendanceRecord.overtime.otEnd) {
+    if (attendanceRecord.overtime.status !== "active") {
       return res.status(400).json({ message: "OT has already ended." });
     }
 
     attendanceRecord.overtime.otEnd = endTime;
-    attendanceRecord.overtime.isOTActive = false;
-
-    const totalHours = calculateOTHour(
+    attendanceRecord.overtime.status = "finished";
+    
+    const totalHours = calculateOTHours(
       attendanceRecord.overtime.otStart,
       endTime
     );
@@ -224,7 +223,6 @@ exports.endOT = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.getTodayAttendance = async (req, res) => {
   try {

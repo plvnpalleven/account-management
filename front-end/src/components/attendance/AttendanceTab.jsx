@@ -22,9 +22,9 @@ const AttendanceTab = ({ currentTime }) => {
   // ot state
   const [adjustHours, setAdjustHours] = useState(1);
   const [plannedHours, setPlannedHours] = useState(0);
-  const [isOTRequested, setIsOTRequested] = useState(false);
-  const [isOTApproved, setIsOTApproved] = useState(false);
-  const [isOTActive, setIsOTActive] = useState(false);
+  const [otStatus, setOtStatus] = useState("none"); // "none","requested","active","finished","declined"
+  const [otStartTime, setOtStartTime] = useState(null);
+  const [otSEndTime, setOtEndTime] = useState(null);
 
   // countdown state
   const [remainingTime, setRemainingTime] = useState(0);
@@ -38,10 +38,14 @@ const AttendanceTab = ({ currentTime }) => {
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
       }
       if (res.data.overtime) {
-        setIsOTRequested(res.data.overtime.isRequested);
-        setIsOTApproved(res.data.overtime.isApproved);
+        setOtStatus(res.data.overtime.status);
         setPlannedHours(res.data.overtime.plannedHours);
-        setIsOTActive(res.data.overtime.isOTActive);
+        if (res.data.overtime.otStart) {
+          setOtStartTime(res.data.overtime.otStart);
+        }
+        if (res.data.overtime.otEnd) {
+          setOtEndTime(res.data.overtime.otEnd);
+        }
       }
     } catch (error) {
       console.error("Error fetching attendance:", error);
@@ -130,8 +134,7 @@ const AttendanceTab = ({ currentTime }) => {
       alert(res.data.message);
 
       // update state
-      const newRecord = res.data.attendanceRecord;
-      setIsOTActive(newRecord.overtime.isOTActive);
+      setOtStatus(res.data.attendanceRecord.overtime.status);
       // (ถ้ามี field otStart ก็อาจเก็บ state ไว้แสดงได้)
     } catch (error) {
       alert(error.response?.data.message || "Start OT failed");
@@ -151,8 +154,7 @@ const AttendanceTab = ({ currentTime }) => {
       alert(res.data.message);
 
       //update state
-      const newRecord = res.data.attendanceRecord;
-      setIsOTActive(newRecord.overtime.isOTActive);
+      setOtStatus(res.data.attendanceRecord.overtime.status);
       //อาจเก็บ totalHours มาโชว์ หรือเก็บ otEnd มาโชว์ได้
     } catch (error) {
       alert(error.response?.data.message || "End OT failed");
@@ -167,8 +169,7 @@ const AttendanceTab = ({ currentTime }) => {
         userId: user._id,
         requestedHours: adjustHours,
       });
-      setIsOTRequested(res.data.attendanceRecord.overtime.isRequested);
-      setIsOTApproved(res.data.attendanceRecord.overtime.isApproved);
+      setOtStatus(res.data.attendanceRecord.overtime.status);
       setPlannedHours(res.data.attendanceRecord.overtime.plannedHours);
 
       alert(res.data.message);
@@ -177,6 +178,7 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
+  //fetch
   useEffect(() => {
     if (!loading && user?._id) {
       fetchAttendanceToday();
@@ -185,39 +187,45 @@ const AttendanceTab = ({ currentTime }) => {
 
   const alertShownRef = useRef(false);
 
-  useEffect(() => {
+  //timer
+  useEffect(()=>{
     let timer;
 
-    const calculateTimeToEndOfWork = () => {
-      const now = new Date();
-      const endOfWork = new Date();
-      endOfWork.setHours(17, 30, 0, 0); // เวลาเลิกงาน
-      const diff = Math.floor((endOfWork - now) / 1000);
-      return diff > 0 ? diff : 0;
+    const calculateRemainingTime = () => {
+      if(otStatus === "active" && otStartTime){
+        const totalSeconds = plannedHours * 3600;
+        const startTimestamp = new Date(otStartTime).getTime();
+        const currentTimestamp = Date.now();
+        const elapsed = Math.floor((currentTimestamp - startTimestamp)/1000);
+        return Math.max(totalSeconds - elapsed,0);
+      }else{
+        const now = new Date();
+        const endOfWork = new Date();
+        endOfWork.setHours(17,30,0,0);
+        const diff = Math.floor((endOfWork - now)/1000);
+        return diff > 0 ? diff: 0;
+      }
     };
-    if (!isOTActive) {
-      setRemainingTime(calculateTimeToEndOfWork()); //ถ้านับปกติ
-    } else {
-      setRemainingTime(plannedHours * 3600); //ถ้าเริ่ม OT -> แปลงชั่วโมงเป็นนาที
-    }
 
-    timer = setInterval(() => {
-      setRemainingTime((prev) => {
-        if (prev > 0) {
-          return prev - 1;
-        } else {
-          clearInterval(timer);
-          if (!alertShownRef.current) {
-            alert("Time ups!");
-            alertShownRef.current = true;
-          }
-          return 0;
+    //ตั้งค่า remaingTime ครั้งแรก
+    setRemainingTime(calculateRemainingTime());
+
+    timer = setInterval(()=>{
+      const newRemaining = calculateRemainingTime();
+      if(newRemaining <= 0){
+        clearInterval(timer);
+        //ใช้ localStorage เก็บ flag เพื่อกัน alert ซ้ำเมื่อ refresh
+        if(!localStorage.getItem("otTimeAlertShown")){
+          alert("Times ups!");
+          localStorage.setItem("otTimeAlertShown","true");
         }
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isOTActive, plannedHours]);
+      }
+    },1000);
 
+    return() => clearInterval(timer);
+  },[otStatus,plannedHours,otStartTime]);
+
+  //loading
   if (loading) {
     return (
       <div className="text-center text-gray-600">🔄 Loading user data...</div>
@@ -279,7 +287,7 @@ const AttendanceTab = ({ currentTime }) => {
           </button>
         </div>
 
-        {!isOTRequested && (
+        {otStatus === "none" && (
           <>
             <div className="flex flex-col items-center gap-4 w-full max-w-sm">
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
@@ -290,7 +298,6 @@ const AttendanceTab = ({ currentTime }) => {
                     <button
                       className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
                       onClick={handleDecreaseAdjust}
-                      disabled={isOTRequested}
                     >
                       <RemoveIcon sx={{ fontSize: "16px" }} />
                     </button>
@@ -299,7 +306,6 @@ const AttendanceTab = ({ currentTime }) => {
                     <button
                       className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
                       onClick={handleIncreaseAdjust}
-                      disabled={isOTRequested}
                     >
                       <AddIcon sx={{ fontSize: "16px" }} />
                     </button>
@@ -313,48 +319,39 @@ const AttendanceTab = ({ currentTime }) => {
               </div>
 
               <button
-                className={`w-full py-2 rounded-lg ${
-                  isOTRequested
-                    ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
+                className="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
                 onClick={handleRequestOT}
-                disabled={isOTRequested}
+                disabled={otStatus !== "none"}
               >
-                {isOTRequested ? "OT Requested ✅" : "Request OT"}
+                Request OT
               </button>
             </div>
           </>
         )}
-        {isOTRequested && !isOTApproved && (
+        {otStatus === "requested" && (
           <>
             <div className="flex flex-col items-center gap-4 w-full max-w-sm">
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
               <div className="flex gap-4 w-full">
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
                   <div className="text-lg font-medium">
-                    Total Hours (wait for approve.)
+                    Total Hours (Await for approve.)
                   </div>
-                  <div className="text-lg mt-1">{adjustHours} Hours</div>
+                  <div className="text-lg mt-1">{plannedHours} Hours</div>
                 </div>
               </div>
-
               <button
-                className={`w-full py-2 rounded-lg ${
-                  isOTRequested
-                    ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
-                onClick={handleRequestOT}
-                disabled={isOTRequested}
+                className="w-full py-2 rounded-lg bg-gray-400 cursor-not-allowed text-white"
+                disabled
+                // onClick={handleRequestOT}
               >
-                {isOTRequested ? "OT Requested ✅" : "Request OT"}
+                OT Requested ✅
               </button>
             </div>
           </>
         )}
 
-        {isOTApproved && !isOTActive && (
+        {otStatus === "approved" && (
           <>
             <div className="flex flex-col items-center gap-4 w-full max-w-sm">
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
@@ -386,11 +383,7 @@ const AttendanceTab = ({ currentTime }) => {
               </div>
 
               <button
-                className={`w-full py-2 rounded-lg ${
-                  isOTRequested
-                    ? "bg-gray-400 cursor-not-allowed text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
+                className="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
                 onClick={handleStartOT}
               >
                 Start OT
@@ -399,7 +392,7 @@ const AttendanceTab = ({ currentTime }) => {
           </>
         )}
 
-        {isOTActive && (
+        {otStatus === "active" && (
           <>
             <div className="flex flex-col items-center gap-4 w-full max-w-sm">
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
@@ -410,7 +403,7 @@ const AttendanceTab = ({ currentTime }) => {
                     <button
                       className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
                       onClick={handleDecreasePlanned}
-                      disabled={isOTActive}
+                      disabled
                     >
                       <RemoveIcon sx={{ fontSize: "16px" }} />
                     </button>
@@ -432,11 +425,34 @@ const AttendanceTab = ({ currentTime }) => {
               </div>
 
               <button
-                className="w-full py-2 rounded-lg 
-                    : bg-green-500 hover:bg-green-600 text-white"
+                className="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
                 onClick={handleEndOT}
               >
                 Finish OT
+              </button>
+            </div>
+          </>
+        )}
+        {otStatus === "finished" && (
+          <>
+            <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+              <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
+              <div className="flex gap-4 w-full">
+                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">Start At</div>
+                  <div className="text-lg mt-1">19:20</div>
+                </div>
+                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">End At</div>
+                  <div className="text-lg mt-1">20:20</div>
+                </div>
+              </div>
+
+              <button
+                className="w-full py-2 rounded-lg bg-gray-400 text-white cursor-not-allowed"
+                disabled
+              >
+                Overtime has been finished
               </button>
             </div>
           </>

@@ -16,14 +16,18 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
     overtime: {
-      isRequested: { type: Boolean, default: false },
+      status:{
+        type:String,enum:["requested","approved","declined","active","finished"],
+        default:"requested",
+      },
       requestedHours: { type: Number, default: 0 },
       plannedHours:{type:Number,default:0},                                                                                                                                       
-      isApproved: { type: Boolean, default: false },
-      isOTActive:{type:Boolean,default:false},
       otStart: { type: String, default: null }, //'HH:MM'
       otEnd: { type: String, default: null }, //'HH:MM'
       totalOTHours: { type: Number, default: 0 },
+       // isRequested: { type: Boolean, default: false },
+       // isApproved: { type: Boolean, default: false },
+      // isOTActive:{type:Boolean,default:false},
     },
   },
   { timestamps: true }
