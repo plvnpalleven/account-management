@@ -147,7 +147,6 @@ exports.adjustPlannedHours = async (req, res) => {
 
 exports.startOT = async (req, res) => {
   try {
-    const { startTime } = req.body;
     const userId = req.user._id;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -186,8 +185,6 @@ exports.startOT = async (req, res) => {
 exports.endOT = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { endTime } = req.body;
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -204,12 +201,12 @@ exports.endOT = async (req, res) => {
       return res.status(400).json({ message: "OT has already ended." });
     }
 
-    attendanceRecord.overtime.otEnd = endTime;
+    attendanceRecord.overtime.otEnd = new Date();
     attendanceRecord.overtime.status = "finished";
     
     const totalHours = calculateOTHours(
       attendanceRecord.overtime.otStart,
-      endTime
+      attendanceRecord.overtime.otEnd
     );
     attendanceRecord.overtime.totalOTHours = totalHours;
 

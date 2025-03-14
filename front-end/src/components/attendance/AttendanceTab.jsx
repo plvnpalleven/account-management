@@ -24,7 +24,7 @@ const AttendanceTab = ({ currentTime }) => {
   const [plannedHours, setPlannedHours] = useState(0);
   const [otStatus, setOtStatus] = useState("none"); // "none","requested","active","finished","declined"
   const [otStartTime, setOtStartTime] = useState(null);
-  const [otSEndTime, setOtEndTime] = useState(null);
+  const [otEndTime, setOtEndTime] = useState(null);
 
   // countdown state
   const [remainingTime, setRemainingTime] = useState(0);
@@ -212,6 +212,7 @@ const AttendanceTab = ({ currentTime }) => {
 
     timer = setInterval(()=>{
       const newRemaining = calculateRemainingTime();
+      setRemainingTime(newRemaining);
       if(newRemaining <= 0){
         clearInterval(timer);
         //ใช้ localStorage เก็บ flag เพื่อกัน alert ซ้ำเมื่อ refresh

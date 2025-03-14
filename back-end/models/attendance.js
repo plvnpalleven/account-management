@@ -22,8 +22,8 @@ const attendanceSchema = new mongoose.Schema(
       },
       requestedHours: { type: Number, default: 0 },
       plannedHours:{type:Number,default:0},                                                                                                                                       
-      otStart: { type: String, default: null }, //'HH:MM'
-      otEnd: { type: String, default: null }, //'HH:MM'
+      otStart: { type: Date, default: null }, //'HH:MM'
+      otEnd: { type: Date, default: null }, //'HH:MM'
       totalOTHours: { type: Number, default: 0 },
        // isRequested: { type: Boolean, default: false },
        // isApproved: { type: Boolean, default: false },
