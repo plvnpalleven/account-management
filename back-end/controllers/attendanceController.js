@@ -1,4 +1,3 @@
-const attendance = require("../models/attendance");
 const Attendance = require("../models/attendance");
 const { calculateOTHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
@@ -139,7 +138,7 @@ exports.adjustPlannedHours = async (req, res) => {
     await attendanceRecord.save();
 
     return res.status(200).json({
-      message: "Planned hous updated successfully.",
+      message: "Planned hours updated successfully.",
       attendanceRecord,
     });
   } catch (error) {
@@ -168,7 +167,7 @@ exports.startOT = async (req, res) => {
         .json({ message: "OT not approved, cannot start yet." });
     }
 
-    if (!attendanceRecord.overtime.otStart) {
+    if (attendanceRecord.overtime.otStart) {
       return res.status(400).json({ message: "OT has already started." });
     }
 
@@ -199,7 +198,7 @@ exports.endOT = async (req, res) => {
         .status(404)
         .json({ message: "No attendance record for today." });
     }
-    if (attendanceRecord.overtime.otStart) {
+    if (!attendanceRecord.overtime.otStart) {
       return res.status(400).json({ message: "You haven't started OT yet." });
     }
     if (attendanceRecord.overtime.otEnd) {

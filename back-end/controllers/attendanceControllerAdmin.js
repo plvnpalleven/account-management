@@ -17,7 +17,6 @@ exports.approveOT = async (req, res) => {
   try {
     await Attendance.findByIdAndUpdate(req.params.requestId, {
       "overtime.isApproved": true,
-      "overtime.isRequested": false,
     });
     res.status(200).json({ message: "OT approved" });
   } catch (error) {
