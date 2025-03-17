@@ -4,6 +4,15 @@ import { AuthContext } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
+const formatTime = (dateString) => {
+  if (!dateString) return "--:--";
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const getTodayString = () => {
   const now = new Date();
   const options = { day: "numeric", month: "long", year: "numeric" };
@@ -33,8 +42,8 @@ const AttendanceTab = ({ currentTime }) => {
     try {
       const res = await axios.get(`/attendance/today`);
       if (res.data) {
-        setCheckInTime(res.data.checkIn || "--:--");
-        setCheckOutTime(res.data.checkOut || "--:--");
+        setCheckInTime(formatTime(res.data.checkIn));
+        setCheckOutTime(formatTime(res.data.checkOut));
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
       }
       if (res.data.overtime) {
@@ -62,7 +71,6 @@ const AttendanceTab = ({ currentTime }) => {
 
       await axios.post("/attendance/check-in", {
         userId: user._id,
-        checkInTime: now,
       });
       await fetchAttendanceToday();
     } catch (error) {
@@ -80,7 +88,6 @@ const AttendanceTab = ({ currentTime }) => {
 
       await axios.post("/attendance/check-out", {
         userId: user._id,
-        checkOutTime: now,
       });
       await fetchAttendanceToday();
     } catch (error) {
@@ -188,43 +195,43 @@ const AttendanceTab = ({ currentTime }) => {
   const alertShownRef = useRef(false);
 
   //timer
-  useEffect(()=>{
+  useEffect(() => {
     let timer;
 
     const calculateRemainingTime = () => {
-      if(otStatus === "active" && otStartTime){
+      if (otStatus === "active" && otStartTime) {
         const totalSeconds = plannedHours * 3600;
         const startTimestamp = new Date(otStartTime).getTime();
         const currentTimestamp = Date.now();
-        const elapsed = Math.floor((currentTimestamp - startTimestamp)/1000);
-        return Math.max(totalSeconds - elapsed,0);
-      }else{
+        const elapsed = Math.floor((currentTimestamp - startTimestamp) / 1000);
+        return Math.max(totalSeconds - elapsed, 0);
+      } else {
         const now = new Date();
         const endOfWork = new Date();
-        endOfWork.setHours(17,30,0,0);
-        const diff = Math.floor((endOfWork - now)/1000);
-        return diff > 0 ? diff: 0;
+        endOfWork.setHours(17, 30, 0, 0);
+        const diff = Math.floor((endOfWork - now) / 1000);
+        return diff > 0 ? diff : 0;
       }
     };
 
     //ตั้งค่า remaingTime ครั้งแรก
     setRemainingTime(calculateRemainingTime());
 
-    timer = setInterval(()=>{
+    timer = setInterval(() => {
       const newRemaining = calculateRemainingTime();
       setRemainingTime(newRemaining);
-      if(newRemaining <= 0){
+      if (newRemaining <= 0) {
         clearInterval(timer);
         //ใช้ localStorage เก็บ flag เพื่อกัน alert ซ้ำเมื่อ refresh
-        if(!localStorage.getItem("otTimeAlertShown")){
+        if (!localStorage.getItem("otTimeAlertShown")) {
           alert("Times ups!");
-          localStorage.setItem("otTimeAlertShown","true");
+          localStorage.setItem("otTimeAlertShown", "true");
         }
       }
-    },1000);
+    }, 1000);
 
-    return() => clearInterval(timer);
-  },[otStatus,plannedHours,otStartTime]);
+    return () => clearInterval(timer);
+  }, [otStatus, plannedHours, otStartTime]);
 
   //loading
   if (loading) {

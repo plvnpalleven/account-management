@@ -3,7 +3,6 @@ const { calculateOTHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
 
 exports.checkIn = async (req, res) => {
-  const { checkInTime } = req.body;
   const userId = req.user._id;
   try {
     //ตั้งเวลาเป็น 00:00:00 ของวันนี้
@@ -18,9 +17,14 @@ exports.checkIn = async (req, res) => {
         .status(400)
         .json({ message: "You have already checked in today." });
     }
-
+    const checkInTime = new Date();
     //ตรวจสอบว่าสายหรือไม่
-    const status = checkInTime <= "09:20" ? "on time" : "late";
+    // const status = checkInTime <= "09:20" ? "on time" : "late";
+    const status =
+      checkInTime.getHours() < 9 ||
+      (checkInTime.getHours() === 9 && checkInTime.getMinutes() <= 20)
+        ? "on time"
+        : "late";
 
     //สร้าง Attendance ใหม่
     const attendanceRecord = await Attendance.create({
@@ -38,7 +42,6 @@ exports.checkIn = async (req, res) => {
 
 exports.checkOut = async (req, res) => {
   const userId = req.user._id;
-  const { checkOutTime } = req.body;
   try {
     // หาวันนี้ (ตั้งเวลาเป็นเที่ยงคืน 00:00)
     const today = new Date();
@@ -52,6 +55,7 @@ exports.checkOut = async (req, res) => {
         .status(404)
         .json({ message: "You haven't checked in today yet." });
     }
+    const checkOutTime = new Date();
 
     // อัปเดต Check-out Time
     attendanceRecord.checkOut = checkOutTime;
@@ -119,7 +123,10 @@ exports.adjustPlannedHours = async (req, res) => {
     }
 
     // ต้องมีการขอ OT ก่อน
-    if (attendanceRecord.overtime.status !== "requested"  && attendanceRecord.overtime.status !== "approved") {
+    if (
+      attendanceRecord.overtime.status !== "requested" &&
+      attendanceRecord.overtime.status !== "approved"
+    ) {
       return res
         .status(400)
         .json({ message: "You have not requested OT today." });
@@ -203,7 +210,7 @@ exports.endOT = async (req, res) => {
 
     attendanceRecord.overtime.otEnd = new Date();
     attendanceRecord.overtime.status = "finished";
-    
+
     const totalHours = calculateOTHours(
       attendanceRecord.overtime.otStart,
       attendanceRecord.overtime.otEnd

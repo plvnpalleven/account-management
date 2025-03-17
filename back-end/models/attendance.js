@@ -8,8 +8,8 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
     date: { type: Date, required: true },
-    checkIn: { type: String, required: true }, //"HH:MM"
-    checkOut: { type: String, required: false }, //อาจยังไม่มีในตอนแรก
+    checkIn: { type: Date, required: true }, //"HH:MM"
+    checkOut: { type: Date, required: false }, //อาจยังไม่มีในตอนแรก
     status: {
       type: String,
       enum: ["on time", "late", "leave", "absent"],
@@ -17,8 +17,8 @@ const attendanceSchema = new mongoose.Schema(
     },
     overtime: {
       status:{
-        type:String,enum:["requested","approved","declined","active","finished"],
-        default:"requested",
+        type:String,enum:["none","requested","approved","declined","active","finished"],
+        default:"none",
       },
       requestedHours: { type: Number, default: 0 },
       plannedHours:{type:Number,default:0},                                                                                                                                       

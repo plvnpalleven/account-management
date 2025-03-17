@@ -6,22 +6,10 @@
  */
 
 function calculateOTHours(startTime, endTime) {
-  //แปลง startTime และ endTime เป็นตัวเลขชั่วโมง/นาที
-  const [startH, startM] = startTime.split(":").map(Number);
-  const [endH, endM] = endTime.split(":").map(Number);
+  const diffMs = endTime - startTime; //ได้เป็น milliseconds
+  const hours = diffMs / (1000 * 60 * 60)//แปลง ms -> ชม.
 
-  //คำนวณเป็นนาที
-  const startTotalMinutes = startH * 60 + startM;
-  const endTotalMinutes = endH * 60 + endM;
-
-  //หาค่าต่างๆ
-  const diffMinutes = endTotalMinutes - startTotalMinutes;
-
-  //แปลงนาที -> ชั่วโมงทศนิยม
-  const hours = diffMinutes / 60;
-
-  //ถ้า hours ติดลบ , ให้เป็น 0 (กันเคสผิดพลาด)
-  return hours > 0 ? hours : 0;
+  return hours > 0 ? hours: 0;
 }
 
 //export ฟังก์ชัน
