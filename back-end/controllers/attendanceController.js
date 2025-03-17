@@ -125,7 +125,8 @@ exports.adjustPlannedHours = async (req, res) => {
     // ต้องมีการขอ OT ก่อน
     if (
       attendanceRecord.overtime.status !== "requested" &&
-      attendanceRecord.overtime.status !== "approved"
+      attendanceRecord.overtime.status !== "approved" && 
+      attendanceRecord.overtime.status !== "active" 
     ) {
       return res
         .status(400)
@@ -139,8 +140,13 @@ exports.adjustPlannedHours = async (req, res) => {
         .json({ message: "Cannot reduce hours while OT is active." });
     }
 
-    attendanceRecord.overtime.plannedHours += hours;
+    const newPlanned = attendanceRecord.overtime.plannedHours + hours;
+    if(newPlanned <0){
+      return res.status(400).json({message:"Cannot set planned hours below 0."});
+    }
 
+
+    attendanceRecord.overtime.plannedHours = newPlanned;
     await attendanceRecord.save();
 
     return res.status(200).json({
@@ -192,15 +198,30 @@ exports.startOT = async (req, res) => {
 exports.endOT = async (req, res) => {
   try {
     const userId = req.user._id;
-    const today = new Date();
+    let today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const attendanceRecord = await Attendance.findOne({ userId, date: today });
+
+
+    let attendanceRecord = await Attendance.findOne({ userId, date: today });
+    if (!attendanceRecord) {
+      let yesterday = new Date();
+      yesterday.setDate(yesterday.getDate()-1);//ลบ 1 วัน
+      yesterday.seyHours(0,0,0,0);
+
+      attendanceRecord = await Attendance.findOne({
+        userId,
+        date:yesterday,
+      });
+    }
+    //ถ้ายังไม่เจออีกที ค่อยให้เป็น error
     if (!attendanceRecord) {
       return res
         .status(404)
-        .json({ message: "No attendance record for today." });
+        .json({ message: "No attendance record found for today or yesterday." });
     }
+
+    // ข้างล่างค่อยตรวจสอบว่า OT ยัง active ไหม หรือเคย start แล้วหรือยัง
     if (!attendanceRecord.overtime.otStart) {
       return res.status(400).json({ message: "You haven't started OT yet." });
     }
@@ -237,7 +258,9 @@ exports.getTodayAttendance = async (req, res) => {
     const attendanceRecord = await Attendance.findOne({
       userId,
       date: today,
-    });
+    }).populate("userId","personalInfo.firstName personalInfo.lastName")
+    
+    ;
 
     if (!attendanceRecord) {
       return res

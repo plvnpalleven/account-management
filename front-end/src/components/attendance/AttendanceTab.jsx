@@ -3,6 +3,7 @@ import axios from "../../../../back-end/axios";
 import { AuthContext } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { formatDecimalHoursToHHMM } from "../../utils/formatDecimalDateToHHMM";
 
 const formatTime = (dateString) => {
   if (!dateString) return "--:--";
@@ -26,14 +27,16 @@ const AttendanceTab = ({ currentTime }) => {
   const [checkInTime, setCheckInTime] = useState("--:--");
   const [checkOutTime, setCheckOutTime] = useState("--:--");
   const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const hasCheckOut = checkOutTime !== "--:--";
+  const [employeeInfo, setEmployeeInfo] = useState({});
 
+  const hasCheckOut = checkOutTime !== "--:--";
   // ot state
   const [adjustHours, setAdjustHours] = useState(1);
   const [plannedHours, setPlannedHours] = useState(0);
   const [otStatus, setOtStatus] = useState("none"); // "none","requested","active","finished","declined"
   const [otStartTime, setOtStartTime] = useState(null);
   const [otEndTime, setOtEndTime] = useState(null);
+  const [totalOTHours, setTotalOTHours] = useState(0);
 
   // countdown state
   const [remainingTime, setRemainingTime] = useState(0);
@@ -45,7 +48,11 @@ const AttendanceTab = ({ currentTime }) => {
         setCheckInTime(formatTime(res.data.checkIn));
         setCheckOutTime(formatTime(res.data.checkOut));
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
+        if (res.data.userId?.personalInfo) {
+          setEmployeeInfo(res.data.userId.personalInfo);
+        }
       }
+
       if (res.data.overtime) {
         setOtStatus(res.data.overtime.status);
         setPlannedHours(res.data.overtime.plannedHours);
@@ -54,6 +61,14 @@ const AttendanceTab = ({ currentTime }) => {
         }
         if (res.data.overtime.otEnd) {
           setOtEndTime(res.data.overtime.otEnd);
+        }
+
+        // เช็คว่ามี totalOTHours กลับมาจาก backend หรือไม่
+        if (res.data.overtime.totalOTHours) {
+          setTotalOTHours(res.data.overtime.totalOTHours);
+        } else {
+          // กรณีไม่มีค่า ก็อาจเซตเป็น 0 หรือปล่อยตามเดิม
+          setTotalOTHours(0);
         }
       }
     } catch (error) {
@@ -105,23 +120,29 @@ const AttendanceTab = ({ currentTime }) => {
 
   const handleIncreasePlanned = async () => {
     try {
-      const res = await axios.post("/attendance/adjust-planned-hours", {
+      const res = await axios.patch("/attendance/adjust-planned-hours", {
         hours: 1, // +1 hour
       });
       const updated = res.data.attendanceRecord.overtime.plannedHours;
       setPlannedHours(updated);
+      setAdjustHours((prev) => prev + 1);
     } catch (error) {
       alert(error.response?.data.message || "Adjust planned hours failed");
     }
   };
 
   const handleDecreasePlanned = async () => {
+    if (plannedHours <= 0) {
+      alert("Cannot reduce below 0 hours.");
+      return;
+    }
     try {
-      const res = await axios.post("/attendance/adjust-planned-hours", {
+      const res = await axios.patch("/attendance/adjust-planned-hours", {
         hours: -1, //-1 hour
       });
       const updated = res.data.attendanceRecord.overtime.plannedHours;
       setPlannedHours(updated);
+      setAdjustHours((prev) => (prev > 1 ? prev - 1 : prev));
     } catch (error) {
       alert(error.response?.data.message || "Adjust planned hours failed");
     }
@@ -162,6 +183,7 @@ const AttendanceTab = ({ currentTime }) => {
 
       //update state
       setOtStatus(res.data.attendanceRecord.overtime.status);
+      setTotalOTHours(res.data.attendanceRecord.overtime.totalOTHours);
       //อาจเก็บ totalHours มาโชว์ หรือเก็บ otEnd มาโชว์ได้
     } catch (error) {
       alert(error.response?.data.message || "End OT failed");
@@ -245,7 +267,7 @@ const AttendanceTab = ({ currentTime }) => {
       <div className="flex justify-between items-start mb-4">
         <div className="text-left ml-10 mt-5 mb-10">
           <h2 className="text-3xl font-semibold">
-            Hi {user.firstName} {user.lastName} !!
+            Hi , {employeeInfo?.firstName} {employeeInfo?.lastName}
           </h2>
           <p className="text-lg text-gray-600">It's {getTodayString()}</p>
         </div>
@@ -365,16 +387,15 @@ const AttendanceTab = ({ currentTime }) => {
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
               <div className="flex gap-4 w-full">
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                  <div className="text-lg font-medium">Add Hour</div>
-                  <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="text-lg font-medium">Total Hours</div>
+                  <div className="flex items-center justify-center gap-4">
                     <button
                       className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
                       onClick={handleDecreasePlanned}
                     >
                       <RemoveIcon sx={{ fontSize: "16px" }} />
                     </button>
-                    <div className="text-lg ml-2 mr-2">{adjustHours}</div>
-
+                    <div className="text-lg mt-1">{plannedHours} Hours</div>
                     <button
                       className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
                       onClick={handleIncreasePlanned}
@@ -383,16 +404,17 @@ const AttendanceTab = ({ currentTime }) => {
                     </button>
                   </div>
                 </div>
-
-                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                  <div className="text-lg font-medium">Total Hours</div>
-                  <div className="text-lg mt-1">{plannedHours} Hours</div>
-                </div>
               </div>
 
               <button
-                className="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
+                className={`w-full py-2 rounded-lg transition-all duration-300 text-white ${
+                  !hasCheckOut
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-500 hover:bg-green-600"
+                }`}
                 onClick={handleStartOT}
+                disabled={!hasCheckOut}
+                title={!hasCheckOut ? "You need to check out first!" : ""}
               >
                 Start OT
               </button>
@@ -448,12 +470,16 @@ const AttendanceTab = ({ currentTime }) => {
               <div className="flex gap-4 w-full">
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
                   <div className="text-lg font-medium">Start At</div>
-                  <div className="text-lg mt-1">19:20</div>
+                  <div className="text-lg mt-1">{formatTime(otStartTime)}</div>
                 </div>
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
                   <div className="text-lg font-medium">End At</div>
-                  <div className="text-lg mt-1">20:20</div>
+                  <div className="text-lg mt-1">{formatTime(otEndTime)}</div>
                 </div>
+                {/* <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">Total</div>
+                  <div className="text-lg mt-1">{formatDecimalHoursToHHMM(totalOTHours)} Hours</div>
+                </div> */}
               </div>
 
               <button

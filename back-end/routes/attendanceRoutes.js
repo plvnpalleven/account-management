@@ -8,7 +8,7 @@ router.post('/check-out',protect,attendanceController.checkOut);
 router.post('/request-ot',protect,attendanceController.requestOT);
 router.post('/start-ot',protect,attendanceController.startOT);
 router.post('/end-ot',protect,attendanceController.endOT);
-router.patch('/update-ot',protect,attendanceController.adjustPlannedHours);
+router.patch('/adjust-planned-hours',protect,attendanceController.adjustPlannedHours);
 router.get('/today',protect,attendanceController.getTodayAttendance);
 
 module.exports = router;
