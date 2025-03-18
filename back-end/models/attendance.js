@@ -8,8 +8,9 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
     date: { type: Date, required: true },
-    checkIn: { type: Date, required: true }, //"HH:MM"
+    checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: false }, //อาจยังไม่มีในตอนแรก
+    totalHours: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["on time", "late", "leave", "absent"],

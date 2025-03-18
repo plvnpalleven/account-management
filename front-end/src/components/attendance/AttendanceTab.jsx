@@ -4,6 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { formatDecimalHoursToHHMM } from "../../utils/formatDecimalDateToHHMM";
+import { toast } from "sonner";
 
 const formatTime = (dateString) => {
   if (!dateString) return "--:--";
@@ -41,6 +42,32 @@ const AttendanceTab = ({ currentTime }) => {
   // countdown state
   const [remainingTime, setRemainingTime] = useState(0);
 
+  // modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleConfirmEndOT = () => {
+    handleEndOT(); // เรียก API สิ้นสุด OT
+    handleCloseModal(); // ปิด modal
+  };
+
+  const handleConfirmCheckOut = () => {
+    handleCheckOut(); // เรียก API สิ้นสุด
+    handleCloseModal(); // ปิด modal
+  };
+
+  const fetchEmployeeInfo = async () => {
+    try {
+      const res = await axios.get("/employee/info", {
+        params: { userId: user._id },
+      });
+      setEmployeeInfo(res.data);
+    } catch (error) {
+      console.error("Error fetching employee info:", error);
+    }
+  };
+
   const fetchAttendanceToday = async () => {
     try {
       const res = await axios.get(`/attendance/today`);
@@ -48,9 +75,6 @@ const AttendanceTab = ({ currentTime }) => {
         setCheckInTime(formatTime(res.data.checkIn));
         setCheckOutTime(formatTime(res.data.checkOut));
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
-        if (res.data.userId?.personalInfo) {
-          setEmployeeInfo(res.data.userId.personalInfo);
-        }
       }
 
       if (res.data.overtime) {
@@ -87,9 +111,11 @@ const AttendanceTab = ({ currentTime }) => {
       await axios.post("/attendance/check-in", {
         userId: user._id,
       });
+      toast.success("Check-in success!");
+
       await fetchAttendanceToday();
     } catch (error) {
-      alert(error.response?.data.message || "Check-in error");
+      toast.error(error.response?.data.message || "Check-in error");
     }
   };
 
@@ -105,20 +131,33 @@ const AttendanceTab = ({ currentTime }) => {
         userId: user._id,
       });
       await fetchAttendanceToday();
+      toast.success("Check-out success!");
     } catch (error) {
-      alert(error.response?.data.message || "Check-out error");
+      toast.error(error.response?.data.message || "Check-out error");
     }
   };
 
   const handleIncreaseAdjust = () => {
+    if (adjustHours >= 8) {
+      toast.error("Reached maximum OT.");
+      return;
+    }
     setAdjustHours((prev) => prev + 1);
   };
 
   const handleDecreaseAdjust = () => {
+    if (adjustHours <= 1) {
+      toast.error("Cannot reduce below 0 hours.");
+      return;
+    }
     setAdjustHours((prev) => (prev > 1 ? prev - 1 : prev));
   };
 
   const handleIncreasePlanned = async () => {
+    if (plannedHours >= 8) {
+      toast.error("Reached maximum OT.");
+      return;
+    }
     try {
       const res = await axios.patch("/attendance/adjust-planned-hours", {
         hours: 1, // +1 hour
@@ -127,13 +166,19 @@ const AttendanceTab = ({ currentTime }) => {
       setPlannedHours(updated);
       setAdjustHours((prev) => prev + 1);
     } catch (error) {
-      alert(error.response?.data.message || "Adjust planned hours failed");
+      toast.error(
+        error.response?.data.message || "Adjust planned hours failed"
+      );
     }
   };
 
   const handleDecreasePlanned = async () => {
-    if (plannedHours <= 0) {
-      alert("Cannot reduce below 0 hours.");
+    if (otStatus === "active") {
+      toast.error("After starting OT, hours cannot be reduced.");
+      return;
+    }
+    if (plannedHours <= 1) {
+      toast.error("Cannot reduce below 0 hours.");
       return;
     }
     try {
@@ -144,7 +189,9 @@ const AttendanceTab = ({ currentTime }) => {
       setPlannedHours(updated);
       setAdjustHours((prev) => (prev > 1 ? prev - 1 : prev));
     } catch (error) {
-      alert(error.response?.data.message || "Adjust planned hours failed");
+      toast.error(
+        error.response?.data.message || "Adjust planned hours failed"
+      );
     }
   };
 
@@ -159,13 +206,14 @@ const AttendanceTab = ({ currentTime }) => {
       const res = await axios.post("/attendance/start-ot", {
         startTime: nowTime,
       });
-      alert(res.data.message);
+      toast.success(res.data.message);
+      await fetchAttendanceToday();
 
       // update state
       setOtStatus(res.data.attendanceRecord.overtime.status);
       // (ถ้ามี field otStart ก็อาจเก็บ state ไว้แสดงได้)
     } catch (error) {
-      alert(error.response?.data.message || "Start OT failed");
+      toast.error(error.response?.data.message || "Start OT failed");
     }
   };
 
@@ -179,14 +227,15 @@ const AttendanceTab = ({ currentTime }) => {
       const res = await axios.post("/attendance/end-ot", {
         endTime: nowTime,
       });
-      alert(res.data.message);
+      toast.success(res.data.message);
 
       //update state
       setOtStatus(res.data.attendanceRecord.overtime.status);
       setTotalOTHours(res.data.attendanceRecord.overtime.totalOTHours);
       //อาจเก็บ totalHours มาโชว์ หรือเก็บ otEnd มาโชว์ได้
+      await fetchAttendanceToday();
     } catch (error) {
-      alert(error.response?.data.message || "End OT failed");
+      toast.error(error.response?.data.message || "End OT failed");
     }
   };
 
@@ -201,9 +250,9 @@ const AttendanceTab = ({ currentTime }) => {
       setOtStatus(res.data.attendanceRecord.overtime.status);
       setPlannedHours(res.data.attendanceRecord.overtime.plannedHours);
 
-      alert(res.data.message);
+      toast.success(res.data.message);
     } catch (error) {
-      alert(error.response?.data.message || "OT Request Error");
+      toast.error(error.response?.data.message || "OT Request Error");
     }
   };
 
@@ -211,6 +260,7 @@ const AttendanceTab = ({ currentTime }) => {
   useEffect(() => {
     if (!loading && user?._id) {
       fetchAttendanceToday();
+      fetchEmployeeInfo();
     }
   }, [loading, user]);
 
@@ -219,7 +269,6 @@ const AttendanceTab = ({ currentTime }) => {
   //timer
   useEffect(() => {
     let timer;
-
     const calculateRemainingTime = () => {
       if (otStatus === "active" && otStartTime) {
         const totalSeconds = plannedHours * 3600;
@@ -227,6 +276,10 @@ const AttendanceTab = ({ currentTime }) => {
         const currentTimestamp = Date.now();
         const elapsed = Math.floor((currentTimestamp - startTimestamp) / 1000);
         return Math.max(totalSeconds - elapsed, 0);
+      }else if (otStatus === "approved" && hasCheckOut){
+        return plannedHours * 3600;
+      } else if (otStatus === "finished") {
+        return 0;
       } else {
         const now = new Date();
         const endOfWork = new Date();
@@ -246,14 +299,14 @@ const AttendanceTab = ({ currentTime }) => {
         clearInterval(timer);
         //ใช้ localStorage เก็บ flag เพื่อกัน alert ซ้ำเมื่อ refresh
         if (!localStorage.getItem("otTimeAlertShown")) {
-          alert("Times ups!");
+          toast("Times ups!");
           localStorage.setItem("otTimeAlertShown", "true");
         }
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [otStatus, plannedHours, otStartTime]);
+  }, [otStatus, plannedHours, otStartTime,checkOutTime ]);
 
   //loading
   if (loading) {
@@ -428,29 +481,23 @@ const AttendanceTab = ({ currentTime }) => {
               <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
               <div className="flex gap-4 w-full">
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
-                  <div className="text-lg font-medium">Add Hour</div>
-                  <div className="flex items-center justify-center gap-2 mt-2">
-                    <button
-                      className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                      onClick={handleDecreasePlanned}
-                      disabled
-                    >
-                      <RemoveIcon sx={{ fontSize: "16px" }} />
-                    </button>
-                    <div className="text-lg ml-2 mr-2">{adjustHours}</div>
-
-                    <button
-                      className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                      onClick={handleIncreasePlanned}
-                    >
-                      <AddIcon sx={{ fontSize: "16px" }} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
                   <div className="text-lg font-medium">Total Hours</div>
+                  <div className="flex items-center justify-center gap-4">
+                  <button
+                    className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                    onClick={handleDecreasePlanned}
+                    
+                  >
+                    <RemoveIcon sx={{ fontSize: "16px" }} />
+                  </button>
                   <div className="text-lg mt-1">{plannedHours} Hours</div>
+                  <button
+                    className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                    onClick={handleIncreasePlanned}
+                  >
+                    <AddIcon sx={{ fontSize: "16px" }} />
+                  </button>
+                  </div>
                 </div>
               </div>
 
@@ -487,6 +534,34 @@ const AttendanceTab = ({ currentTime }) => {
                 disabled
               >
                 Overtime has been finished
+              </button>
+            </div>
+          </>
+        )}
+        {otStatus === "declined" && (
+          <>
+            <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+              <h3 className="text-gray-700 text-3xl font-bold">Overtime</h3>
+              <div className="flex gap-4 w-full">
+                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">Start At</div>
+                  <div className="text-lg mt-1">{formatTime(otStartTime)}</div>
+                </div>
+                <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">End At</div>
+                  <div className="text-lg mt-1">{formatTime(otEndTime)}</div>
+                </div>
+                {/* <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
+                  <div className="text-lg font-medium">Total</div>
+                  <div className="text-lg mt-1">{formatDecimalHoursToHHMM(totalOTHours)} Hours</div>
+                </div> */}
+              </div>
+
+              <button
+                className="w-full py-2 rounded-lg bg-gray-400 text-white cursor-not-allowed"
+                disabled
+              >
+                Overtime request has been declined
               </button>
             </div>
           </>
