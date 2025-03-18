@@ -47,7 +47,7 @@ const Attendance = () => {
   ];
 
   if (user?.role === "admin") {
-    pageTabs.push({ label: "request", value: "request" });
+    pageTabs.push({ label: "Request", value: "request" });
     pageTabs.push({ label: "Search", value: "search" });
   }
 

@@ -5,6 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { formatDecimalHoursToHHMM } from "../../utils/formatDecimalDateToHHMM";
 import { toast } from "sonner";
+import ConfirmEndModal from "./ConfirmEndModal";
 
 const formatTime = (dateString) => {
   if (!dateString) return "--:--";
@@ -29,6 +30,7 @@ const AttendanceTab = ({ currentTime }) => {
   const [checkOutTime, setCheckOutTime] = useState("--:--");
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [employeeInfo, setEmployeeInfo] = useState({});
+  const [totalHours, setTotalHours] = useState(0);
 
   const hasCheckOut = checkOutTime !== "--:--";
   // ot state
@@ -44,17 +46,26 @@ const AttendanceTab = ({ currentTime }) => {
 
   // modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const [modalType, setModalType] = useState(null);
 
-  const handleConfirmEndOT = () => {
-    handleEndOT(); // เรียก API สิ้นสุด OT
-    handleCloseModal(); // ปิด modal
+  const openCheckOutModal = () => {
+    setModalType("checkOut");
+    setIsModalOpen(true);
+  };
+
+  const openEndOTModal = () => {
+    setModalType("endOT");
+    setIsModalOpen(true);
   };
 
   const handleConfirmCheckOut = () => {
-    handleCheckOut(); // เรียก API สิ้นสุด
-    handleCloseModal(); // ปิด modal
+    handleCheckOut(); // ฟังก์ชัน Check Out เดิม
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmEndOT = () => {
+    handleEndOT(); // ฟังก์ชัน End OT เดิม
+    setIsModalOpen(false);
   };
 
   const fetchEmployeeInfo = async () => {
@@ -75,6 +86,12 @@ const AttendanceTab = ({ currentTime }) => {
         setCheckInTime(formatTime(res.data.checkIn));
         setCheckOutTime(formatTime(res.data.checkOut));
         setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
+
+        if (res.data.totalHours) {
+          setTotalHours(res.data.totalHours);
+        } else {
+          setTotalHours(0);
+        }
       }
 
       if (res.data.overtime) {
@@ -270,14 +287,19 @@ const AttendanceTab = ({ currentTime }) => {
   useEffect(() => {
     let timer;
     const calculateRemainingTime = () => {
+      if (otStatus === "approved" && hasCheckOut) {
+        return plannedHours * 3600;
+      }
+      if (hasCheckOut && otStatus !== "active") {
+        return 0;
+      }
+      
       if (otStatus === "active" && otStartTime) {
         const totalSeconds = plannedHours * 3600;
         const startTimestamp = new Date(otStartTime).getTime();
         const currentTimestamp = Date.now();
         const elapsed = Math.floor((currentTimestamp - startTimestamp) / 1000);
         return Math.max(totalSeconds - elapsed, 0);
-      }else if (otStatus === "approved" && hasCheckOut){
-        return plannedHours * 3600;
       } else if (otStatus === "finished") {
         return 0;
       } else {
@@ -306,7 +328,7 @@ const AttendanceTab = ({ currentTime }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [otStatus, plannedHours, otStartTime,checkOutTime ]);
+  }, [otStatus, plannedHours, otStartTime, checkOutTime]);
 
   //loading
   if (loading) {
@@ -359,7 +381,7 @@ const AttendanceTab = ({ currentTime }) => {
                 ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-green-500 hover:bg-green-600 text-white"
             }`}
-            onClick={isCheckedIn ? handleCheckOut : handleCheckIn}
+            onClick={isCheckedIn ? openCheckOutModal : handleCheckIn}
           >
             {/* {isCheckedIn ? "Check Out" : "Check In"} */}
             {hasCheckOut
@@ -483,27 +505,26 @@ const AttendanceTab = ({ currentTime }) => {
                 <div className="flex-1 bg-gray-100 p-4 rounded shadow text-center">
                   <div className="text-lg font-medium">Total Hours</div>
                   <div className="flex items-center justify-center gap-4">
-                  <button
-                    className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                    onClick={handleDecreasePlanned}
-                    
-                  >
-                    <RemoveIcon sx={{ fontSize: "16px" }} />
-                  </button>
-                  <div className="text-lg mt-1">{plannedHours} Hours</div>
-                  <button
-                    className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
-                    onClick={handleIncreasePlanned}
-                  >
-                    <AddIcon sx={{ fontSize: "16px" }} />
-                  </button>
+                    <button
+                      className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                      onClick={handleDecreasePlanned}
+                    >
+                      <RemoveIcon sx={{ fontSize: "16px" }} />
+                    </button>
+                    <div className="text-lg mt-1">{plannedHours} Hours</div>
+                    <button
+                      className="bg-gray-300 w-6 h-6 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-gray-400 hover:scale-110"
+                      onClick={handleIncreasePlanned}
+                    >
+                      <AddIcon sx={{ fontSize: "16px" }} />
+                    </button>
                   </div>
                 </div>
               </div>
 
               <button
                 className="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white"
-                onClick={handleEndOT}
+                onClick={openEndOTModal}
               >
                 Finish OT
               </button>
@@ -567,6 +588,25 @@ const AttendanceTab = ({ currentTime }) => {
           </>
         )}
       </div>
+      <ConfirmEndModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={
+          modalType === "checkOut" ? "Confirm Check Out" : "Confirm End OT"
+        }
+        message={
+          modalType === "checkOut"
+            ? "Are you sure you want to check out?"
+            : "Are you sure you want to finish OT"
+        }
+        confirmText={
+          modalType === "checkOut" ? "Yes, Check Out" : "Yes, Finish OT"
+        }
+        cancelText="Cancel"
+        onConfirm={
+          modalType === "checkOut" ? handleConfirmCheckOut : handleConfirmEndOT
+        }
+      />
     </div>
   );
 };

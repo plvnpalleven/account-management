@@ -1,5 +1,5 @@
 const Attendance = require("../models/attendance");
-const { calculateOTHours } = require("../utils/timeUtils");
+const { calculateOTHours , calculateTotalHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
 
 exports.checkIn = async (req, res) => {
@@ -56,10 +56,9 @@ exports.checkOut = async (req, res) => {
         .json({ message: "You haven't checked in today yet." });
     }
     const checkOutTime = new Date();
-
     // อัปเดต Check-out Time
     attendanceRecord.checkOut = checkOutTime;
-
+    attendanceRecord.totalHours = calculateTotalHours(attendanceRecord.checkIn, checkOutTime);
     await attendanceRecord.save();
 
     res.status(200).json(attendanceRecord);
@@ -201,13 +200,11 @@ exports.endOT = async (req, res) => {
     let today = new Date();
     today.setHours(0, 0, 0, 0);
 
-
-
     let attendanceRecord = await Attendance.findOne({ userId, date: today });
     if (!attendanceRecord) {
       let yesterday = new Date();
       yesterday.setDate(yesterday.getDate()-1);//ลบ 1 วัน
-      yesterday.seyHours(0,0,0,0);
+      yesterday.setHours(0,0,0,0);
 
       attendanceRecord = await Attendance.findOne({
         userId,

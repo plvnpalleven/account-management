@@ -1,41 +1,38 @@
 import React from "react";
 
-const ConfirmActionModal = ({ isOpen, onClose, onConfirm, remainingTime, type }) => {
+const ConfirmEndModal = ({
+  isOpen,
+  onClose,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  onConfirm,
+}) => {
   if (!isOpen) return null;
-
-  // แปลง remainingTime (วินาที) ให้เป็น HH:MM:SS
-  const formatTime = (seconds) => {
-    const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
-    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-    const secs = String(seconds % 60).padStart(2, "0");
-    return `${hours}:${minutes}:${secs}`;
-  };
-
-  // กำหนดข้อความตามประเภท
-  const modalText =
-    type === "checkout"
-      ? `คุณแน่ใจหรือไม่ว่าต้องการ Check Out? ตอนนี้เหลือเวลา ${formatTime(remainingTime)} ก่อนถึงเวลาเลิกงานปกติ`
-      : `คุณแน่ใจหรือไม่ว่าต้องการสิ้นสุด OT? ตอนนี้เหลือเวลา ${formatTime(remainingTime)} ก่อนถึงเวลาเลิกงานปกติ`;
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-bold mb-4">
-          {type === "checkout" ? "ยืนยัน Check Out?" : "ยืนยันการสิ้นสุด OT?"}
-        </h2>
-        <p className="text-gray-700 mb-4">{modalText}</p>
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-gray-900 opacity-50"
+        onClick={onClose}
+      ></div>
+      {/* Modal Content */}
+      <div className="bg-white rounded-lg shadow-lg z-10 p-6 w-11/12 max-w-md transform transition-all">
+        {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
+        {message && <p className="mb-6">{message}</p>}
         <div className="flex justify-end space-x-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
           >
-            Cancel
+            {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
           >
-            Confirm
+            {confirmText}
           </button>
         </div>
       </div>
@@ -43,4 +40,4 @@ const ConfirmActionModal = ({ isOpen, onClose, onConfirm, remainingTime, type })
   );
 };
 
-export default ConfirmActionModal;
+export default ConfirmEndModal;
