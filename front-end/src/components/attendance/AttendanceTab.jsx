@@ -6,6 +6,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { formatDecimalHoursToHHMM } from "../../utils/formatDecimalDateToHHMM";
 import { toast } from "sonner";
 import ConfirmEndModal from "./ConfirmEndModal";
+import AutoEndOTModal from "./AutoEndOTModal";
 
 const formatTime = (dateString) => {
   if (!dateString) return "--:--";
@@ -47,6 +48,18 @@ const AttendanceTab = ({ currentTime }) => {
   // modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const [isAutoEndModalOpen, setIsAutoEndModalOpen] = useState(false);
+  const GRACE_PERIOD = 15; // 15 วิ , 600 = 15 นาที
+
+  useEffect(() => {
+    if (otStatus === "active" && remainingTime <= 0) {
+      //เมื่อเหลือเวลา 0 (หรือ < 0 ) จะเปิด AutoEndModal
+      setIsAutoEndModalOpen(true);
+    }
+    else{
+      setIsAutoEndModalOpen(false);
+    }
+  }, [remainingTime, otStatus]);
 
   const openCheckOutModal = () => {
     setModalType("checkOut");
@@ -212,6 +225,25 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
+  const handleExtendOT = async () => {
+    try {
+      const res = await axios.patch("/attendance/adjust-planned-hours", {
+        hours: 1,
+      });
+      const updated = res.data.attendanceRecord.overtime.plannedHours;
+      setPlannedHours(updated);
+      //Toast สำหรับแจ้งเตือน
+      toast.success("Extend OT by 1 hours.");
+
+      //อาจจะต้องรีเซต localStorage otTimeAlertShown ถ้าใช้
+      localStorage.removeItem("otTimeAlertShown");
+      //จากนั้น fetchAttendanceToday() เพื่อดึงข้อมูลใหม่
+      await fetchAttendanceToday();
+    } catch (error) {
+      toast.error(error.response?.data.message || "Extend OT failed");
+    }
+  };
+
   const handleStartOT = async () => {
     try {
       //ส่งเวลาเริ่มแบบ HH:MM
@@ -256,6 +288,25 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
+  const handleEndOTAuto = async () => {
+    try {
+      const nowTime = new Date().toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const res = await axios.post("/attendance/end-ot", {
+        endTime: nowTime,
+      });
+      toast.success("OT ended automatically.");
+
+      setOtStatus(res.data.attendanceRecord.overtime.status);
+      setTotalOTHours(res.data.attendanceRecord.overtime.totalOTHours);
+      await fetchAttendanceToday();
+    } catch (error) {
+      toast.error(error.response?.data.message || "End OT failed");
+    }
+  };
+
   // API: Request OT
   const handleRequestOT = async () => {
     try {
@@ -273,6 +324,7 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
+ 
   //fetch
   useEffect(() => {
     if (!loading && user?._id) {
@@ -293,7 +345,7 @@ const AttendanceTab = ({ currentTime }) => {
       if (hasCheckOut && otStatus !== "active") {
         return 0;
       }
-      
+
       if (otStatus === "active" && otStartTime) {
         const totalSeconds = plannedHours * 3600;
         const startTimestamp = new Date(otStartTime).getTime();
@@ -606,6 +658,13 @@ const AttendanceTab = ({ currentTime }) => {
         onConfirm={
           modalType === "checkOut" ? handleConfirmCheckOut : handleConfirmEndOT
         }
+      />
+      <AutoEndOTModal
+        isOpen={isAutoEndModalOpen}
+        onClose={() => setIsAutoEndModalOpen(false)}
+        onConfirmEnd={handleEndOTAuto}
+        onExtend={handleExtendOT}
+        gracePeriod={600} // 15 วินาทีทดสอบ
       />
     </div>
   );

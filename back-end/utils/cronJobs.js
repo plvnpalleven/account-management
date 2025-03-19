@@ -1,9 +1,9 @@
 const cron = require("node-cron");
 const Attendance = require("../models/attendance");
 const Employee = require("../models/employeeModel");
-
+const {calculateOTHours} = require("../utils/timeUtils");
 //กำหนดเวลา ที่ 23:59 ทุกวัน (รูปแบบ cron: '59 23 * * *')
-cron.schedule("06 14 * * *", async () => {
+cron.schedule("59 23 * * *", async () => {
   console.log("Cron job started: ตรวจสอบ attendance ที่ยังไม่ได้ check in");
 
   //กำหนดวันที่เป็น 00:00 เพื่อให้เปรียบเทียบได้ง่าย
@@ -26,8 +26,8 @@ cron.schedule("06 14 * * *", async () => {
         await Attendance.create({
           userId: employee._id,
           date: today,
-          checkIn: "-",
-          checkOut: "-",
+          checkIn: null,
+          checkOut: null,
           status: "absent",
         });
         console.log(`Create absent record for employees ${employee._id}`);
@@ -36,5 +36,43 @@ cron.schedule("06 14 * * *", async () => {
     console.log(`Cron job completed successfully.`);
   } catch (error) {
     console.error("Error in cron job:", error);
+  }
+});
+
+cron.schedule("*/30 * * * *",async ()=>{
+  try{
+    console.log("Cron Job  (Auto End OT) started...");
+
+    const now = new Date();
+    const activeOTs = await Attendance.find({
+      "overtime.status":"active",
+    });
+
+    for (const record of activeOTs) {
+      if (!record.overtime.otStart) continue;
+
+      const startTime = record.overtime.otStart;
+      const plannedHours = record.overtime.plannedHours;
+      const plannedMs = plannedHours * 60 * 60 * 1000;
+      const endTimeShouldBe = new Date(startTime.getTime()+plannedMs);
+
+      //ถ้า ตอนนี้ เกินเวลา endTimeShouldBe แล้ว จะปิด OT ให้อัตโนมัติ
+      if(now >= endTimeShouldBe){
+        record.overtime.otEnd = endTimeShouldBe;
+        record.overtime.status = "finished";
+        record.overtime.totalOTHours = calculateOTHours(
+          startTime,
+          endTimeShouldBe
+        );
+        await record.save();
+
+        console.log(
+          `Auto ended OT for record ${record._id} at ${endTimeShouldBe}`
+        );
+      }
+    }
+    console.log("Cron Job (Auto End OT) finished.");
+  }catch(error){
+    console.error("Error in Cron Job (Auto End OT):",error);
   }
 });

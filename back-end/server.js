@@ -29,6 +29,7 @@ app.use("/api/delete-file", deleteFileRoute);
 app.use("/attendance",attendanceRoutes);
 app.use("/attendanceAdmin",attendanceControllerAdmin);
 app.use("/employee", employeeRoutes);
+
 require("./utils/cronJobs");
 
 

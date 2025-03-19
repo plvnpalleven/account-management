@@ -209,7 +209,7 @@ exports.endOT = async (req, res) => {
       attendanceRecord = await Attendance.findOne({
         userId,
         date:yesterday,
-      });
+      }); 
     }
     //ถ้ายังไม่เจออีกที ค่อยให้เป็น error
     if (!attendanceRecord) {
