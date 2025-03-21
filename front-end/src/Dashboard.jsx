@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Attendance from "./pages/WorkOffice/Attendance";
-import DayOff from "./pages/WorkOffice/DayOff";
+import Leave from "./pages/WorkOffice/Leave";
 import ExpenseReimbursement from "./pages/WorkOffice/ExpenseReimbursement";
 import Payroll from "./pages/WorkOffice/Payroll";
 import Recruitment from "./pages/WorkOffice/Recruitment";
@@ -35,7 +35,7 @@ const Dashboard = () => {
           />
           <Route path="WorkOffice/Attendance" element={<Attendance />} />
           <Route path="WorkOffice/ToDo" element={<ToDo />} />
-          <Route path="WorkOffice/DayOff" element={<DayOff />} />
+          <Route path="WorkOffice/Leave" element={<Leave />} />
           <Route path="WorkOffice/RoomBooking" element={<RoomBooking />} />
           <Route
             path="WorkOffice/VehicleBooking"

@@ -11,7 +11,7 @@ const attendanceSchema = new mongoose.Schema(
     checkIn: {
       type: Date,
       required: function () {
-        return this.status !== "absent";
+        return this.status !== "absent" && this.status !== "leave";
       },
     },
     checkOut: { type: Date, required: false }, //อาจยังไม่มีในตอนแรก

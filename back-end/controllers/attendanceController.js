@@ -1,5 +1,5 @@
 const Attendance = require("../models/attendance");
-const { calculateOTHours , calculateTotalHours } = require("../utils/timeUtils");
+const { calculateOTHours, calculateTotalHours } = require("../utils/timeUtils");
 const mongoose = require("mongoose");
 
 exports.checkIn = async (req, res) => {
@@ -58,7 +58,10 @@ exports.checkOut = async (req, res) => {
     const checkOutTime = new Date();
     // อัปเดต Check-out Time
     attendanceRecord.checkOut = checkOutTime;
-    attendanceRecord.totalHours = calculateTotalHours(attendanceRecord.checkIn, checkOutTime);
+    attendanceRecord.totalHours = calculateTotalHours(
+      attendanceRecord.checkIn,
+      checkOutTime
+    );
     await attendanceRecord.save();
 
     res.status(200).json(attendanceRecord);
@@ -124,8 +127,8 @@ exports.adjustPlannedHours = async (req, res) => {
     // ต้องมีการขอ OT ก่อน
     if (
       attendanceRecord.overtime.status !== "requested" &&
-      attendanceRecord.overtime.status !== "approved" && 
-      attendanceRecord.overtime.status !== "active" 
+      attendanceRecord.overtime.status !== "approved" &&
+      attendanceRecord.overtime.status !== "active"
     ) {
       return res
         .status(400)
@@ -140,10 +143,11 @@ exports.adjustPlannedHours = async (req, res) => {
     }
 
     const newPlanned = attendanceRecord.overtime.plannedHours + hours;
-    if(newPlanned <0){
-      return res.status(400).json({message:"Cannot set planned hours below 0."});
+    if (newPlanned < 0) {
+      return res
+        .status(400)
+        .json({ message: "Cannot set planned hours below 0." });
     }
-
 
     attendanceRecord.overtime.plannedHours = newPlanned;
     await attendanceRecord.save();
@@ -194,38 +198,78 @@ exports.startOT = async (req, res) => {
   }
 };
 
+// อันเก่า บันทึกตามวัน
+// exports.endOT = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     let today = new Date();
+//     today.setHours(0, 0, 0, 0);
+
+//     let attendanceRecord = await Attendance.findOne({ userId, date: today });
+//     if (!attendanceRecord) {
+//       let yesterday = new Date();
+//       yesterday.setDate(yesterday.getDate()-1);//ลบ 1 วัน
+//       yesterday.setHours(0,0,0,0);
+
+//       attendanceRecord = await Attendance.findOne({
+//         userId,
+//         date:yesterday,
+//       });
+//     }
+//     //ถ้ายังไม่เจออีกที ค่อยให้เป็น error
+//     if (!attendanceRecord) {
+//       return res
+//         .status(404)
+//         .json({ message: "No attendance record found for today or yesterday." });
+//     }
+
+//     // ข้างล่างค่อยตรวจสอบว่า OT ยัง active ไหม หรือเคย start แล้วหรือยัง
+//     if (!attendanceRecord.overtime.otStart) {
+//       return res.status(400).json({ message: "You haven't started OT yet." });
+//     }
+//     if (attendanceRecord.overtime.status !== "active") {
+//       return res.status(400).json({ message: "OT has already ended." });
+//     }
+
+//     attendanceRecord.overtime.otEnd = new Date();
+//     attendanceRecord.overtime.status = "finished";
+
+//     const totalHours = calculateOTHours(
+//       attendanceRecord.overtime.otStart,
+//       attendanceRecord.overtime.otEnd
+//     );
+//     attendanceRecord.overtime.totalOTHours = totalHours;
+
+//     await attendanceRecord.save();
+
+//     return res.status(200).json({
+//       message: "OT ended successfully.",
+//       attendanceRecord,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 exports.endOT = async (req, res) => {
   try {
     const userId = req.user._id;
-    let today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const attendanceRecord = await Attendance.findOne({
+      userId,
+      "overtime.status": "active",
+    });
 
-    let attendanceRecord = await Attendance.findOne({ userId, date: today });
     if (!attendanceRecord) {
-      let yesterday = new Date();
-      yesterday.setDate(yesterday.getDate()-1);//ลบ 1 วัน
-      yesterday.setHours(0,0,0,0);
-
-      attendanceRecord = await Attendance.findOne({
-        userId,
-        date:yesterday,
-      }); 
+      return res.status(404).json({
+        message: "No active OT record found for this user.",
+      });
     }
-    //ถ้ายังไม่เจออีกที ค่อยให้เป็น error
-    if (!attendanceRecord) {
-      return res
-        .status(404)
-        .json({ message: "No attendance record found for today or yesterday." });
-    }
-
-    // ข้างล่างค่อยตรวจสอบว่า OT ยัง active ไหม หรือเคย start แล้วหรือยัง
+    //เช็คว่ามีการเริ่ม OT ไปแล้วหรือยัง
     if (!attendanceRecord.overtime.otStart) {
-      return res.status(400).json({ message: "You haven't started OT yet." });
-    }
-    if (attendanceRecord.overtime.status !== "active") {
-      return res.status(400).json({ message: "OT has already ended." });
+      return res.status(404).json({ message: "You haven't started OT yet." });
     }
 
+    //อัปเดตเวลา OT End และ คำนวณ total OT hours พร้อมเปลี่ยนสถานะเป็น finished
     attendanceRecord.overtime.otEnd = new Date();
     attendanceRecord.overtime.status = "finished";
 
@@ -255,9 +299,7 @@ exports.getTodayAttendance = async (req, res) => {
     const attendanceRecord = await Attendance.findOne({
       userId,
       date: today,
-    }).populate("userId","personalInfo.firstName personalInfo.lastName")
-    
-    ;
+    }).populate("userId", "personalInfo.firstName personalInfo.lastName");
 
     if (!attendanceRecord) {
       return res

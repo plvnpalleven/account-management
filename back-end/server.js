@@ -10,6 +10,7 @@ const deleteFileRoute = require("./routes/deleteFileRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const attendanceControllerAdmin = require("./routes/attendanceRoutesAdmin");
 const employeeRoutes = require("./routes/employeeRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
 const cors = require("cors");
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use("/api/delete-file", deleteFileRoute);
 app.use("/attendance",attendanceRoutes);
 app.use("/attendanceAdmin",attendanceControllerAdmin);
 app.use("/employee", employeeRoutes);
+app.use("/leave",leaveRoutes);
 
 require("./utils/cronJobs");
 

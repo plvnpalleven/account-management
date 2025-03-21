@@ -78,14 +78,14 @@ const Sidebar = () => {
                 To-Do List
               </Link>
               <Link
-                to="/dashboard/WorkOffice/DayOff"
+                to="/dashboard/WorkOffice/Leave"
                 className={`nav-link ${
-                  location.pathname === "/dashboard/WorkOffice/DayOff"
+                  location.pathname === "/dashboard/WorkOffice/Leave"
                     ? "nav-active"
                     : ""
                 }`}
               >
-                Day Off
+                Leave
               </Link>
               <Link
                 to="/dashboard/WorkOffice/RoomBooking"
