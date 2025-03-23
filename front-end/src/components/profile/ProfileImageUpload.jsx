@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import axiosCloudinary from "../../../../back-end/axiosCloudinary";
+import axiosCloudinary from "../../utils/axiosCloudinary";
 import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "sonner";
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../../../back-end/axios";
+import axios from "../../utils/axios";
 import LeaveModal from "./LeaveModal";
 
 const LeaveTab = () => {

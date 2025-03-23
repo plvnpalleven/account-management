@@ -1,6 +1,6 @@
 import React, { useState , useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../../../back-end/axios";
+import axios from "../../utils/axios";
 import { toast } from "sonner";
 import {AuthContext} from "../../context/AuthContext";
 

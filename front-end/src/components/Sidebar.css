@@ -29,3 +29,6 @@
     @apply bg-sideActive text-white;
 }
 
+.logout{
+    @apply w-full p-4 rounded-none text-xl font-bold text-center bg-sideInactive hover:bg-sideActive;
+}

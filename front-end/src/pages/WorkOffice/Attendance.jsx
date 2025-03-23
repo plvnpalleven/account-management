@@ -5,7 +5,7 @@ import TabHeader from "../../components/TabHeader";
 import AttendanceTab from "../../components/attendance/AttendanceTab";
 import SummaryTab from "../../components/attendance/SummaryTab";
 import RequestTab from "../../components/attendance/RequestTab";
-import axios from "../../../../back-end/axios";
+import axios from "../../utils/axios";
 
 const Attendance = () => {
   const [activeTab, setActiveTab] = useState("attendance"); // Tab ปัจจุบัน
@@ -40,7 +40,6 @@ const Attendance = () => {
     );
   }
 
-  // รายการ Tab
   const pageTabs = [
     { label: "Attendance", value: "attendance" },
     { label: "Summary", value: "summary" },

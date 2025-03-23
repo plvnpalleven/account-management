@@ -54,7 +54,7 @@ const login = async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
     console.log("Login Response:", { id: user._id, role: user.role }); // 🛠 Debug ตรงนี้

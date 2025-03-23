@@ -252,6 +252,13 @@ const Sidebar = () => {
           )}
         </>
       </nav>
+      <button
+          // onClick={handleLogout}
+          className="logout" 
+          style={{ marginTop: "auto" }} // ถ้าอยากดันลงล่างแบบง่าย ๆ
+        >
+          Logout
+        </button>
     </div>
   );
 };

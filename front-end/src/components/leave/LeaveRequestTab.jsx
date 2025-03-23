@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../../../back-end/axios"; // ปรับ path ตามโปรเจคจริง
+import axios from "../../utils/axios"; // ปรับ path ตามโปรเจคจริง
 
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";

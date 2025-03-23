@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeEditSchema } from "../../schema/employeeEditSchema";
 import { flattenObject } from "../../utils/flattenObject";
-import axiosCloudinary from "../../../../back-end/axiosCloudinary";
-import axios from "../../../../back-end/axios";
+import axiosCloudinary from "../../utils/axiosCloudinary";
+import axios from "../../utils/axios";
 import ProfileImageUpload from "./ProfileImageUpload";
 
 const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {

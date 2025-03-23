@@ -11,7 +11,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import axios from "../../../../back-end/axios";
+import axios from "../../utils/axios";
 
 const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
   const [leaveType, setLeaveType] = useState("sick");

@@ -1,4 +1,4 @@
-import axiosCloudinary from "../../../../back-end/axiosCloudinary";
+import axiosCloudinary from "../../utils/axiosCloudinary";
 import React from "react";
 
 const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
