@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useContext } from "react";
 import "./Sidebar.css";
-import logo from "../assets/logo.png";
-import { AuthContext } from "../context/AuthContext";
+import logo from "../../assets/logo.png";
+import { AuthContext } from "../../context/AuthContext";
 const Sidebar = () => {
   const location = useLocation(); //ดึง path ปัจจุบัน
   const { user } = useContext(AuthContext);

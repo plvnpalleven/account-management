@@ -9,7 +9,7 @@ exports.checkIn = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    //ตรวจสอบว่าเคย Check-in ไปหรือยังวันนี้
+    //ตรวจสอบว่าเคย Check-in ไปแล้วรึยัง
     const existingRecord = await Attendance.findOne({ userId, date: today });
 
     if (existingRecord) {
@@ -18,8 +18,7 @@ exports.checkIn = async (req, res) => {
         .json({ message: "You have already checked in today." });
     }
     const checkInTime = new Date();
-    //ตรวจสอบว่าสายหรือไม่
-    // const status = checkInTime <= "09:20" ? "on time" : "late";
+   
     const status =
       checkInTime.getHours() < 9 ||
       (checkInTime.getHours() === 9 && checkInTime.getMinutes() <= 20)

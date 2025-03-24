@@ -10,8 +10,6 @@ const ProfileTabReadOnly = ({ profileData, onEdit }) => {
         {/* Header Section (Profile Picture + Name + Position) */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col items-center bg-transparent relative">
-            {/* <section className="flex flex-col items-center bg-gray-50 p-4 rounded shadow relative"> */}
-            {/* ส่วนบน */}
             <div className="relative">
               <img
                 src={profileData.documents?.profilePicture.secure_url}
