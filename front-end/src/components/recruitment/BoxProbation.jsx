@@ -3,7 +3,7 @@ import CandidateCard from "./CandidateCard";
 
 const BoxProbation = ({ candidates, onAccept, onReject, onClick }) => {
   return (
-    <div className="flex flex-col h-full w-[394.4px] bg-gray-100 shadow rounded-lg">
+    <div className="flex flex-col max-h-[73vh] w-[70vh] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
         Probation
       </div>

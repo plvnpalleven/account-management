@@ -3,7 +3,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 const RecruitSearch = ({ searchTerm, onSearchChange }) => {
   return (
-    <div className="flex items-center border border-gray-300 rounded-lg p-2 w-[392px]">
+    <div className="flex items-center border border-gray-300 rounded-lg p-2 w-[50vh]">
      
       <input 
         type="text"

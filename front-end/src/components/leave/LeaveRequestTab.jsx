@@ -84,12 +84,6 @@ const LeaveRequestTab = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">All Leave Requests</h1>
-        {/* <button
-          onClick={fetchRequests}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200"
-        >
-          Refresh
-        </button> */}
       </div>
 
       {/* ตาราง */}

@@ -2,7 +2,7 @@ import React from "react";
 import CandidateCard from "./CandidateCard";
 const BoxApproved = ({ candidates, onAccept, onReject, onClick }) => {
   return (
-    <div className="flex flex-col flex-1 h-full bg-gray-100 shadow rounded-lg">
+    <div className="flex flex-col flex-1 max-h-[73vh] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
         Approved
       </div>

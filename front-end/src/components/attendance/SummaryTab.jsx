@@ -140,7 +140,7 @@ const SummaryTab = () => {
                   <div className="text-lg font-semibold">
                     {formatDate({ $date: record.date })}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-">
                     Check-in{" "}
                     {record.checkIn
                       ? new Date(record.checkIn).toLocaleTimeString("en-GB", {

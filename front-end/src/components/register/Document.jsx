@@ -10,7 +10,7 @@ const Document = ({ formData, setFormData, errors, debouncedValidation }) => {
     try {
       const uploadData = new FormData();
       uploadData.append("file", file);
-      uploadData.append("upload_preset", "account_management_preset"); // Replace with your Cloudinary preset
+      uploadData.append("upload_preset", "account_management_preset"); 
       const res = await axiosCloudinary.post("/raw/upload", uploadData);
 
       console.log("Cloudinary response:", res.data);

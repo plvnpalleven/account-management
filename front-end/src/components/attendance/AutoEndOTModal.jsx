@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-/**
- * Props:
- *  - isOpen: boolean ควบคุมการแสดงผล Modal
- *  - onClose: ฟังก์ชันปิด Modal
- *  - onConfirmEnd: ฟังก์ชันสำหรับกดปุ่ม End OT
- *  - onExtend: ฟังก์ชันสำหรับต่อ OT (เพิ่ม plannedHours)
- *  - gracePeriod: จำนวนวินาทีที่ให้ผู้ใช้ตัดสินใจ
- */
-
 const AutoEndOTModal = ({
   isOpen,
   onClose,
   onConfirmEnd,
   onExtend,
-  gracePeriod = 600, // ดีฟอลต์ 30 วินาที
+  gracePeriod = 600,
 }) => {
   const [timeLeft, setTimeLeft] = useState(gracePeriod);
 

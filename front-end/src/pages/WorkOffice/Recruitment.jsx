@@ -116,7 +116,7 @@ const Recruitment = () => {
   ];
 
   return (
-    <div className="flex flex-col p-6 bg-gray-300 min-h-screen">
+    <div className="flex flex-col p-6 bg-gray-300 h-screen overflow-hidden">
       {/* ใช้ TabHeader ส่ง pageTabs */}
       <TabHeader
         pageTabs={pageTabs}
@@ -124,7 +124,7 @@ const Recruitment = () => {
         onTabChange={setActiveTab}
       />
 
-      <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-hidden">
+      <div className="flex-1 bg-white p-6 shadow-md max-h-full overflow-hidden">
         {/* ทำให้เห็นก็ต่อเมื่อไม่เป็น Profile */}
         {activeTab !== "profile" && (
           <RecruitSearch
@@ -135,7 +135,7 @@ const Recruitment = () => {
 
         {/* สลับแสดง BoxApplicant/Interview/Approved/Probation ตามแท็บ */}
         {activeTab === "applicants" && (
-          <div className="flex gap-4 h-[530px] w-full mt-4">
+          <div className="flex gap-4 w-full mt-4">
             <BoxApplicant
               candidates={filteredCandidates.filter(
                 (c) => c.applicationStatus === "new"
@@ -163,7 +163,7 @@ const Recruitment = () => {
           </div>
         )}
         {activeTab === "probation" && (
-          <div className="flex gap-4 h-[530px] w-full mt-4">
+          <div className="flex gap-4 h-full w-full mt-4">
             <BoxProbation
               candidates={filteredCandidates.filter(
                 (c) => c.applicationStatus === "probation"
@@ -174,7 +174,7 @@ const Recruitment = () => {
             />
           </div>
         )}
-        
+
         {activeTab === "profile" && <ProfileTab user={user} />}
       </div>
       {selectedCandidate && (
