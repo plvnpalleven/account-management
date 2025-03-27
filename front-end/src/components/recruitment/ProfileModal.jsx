@@ -12,7 +12,7 @@ const ProfileModal = ({ candidate, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-xl w-[450px] shadow-lg relative"
+        className="bg-white p-6 rounded-xl w-[450px] shadow-lg relative  max-h-[98vh] overflow-y-auto custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -31,7 +31,7 @@ const ProfileModal = ({ candidate, onClose }) => {
           />
           <div>
             <h2 className="text-xl font-bold text-profileModalHeader">
-              {candidate.personalInfo.firstName} {" "}
+              {candidate.personalInfo.firstName}{" "}
               {candidate.personalInfo.lastName}
             </h2>
 
@@ -49,7 +49,9 @@ const ProfileModal = ({ candidate, onClose }) => {
         {/* Contact Info */}
         <hr className="my-2 border-t-2" />
         <div className="mt-2">
-          <h4 className="text-xl font-bold text-profileModalHeader mb-2">Contact</h4>
+          <h4 className="text-xl font-bold text-profileModalHeader mb-2">
+            Contact
+          </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center">
               <span className="font-semibold text-gray-600">Email:</span>
@@ -95,36 +97,39 @@ const ProfileModal = ({ candidate, onClose }) => {
             </p>
             <p>
               <span className="font-semibold">Date of Birth :</span>{" "}
-              {formatDate(candidate.personalInfo.dateOfBirth)}            </p>
+              {formatDate(candidate.personalInfo.dateOfBirth)}{" "}
+            </p>
           </div>
         </div>
 
         {/* Address */}
         <hr className="my-2 border-t-2" />
         <div className="mt-2">
-          <h3 className="text-xl font-bold text-profileModalHeader mb-2">Address</h3>
+          <h3 className="text-xl font-bold text-profileModalHeader mb-2">
+            Address
+          </h3>
           <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
-            <p className="text-gray-600">
+            <p className="col-span-2 truncate">
               <strong>Current Address : </strong>
               {candidate.addressInfo.currentAddress}
             </p>
-            <p>
-              <strong>Village Number : </strong>
-              {candidate.addressInfo.villageNumber}
-            </p>
-            <p>
-              <strong>Street Number : </strong>
-              {candidate.addressInfo.streetName}
-            </p>
-            <p>
+            <p className="col-span-2">
               <strong>Sub District : </strong>
               {candidate.addressInfo.subDistrict}
             </p>
-            <p>
+            <p className="col-span-2">
+              <strong>Street Number : </strong>
+              {candidate.addressInfo.streetName}
+            </p>
+            <p  className="col-span-2">
+              <strong>Village Number : </strong>
+              {candidate.addressInfo.villageNumber}
+            </p>
+            <p  className="col-span-2">
               <strong>Province : </strong>
               {candidate.addressInfo.province}
             </p>
-            <p>
+            <p  className="col-span-2">
               <strong>Postal Code : </strong>
               {candidate.addressInfo.postalCode}
             </p>
@@ -133,14 +138,22 @@ const ProfileModal = ({ candidate, onClose }) => {
         {/* Documents */}
         <hr className="my-2 border-t-2" />
         <div className="mt-2 text-gray-600">
-          <h3 className="text-xl font-bold text-profileModalHeader mb-2">Documents</h3>
+          <h3 className="text-xl font-bold text-profileModalHeader mb-2">
+            Documents
+          </h3>
           <div className="grid grid-cols-2 gap-2 mt-1">
-            <ViewButton label="ID Card" link={candidate.documents.idCard.secure_url} />
+            <ViewButton
+              label="ID Card"
+              link={candidate.documents.idCard.secure_url}
+            />
             <ViewButton
               label="House Registration"
               link={candidate.documents.houseRegistration.secure_url}
             />
-            <ViewButton label="Diploma" link={candidate.documents.diploma.secure_url} />
+            <ViewButton
+              label="Diploma"
+              link={candidate.documents.diploma.secure_url}
+            />
             <ViewButton
               label="Bank Account"
               link={candidate.documents.bankAccount.secure_url}

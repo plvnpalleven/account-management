@@ -30,7 +30,7 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <img src={logo} alt="Logo" className="sidebar-logo" />
-      <nav className="flex flex-col">
+      <nav className="flex flex-col ">
         {/* Work Office Dropdown */}
         <>
           <button

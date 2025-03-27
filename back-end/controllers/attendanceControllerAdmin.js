@@ -12,7 +12,7 @@ exports.getAllOTRequests = async (req, res) => {
     res.status(500).json({ message: "Error fetching OT requests" });
   }
 };
-
+  
 exports.approveOT = async (req, res) => {
   try {
     await Attendance.findByIdAndUpdate(req.params.requestId, {

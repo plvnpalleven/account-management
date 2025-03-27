@@ -50,18 +50,15 @@ exports.approveLeave = async (req, res) => {
 
     //วน loop จาก start -> end
     while (currentDate <= endDate) {
-      //set 00:00:00 จะได้ compare ได้ถูกต้องเป๊ะๆ
       const loopDate = new Date(currentDate);
       loopDate.setHours(0, 0, 0, 0);
-
-      //เช็คก่อนว่ามี attendance วันนี้อยู่แล้วหรือยัง
 
       const existingRecord = await Attendance.findOne({
         userId: leaveRequest.userId,
         date: loopDate,
       });
 
-      //ถ้ายังไม่มี -> สร้างใหม่
+      //ถ้ายังไม่มีจะสร้างใหม่
       if (!existingRecord) {
         await Attendance.create({
           userId: leaveRequest.userId,

@@ -3,16 +3,12 @@ const Attendance = require("../models/attendance");
 
 exports.getMonthlySummary = async (req, res) => {
   try {
-    // สมมติว่ารับ userId, month, year จาก query
-    // (อาจรับจาก JWT ก็ได้ ขึ้นอยู่กับระบบ Auth ของคุณ)
     const userId = req.query.userId;
     const month = parseInt(req.query.month); // เช่น 3
     const year = parseInt(req.query.year);   // เช่น 2025
-
     // สร้างช่วงวันที่ของเดือนนั้น
-    // หมายเหตุ: JavaScript Date() นับเดือนตั้งแต่ 0-11
+    // JavaScript Date() นับเดือนตั้งแต่ 0-11
     // ถ้า month = 3 แปลว่าเมษายน => ต้อง -1
-    // แต่บางท่านอาจเลือกใช้อีกวิธี
     const startDate = new Date(year, month - 1, 1);  
     // สิ้นเดือน: ใส่ day=0 จะย้อนมาเป็นวันสุดท้ายของเดือนก่อนหน้า
     // หรือจะทำแบบง่ายคือ new Date(year, month, 0)
@@ -26,15 +22,14 @@ exports.getMonthlySummary = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    }).lean(); // .lean() จะให้เป็น plain object, เข้าถึงง่าย
-
+    }).lean();
     // เตรียมตัวแปรสำหรับสรุป
-    let totalWorkHours = 0;    // รวมชั่วโมงทำงาน
-    let totalOTHours = 0;      // รวม OT
+    let totalWorkHours = 0;  
+    let totalOTHours = 0;      
     let lateCount = 0;
     let absentCount = 0;
     let leaveCount = 0;
-    let totalDaysAttended = 0; // นับว่า “มา” กี่วัน
+    let totalDaysAttended = 0; 
 
     // วนลูป Attendance เพื่อนับ/รวมค่า
     attendanceRecords.forEach((record) => {

@@ -1,14 +1,20 @@
 const cron = require("node-cron");
 const Attendance = require("../models/attendance");
 const Employee = require("../models/employeeModel");
-const {calculateOTHours} = require("../utils/timeUtils");
+const {calculateOTHours , calculateTotalHours} = require("../utils/timeUtils");
 //กำหนดเวลา ที่ 23:59 ทุกวัน (รูปแบบ cron: '59 23 * * *')
-cron.schedule("59 23 * * *", async () => {
+cron.schedule("54 13 * * *", async () => {
   console.log("Cron job started: ตรวจสอบ attendance ที่ยังไม่ได้ check in");
 
   //กำหนดวันที่เป็น 00:00 เพื่อให้เปรียบเทียบได้ง่าย
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  const dayOfWeek = today.getDay();
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    console.log("Sat , Sun Detected.... auto absent skipped");
+    return; // ไม่ต้องทำอะไรต่อ
+  } 
 
   try {
     //ดึงพนักงานทั้งหมดที่ต้องมีการเช็คอิน (สามารถปรับให้กรองเฉพาะคนที่มี work schedule วันนั้นได้)
@@ -74,5 +80,35 @@ cron.schedule("*/30 * * * *",async ()=>{
     console.log("Cron Job (Auto End OT) finished.");
   }catch(error){
     console.error("Error in Cron Job (Auto End OT):",error);
+  }
+});
+
+
+cron.schedule("35 17 * * *", async () => {
+  console.log("Cron job started: Auto Checkout for employees who forgot to check out");
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const autoCheckoutTime = new Date();
+  autoCheckoutTime.setHours(17, 30, 0, 0);
+
+  try {
+    const records = await Attendance.find({
+      date: today,
+      checkIn: { $ne: null },
+      checkOut: null,
+    });
+
+    for (const record of records) {
+      record.checkOut = autoCheckoutTime;
+      record.totalHours = calculateTotalHours(record.checkIn, autoCheckoutTime);
+      await record.save();
+      console.log(`Auto checked out employee ${record.userId} at ${autoCheckoutTime}`);
+    }
+
+    console.log("Cron job for auto checkout completed successfully.");
+  } catch (error) {
+    console.error("Error in auto checkout cron job:", error);
   }
 });

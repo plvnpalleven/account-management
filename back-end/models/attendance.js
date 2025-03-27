@@ -14,7 +14,7 @@ const attendanceSchema = new mongoose.Schema(
         return this.status !== "absent" && this.status !== "leave";
       },
     },
-    checkOut: { type: Date, required: false }, //อาจยังไม่มีในตอนแรก
+    checkOut: { type: Date, required: false }, 
     totalHours: { type: Number, default: 0 },
     status: {
       type: String,
@@ -39,9 +39,6 @@ const attendanceSchema = new mongoose.Schema(
       otStart: { type: Date, default: null }, //'HH:MM'
       otEnd: { type: Date, default: null }, //'HH:MM'
       totalOTHours: { type: Number, default: 0 },
-      // isRequested: { type: Boolean, default: false },
-      // isApproved: { type: Boolean, default: false },
-      // isOTActive:{type:Boolean,default:false},
     },
   },
   { timestamps: true }

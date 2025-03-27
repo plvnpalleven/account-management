@@ -18,7 +18,8 @@ exports.checkIn = async (req, res) => {
         .json({ message: "You have already checked in today." });
     }
     const checkInTime = new Date();
-   
+    //ตรวจสอบว่าสายหรือไม่
+    // const status = checkInTime <= "09:20" ? "on time" : "late";
     const status =
       checkInTime.getHours() < 9 ||
       (checkInTime.getHours() === 9 && checkInTime.getMinutes() <= 20)
@@ -112,17 +113,14 @@ exports.adjustPlannedHours = async (req, res) => {
   try {
     const userId = req.user._id;
     const { hours } = req.body;
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const attendanceRecord = await Attendance.findOne({ userId, date: today });
     if (!attendanceRecord) {
       return res
         .status(404)
         .json({ message: "No attendance record for today." });
     }
-
     // ต้องมีการขอ OT ก่อน
     if (
       attendanceRecord.overtime.status !== "requested" &&
@@ -133,21 +131,18 @@ exports.adjustPlannedHours = async (req, res) => {
         .status(400)
         .json({ message: "You have not requested OT today." });
     }
-
     // ถ้าจะกันไม่ให้ลดเมื่อ OT active:
     if (attendanceRecord.overtime.status === "active" && hours < 0) {
       return res
         .status(400)
         .json({ message: "Cannot reduce hours while OT is active." });
     }
-
     const newPlanned = attendanceRecord.overtime.plannedHours + hours;
     if (newPlanned < 0) {
       return res
         .status(400)
         .json({ message: "Cannot set planned hours below 0." });
     }
-
     attendanceRecord.overtime.plannedHours = newPlanned;
     await attendanceRecord.save();
 

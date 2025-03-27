@@ -10,8 +10,6 @@ import { debounce } from "lodash";
 import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
 import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
-import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
-import RegisterFailedModal from "../../components/modals/RegisterFailedModal";
 import { toast } from "sonner";
 
 const Register = () => {
@@ -20,8 +18,7 @@ const Register = () => {
   const handleBack = () => {
     navigate("/login");
   };
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false); //สองอันนี้ เป็น state สำหรับใช้กับ modal ที่เอาไว้ขึ้นตอน handle submit
+
   const [currentTab, setCurrentTab] = useState(0); // Tab ปัจจุบัน
   const [isAnimating, setIsAnimating] = useState(false);
   const [errors, setErrors] = useState({});

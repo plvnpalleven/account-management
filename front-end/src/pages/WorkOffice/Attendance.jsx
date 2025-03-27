@@ -47,7 +47,6 @@ const Attendance = () => {
 
   if (user?.role === "admin") {
     pageTabs.push({ label: "Request", value: "request" });
-    pageTabs.push({ label: "Search", value: "search" });
   }
 
   if (loading) return <div>Loading...</div>;
