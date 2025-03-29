@@ -4,10 +4,11 @@ const CandidateCard = ({
   id,
   name,
   profileImage,
-  applicationStatus,
   onAccept,
   onReject,
   onClick,
+  daysLeft,
+  mode = "candidate",
 }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white shadow rounded-lg ml-2 mr-2">
@@ -26,11 +27,18 @@ const CandidateCard = ({
             {name}
           </h3>
           {/* <p className="text-sm text-gray-500">{applicationStatus}</p> */}
+          {daysLeft !== undefined && (
+            <p className="text-xs text-red-600">
+              เหลืออีก {daysLeft} วันทดลองงาน
+            </p>
+          )}
         </div>
       </div>
       {/* Action button */}
       <div className="flex items-center gap-2">
-        <button
+      {mode === "candidate" && (
+        <>
+          <button
           onClick={(e) => {
             e.stopPropagation();
             onAccept(id);
@@ -48,6 +56,31 @@ const CandidateCard = ({
         >
           ✕
         </button>
+        </>
+      )}
+
+      {mode === "rejected" && (
+        <>
+          <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAccept(id);
+          }}
+          className="flex items-center justify-center gap-1 bg-green-500 text-white font-bold px-4 py-2 rounded-lg shadow-md transition-colors duration-150 ease-in-out hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 active:bg-green-700"
+        >
+          Restore
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onReject(id);
+          }}
+          className="flex items-center justify-center gap-1 bg-red-500 text-white font-bold px-4 py-2 rounded-lg shadow-md transition-colors duration-150 ease-in-out hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 active:bg-red-700"
+        >
+          Terminate
+        </button>
+        </>
+      )}
       </div>
     </div>
   );

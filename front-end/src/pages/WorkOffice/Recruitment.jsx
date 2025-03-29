@@ -11,6 +11,7 @@ import BoxApplicant from "../../components/recruitment/BoxApplicant";
 import BoxInterview from "../../components/recruitment/BoxInterview";
 import BoxApproved from "../../components/recruitment/BoxApproved";
 import BoxProbation from "../../components/recruitment/BoxProbation";
+import BoxRejected from "../../components/recruitment/BoxRejected";
 
 const Recruitment = () => {
   const { user, loading } = useContext(AuthContext);
@@ -55,14 +56,7 @@ const Recruitment = () => {
 
       setCandidates((prev) =>
         prev.map((candidate) =>
-          candidate._id === id
-            ? {
-                ...candidate,
-                applicationStatus: updatedCandidate.applicationStatus,
-                accessStatus:
-                  updatedCandidate.accessStatus || candidate.accessStatus,
-              }
-            : candidate
+          candidate._id === updatedCandidate._id ? updatedCandidate : candidate
         )
       );
     } catch (error) {
@@ -78,6 +72,37 @@ const Recruitment = () => {
 
       //เปลี่ยนapplication status เป็น rejected
       updateData.applicationStatus = "rejected";
+
+      const response = await axios.patch(
+        `/api/recruit/${id}/status`,
+        updateData
+      );
+      const updatedCandidate = response.data;
+
+      setCandidates((prev) =>
+        prev.map((candidate) =>
+          candidate._id === id
+            ? {
+                ...candidate,
+                applicationStatus: updatedCandidate.applicationStatus,
+                accessStatus: updatedCandidate.accessStatus,
+              }
+            : candidate
+        )
+      );
+    } catch (error) {
+      console.error("Error rejecting candidate:", error);
+    }
+  };
+
+  const handleTerminate = async (id) => {
+    try {
+      const updateData = {
+        accessStatus: "revoked", //revoked = login ไม่ได้
+      };
+
+      //เปลี่ยนapplication status เป็น rejected
+      updateData.applicationStatus = "terminated";
 
       const response = await axios.patch(
         `/api/recruit/${id}/status`,
@@ -163,13 +188,21 @@ const Recruitment = () => {
           </div>
         )}
         {activeTab === "probation" && (
-          <div className="flex gap-4 h-full w-full mt-4">
+          <div className="flex gap-4 w-full mt-4">
             <BoxProbation
               candidates={filteredCandidates.filter(
                 (c) => c.applicationStatus === "probation"
               )}
               onAccept={handleAccept}
               onReject={handleReject}
+              onClick={(candidate) => setSelectedCandidate(candidate)}
+            />
+            <BoxRejected
+              candidates={filteredCandidates.filter(
+                (c) => c.applicationStatus === "rejected"
+              )}
+              onAccept={handleAccept}
+              onReject={handleTerminate}
               onClick={(candidate) => setSelectedCandidate(candidate)}
             />
           </div>

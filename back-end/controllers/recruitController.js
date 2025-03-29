@@ -23,7 +23,10 @@ const updateEmployeeStatus = async (req, res) => {
     if (accessStatus) {
       updateFields.accessStatus = accessStatus;
     }
-
+    if (applicationStatus === "probation") {
+      console.log("mark complete")
+      updateFields.probationStart = new Date(); 
+    }
     const updatedEmployee = await Employee.findByIdAndUpdate(id, updateFields, {
       new: true,
     });
