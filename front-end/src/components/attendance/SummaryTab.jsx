@@ -125,9 +125,8 @@ const SummaryTab = () => {
       {/* History Section */}
       <div>
         <h2 className="text-3xl font-bold text-jpSystemGreen mt-3">History</h2>
-
         {/* Attendance card container */}
-        <div className="mt-10 max-h-80 overflow-y-auto custom-scrollbar px-4">
+        <div className="mt-10 h-[45vh] overflow-y-auto custom-scrollbar px-4">
           <div className="grid grid-cols-3 gap-4">
             {/* {attendanceData.map((record, index) => ( */}
             {[...attendanceData]

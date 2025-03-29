@@ -2,11 +2,11 @@ import React from "react";
 import CandidateCard from "./CandidateCard";
 const BoxApproved = ({ candidates, onAccept, onReject, onClick }) => {
   return (
-    <div className="flex flex-col flex-1 max-h-[73vh] bg-gray-100 shadow rounded-lg">
+    <div className="flex flex-col flex-1  min-h-[73vh] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
         Approved
       </div>
-      <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2">
+      <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2 max-h-[60vh]">
         {candidates.length > 0 ? (
           candidates.map((candidate) => (
             <CandidateCard

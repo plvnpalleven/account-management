@@ -79,8 +79,11 @@ const employeeSchema = new mongoose.Schema({
   },
   applicationStatus: {
     type: String,
-    enum: ["new", "interview", "approved", "probation", "employee", "rejected"],
+    enum: ["new", "interview", "approved", "probation", "employee", "rejected","terminated"],
     default: "new",
+  },
+  probationStart: {
+    type: Date,
   },
 
   accessStatus: {

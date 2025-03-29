@@ -1,11 +1,10 @@
 import React from "react";
 import CandidateCard from "./CandidateCard";
-
-const BoxApplicant = ({ candidates, onAccept, onReject , onClick }) => {
+const BoxRejected = ({ candidates, onAccept, onReject, onClick }) => {
   return (
-    <div className="flex flex-col flex-1 min-h-[73vh] h-full bg-gray-100 shadow rounded-lg">
+    <div className="flex flex-col flex-1 min-h-[73vh] bg-gray-100 shadow rounded-lg">
       <div className="bg-recruitHeader text-white text-center py-2 rounded-t-lg font-semibold">
-        New Applicant
+        Rejected
       </div>
       <div className="custom-scrollbar mt-4 mb-4 space-y-4 overflow-y-auto px-2 max-h-[60vh]">
         {candidates.length > 0 ? (
@@ -16,9 +15,10 @@ const BoxApplicant = ({ candidates, onAccept, onReject , onClick }) => {
               name={`${candidate.personalInfo.firstName} ${candidate.personalInfo.lastName}`}
               profileImage={candidate.documents.profilePicture.secure_url}
               applicationStatus={candidate.applicationStatus}
-              onAccept={() => onAccept(candidate._id, "interview")}
+              onAccept={() => onAccept(candidate._id, "new")}
               onReject={() => onReject(candidate._id)}
               onClick={() => onClick(candidate)}
+              mode="rejected"
             />
           ))
         ) : (
@@ -29,4 +29,4 @@ const BoxApplicant = ({ candidates, onAccept, onReject , onClick }) => {
   );
 };
 
-export default BoxApplicant;
+export default BoxRejected;
