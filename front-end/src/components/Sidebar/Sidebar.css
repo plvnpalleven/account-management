@@ -21,7 +21,7 @@
 }
 
 .dropdown-button{
-    @apply w-full p-2 rounded-none text-center bg-sideInactive hover:bg-sideInactive;
+    @apply w-full p-2 rounded-none text-center bg-sideInactive hover:bg-sideActive;
     @apply border-b border-white;
     @apply border-b last:border-b-0;
 }

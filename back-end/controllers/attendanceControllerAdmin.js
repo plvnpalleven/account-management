@@ -4,7 +4,11 @@ const mongoose = require("mongoose");
 
 exports.getAllOTRequests = async (req, res) => {
   try {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
     const requests = await Attendance.find({
+      date: today,
       "overtime.status": "requested",
     }).populate("userId", "personalInfo.firstName personalInfo.lastName documents.profilePicture.secure_url");
     res.status(200).json(requests);

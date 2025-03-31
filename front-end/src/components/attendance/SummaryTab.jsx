@@ -57,33 +57,33 @@ const SummaryTab = () => {
   return (
     <div>
       <div className="flex flex-row justify-between">
-      <h2 className="text-3xl font-bold mb-5 text-jpSystemGreen">
-        Summary of{" "}
-        {new Date(selectedYear, selectedMonth - 1).toLocaleString("en-US", {
-          month: "long",
-          year: "numeric",
-        })}
-      </h2>
-      <div className="flex items-center gap-2 mb-4">
-        <select
-          value={selectedMonth}
-          onChange={handleMonthChange}
-          className="p-2 border rounded text-xl border-transparent"
-        >
-          <option value={1}>January</option>
-          <option value={2}>February</option>
-          <option value={3}>March</option>
-          <option value={4}>April</option>
-          <option value={5}>May</option>
-          <option value={6}>June</option>
-          <option value={7}>July</option>
-          <option value={8}>August</option>
-          <option value={9}>September</option>
-          <option value={10}>October</option>
-          <option value={11}>November</option>
-          <option value={12}>December</option>
-        </select>
-      </div>
+        <h2 className="text-3xl font-bold mb-5 text-jpSystemGreen">
+          Summary of{" "}
+          {new Date(selectedYear, selectedMonth - 1).toLocaleString("en-US", {
+            month: "long",
+            year: "numeric",
+          })}
+        </h2>
+        <div className="flex items-center gap-2 mb-4">
+          <select
+            value={selectedMonth}
+            onChange={handleMonthChange}
+            className="p-2 border rounded text-xl border-transparent"
+          >
+            <option value={1}>January</option>
+            <option value={2}>February</option>
+            <option value={3}>March</option>
+            <option value={4}>April</option>
+            <option value={5}>May</option>
+            <option value={6}>June</option>
+            <option value={7}>July</option>
+            <option value={8}>August</option>
+            <option value={9}>September</option>
+            <option value={10}>October</option>
+            <option value={11}>November</option>
+            <option value={12}>December</option>
+          </select>
+        </div>
       </div>
       {/* Summary section */}
       <div className="grid grid-cols-5 gap-4 mb-6">
@@ -162,14 +162,17 @@ const SummaryTab = () => {
                       record.status === "on time"
                         ? "text-green-600"
                         : record.status === "late"
-                        ? "text-yellow-600"
-                        : record.status === "leave" ||
-                          record.status === "absent"
+                        ? "text-yellow-400"
+                        : record.status === "leave"
+                        ? "text-orange-600"
+                        : record.status === "absent"
                         ? "text-red-600"
-                        : "text-blue-600"
+                        : record.status === "holiday"
+                        ? "text-blue-500"
+                        : "text-gray-500"
                     }`}
                   >
-                    {record.status.toUpperCase()}
+                    {record.status}
                   </div>
                 </div>
               ))}

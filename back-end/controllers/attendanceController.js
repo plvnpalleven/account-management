@@ -8,7 +8,7 @@ exports.checkIn = async (req, res) => {
     //กัน check in ก่อน 7.30
     const now = new Date();
     const allowedHour = 7;
-    const allowedMinute = 20;
+    const allowedMinute = 30;
     if (
       now.getHours() < allowedHour ||
       (now.getHours() === allowedHour && now.getMinutes() < allowedMinute)
@@ -25,13 +25,29 @@ exports.checkIn = async (req, res) => {
     //ตรวจสอบว่าเคย Check-in ไปแล้วรึยัง
     const existingRecord = await Attendance.findOne({ userId, date: today });
 
+    // if (existingRecord) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "You have already checked in today." });
+    // }
+
     if (existingRecord) {
+      if (existingRecord.status === "leave") {
+        return res
+          .status(400)
+          .json({ message: "You have already taken leave for today. Check-in is not allowed." });
+      }
+      if (existingRecord.status === "holiday") {
+        return res
+          .status(400)
+          .json({ message: "Today is a holiday. No check-in is required." });
+      }
       return res
         .status(400)
         .json({ message: "You have already checked in today." });
     }
+
     const checkInTime = new Date();
-    //ตรวจสอบว่าสายหรือไม่
     // const status = checkInTime <= "09:20" ? "on time" : "late";
     const status =
       checkInTime.getHours() < 9 ||

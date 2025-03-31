@@ -209,13 +209,19 @@ exports.createHolidaysForAll = async (req, res) => {
             },
           });
         } else {
-          // อาจเช็กก่อนว่า existingRecord.status เป็นอะไรกัน
-          // ถ้าอยาก override ทุกอย่าง = holiday ก็ทำเลย
-          existingRecord.status = "leave";
+          //Override Record
+          existingRecord.status = "holiday"; 
           existingRecord.checkIn = null;
           existingRecord.checkOut = null;
           existingRecord.totalHours = 0;
-          // ... ถ้ามีฟิลด์อื่น เช่น holidayDescription ก็ใส่เพิ่มได้
+          existingRecord.overtime = {
+            status: "none",
+            requestedHours: 0,
+            plannedHours: 0,
+            otStart: null,
+            otEnd: null,
+            totalOTHours: 0,
+          };
           await existingRecord.save();
         }
 

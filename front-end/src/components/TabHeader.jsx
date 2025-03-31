@@ -20,7 +20,8 @@ const TabHeader = ({ pageTabs, activeTab, onTabChange }) => {
 
 
       {/* ปุ่ม Admin */}
-      <div className="ml-auto">
+      {/* ทำไม่ทัน */}
+      {/* <div className="ml-auto">
         <button
           className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
             activeTab === "admin" ? "bg-white font-bold" : "bg-gray-200 text-gray-600"
@@ -29,7 +30,7 @@ const TabHeader = ({ pageTabs, activeTab, onTabChange }) => {
         >
           Admin
         </button>
-      </div>
+      </div> */}
       {/* ปุ่ม Profile */}
       <div className="ml-1">
         <button

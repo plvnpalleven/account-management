@@ -36,7 +36,7 @@ const Login = () => {
       login(data.token,data.user);
 
       toast.success("Login successful! Redirecting...");
-      navigate("/dashboard");
+      navigate("/dashboard/WorkOffice/Attendance");
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }

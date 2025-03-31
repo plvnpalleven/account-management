@@ -1,11 +1,12 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation , useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import "./Sidebar.css";
 import logo from "../../assets/logo.png";
 import { AuthContext } from "../../context/AuthContext";
 const Sidebar = () => {
   const location = useLocation(); //ดึง path ปัจจุบัน
-  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { user , logout } = useContext(AuthContext);
 
   const [isWorkOfficeOpen, setIsWorkOfficeOpen] = useState(false);
   const [isCustomerOpen, setIsCustomerOpen] = useState(false);
@@ -25,6 +26,13 @@ const Sidebar = () => {
     setIsFinancialOpen(!isFinancialOpen);
     setIsWorkOfficeOpen(false); // ปิด Work Office
     setIsCustomerOpen(false); // ปิด Customer Service
+  };
+
+  const handleLogout = () => {
+    // 1) เรียก logout จาก AuthContext (ล้าง token, เคลียร์ user เป็นต้น)
+    logout();
+    // 2) สั่ง navigate ไปหน้า /login
+    navigate("/login");
   };
 
   return (
@@ -253,7 +261,7 @@ const Sidebar = () => {
         </>
       </nav>
       <button
-          // onClick={handleLogout}
+          onClick={handleLogout}
           className="logout" 
           style={{ marginTop: "auto" }} // ถ้าอยากดันลงล่างแบบง่าย ๆ
         >
