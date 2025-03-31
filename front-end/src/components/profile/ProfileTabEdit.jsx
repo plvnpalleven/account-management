@@ -192,8 +192,8 @@ const ProfileTabEdit = ({ initialData, onSave, onCancel }) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, onError)}
-      className="p-4 space-y-6 max-h-[590px] overflow-y-auto custom-scrollbar"
-    >
+      className="p-4 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar"
+    > 
       
       <h2 className="text-3xl font-bold mb-2 text-center">Edit Profile</h2>
       <section className="max-w-4xl w-full mx-auto mb-4">

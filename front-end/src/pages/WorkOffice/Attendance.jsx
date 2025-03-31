@@ -5,6 +5,7 @@ import TabHeader from "../../components/TabHeader";
 import AttendanceTab from "../../components/attendance/AttendanceTab";
 import SummaryTab from "../../components/attendance/SummaryTab";
 import RequestTab from "../../components/attendance/RequestTab";
+import ProfileTab from "../../components/ProfileTab";
 import axios from "../../utils/axios";
 
 const Attendance = () => {
@@ -71,10 +72,13 @@ const Attendance = () => {
         {activeTab === "attendance" && (
           <AttendanceTab currentTime={currentTime} />
         )}
-        {activeTab === "request" && <RequestTab />}
-        {activeTab === "summary" && <SummaryTab />}
-
+        <div>
+          {activeTab === "request" && <RequestTab />}
+          {activeTab === "summary" && <SummaryTab />}
+          {activeTab === "profile" && <ProfileTab user={user} />}
+        </div>
       </div>
+      
     </div>
   );
 };

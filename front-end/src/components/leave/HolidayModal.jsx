@@ -6,15 +6,12 @@ import {
   DialogActions,
   Button,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import axios from "../../utils/axios";
+import { toast } from "sonner";
 
-const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
-  const [leaveType, setLeaveType] = useState("sick");
+
+const HolidayModal = ({ open, onClose, onHolidayCreated }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
@@ -24,50 +21,34 @@ const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "/leave/request",
-        { leaveType, startDate, endDate, reason },
+        //ยังไม่ได้ทำ API
+        "/leave/holidays",
+        { startDate, endDate, reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // success
-      onLeaveCreated();
+      toast.success("Holiday added successfully!");
+      onHolidayCreated && onHolidayCreated();
+      handleClose();
     } catch (error) {
       console.error("Error creating leave request:", error);
-      alert(error.response?.data?.message || "Error");
+      toast.error(error.response?.data?.message || "Error");
     }
   };
 
   const handleClose = () => {
     // เคลียร์ฟอร์มเมื่อปิดโมดัล
-    setLeaveType("sick");
     setStartDate("");
     setEndDate("");
     setReason("");
-
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add Leave</DialogTitle>
+      <DialogTitle>Add Holidays</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          {/* Leave Type */}
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="leave-type-label">Leave Type</InputLabel>
-            <Select
-              labelId="leave-type-label"
-              value={leaveType}
-              label="Leave Type"
-              onChange={(e) => setLeaveType(e.target.value)}
-              required
-            >
-              <MenuItem value="sick">Sick</MenuItem>
-              <MenuItem value="personal">Personal</MenuItem>
-              <MenuItem value="vacation">Vacation</MenuItem>
-              <MenuItem value="other">Other</MenuItem>
-            </Select>
-          </FormControl>
-
           {/* Start Date */}
           <TextField
             label="Start Date"
@@ -98,7 +79,7 @@ const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
 
           {/* Reason */}
           <TextField
-            label="Reason"
+            label="Reason (Holiday Name)"
             fullWidth
             margin="normal"
             value={reason}
@@ -112,7 +93,7 @@ const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
             Cancel
           </Button>
           <Button type="submit" variant="contained" color="primary">
-            Submit Leave
+            Add
           </Button>
         </DialogActions>
       </form>
@@ -120,4 +101,4 @@ const LeaveModal = ({ open, onClose, onLeaveCreated }) => {
   );
 };
 
-export default LeaveModal;
+export default HolidayModal;

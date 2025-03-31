@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
       })
       .then((res) => {
         if (res.data.valid) {
-          //แปล id -> _id
           const userFromAPI = res.data.user;
           setUser(userFromAPI);
         } else {
@@ -36,8 +35,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    console.log("User from API:", user); // ✅ ตอนนี้จะ log ค่าที่อัปเดตแล้ว
-  }, [user]); // 🔍 รันทุกครั้งที่ user เปลี่ยนค่า
+    console.log("User from API:", user);
+  }, [user]); 
 
   const login = (token, userData) => {
     localStorage.setItem("token", token);

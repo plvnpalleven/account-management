@@ -8,7 +8,7 @@ import ProfileTab from "../../components/ProfileTab";
 import LeaveTab from "../../components/leave/LeaveTab";
 import LeaveRequestTab from "../../components/leave/LeaveRequestTab";
 const Leave = () => {
-  const [activeTab, setActiveTab] = useState("attendance"); // state สำหรับ tab ที่ active
+  const [activeTab, setActiveTab] = useState("leave"); // state สำหรับ tab ที่ active
   const { user, loading } = useContext(AuthContext);
 
   const pageTabs = [{ label: "Leave", value: "leave" }];
@@ -26,9 +26,6 @@ const Leave = () => {
       <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-auto">
         {activeTab === "request" && <LeaveRequestTab />}
         {activeTab === "leave" && <LeaveTab />}
-      </div>
-
-      <div className="flex-1 bg-white p-6 shadow-md max-h-screen overflow-hidden">
         {activeTab === "profile" && <ProfileTab user={user} />}
       </div>
     </div>

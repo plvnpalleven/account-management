@@ -10,6 +10,8 @@ import { debounce } from "lodash";
 import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
 import AccountInfo from "../../components/register/AccountInfo";
 import { useNavigate } from "react-router-dom";
+import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
+import RegisterFailedModal from "../../components/modals/RegisterFailedModal";
 import { toast } from "sonner";
 
 const Register = () => {
@@ -18,7 +20,8 @@ const Register = () => {
   const handleBack = () => {
     navigate("/login");
   };
-
+  // const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  // const [isErrorModalOpen, setIsErrorModalOpen] = useState(false); //สองอันนี้ เป็น state สำหรับใช้กับ modal ที่เอาไว้ขึ้นตอน handle submit
   const [currentTab, setCurrentTab] = useState(0); // Tab ปัจจุบัน
   const [isAnimating, setIsAnimating] = useState(false);
   const [errors, setErrors] = useState({});
@@ -236,14 +239,11 @@ const Register = () => {
       }, 3000);
       console.log("Response from server:", response.data);
     } catch (error) {
-      // toast.error("Registration failed. Please enter your info before submit!");
-      // console.error("Error during registration:", error);
       if (error.name === "ZodError") {
         const { fieldErrors } = error.flatten();
         setErrors(fieldErrors);
         toast.error("Please fill all fields in the form before submitting!");
       } else {
-        //ถ้าเป็น error อื่นๆ เช่น 500 , network error ก็จัดการตามสมควร
         toast.error("Registration failed. Please try again.");
         console.error("Error during registration", error);
       }

@@ -4,7 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 const ProfileTabReadOnly = ({ profileData, onEdit }) => {
   return (
-    <div className="p-4 space-y-6 max-h-[590px] overflow-y-auto custom-scrollbar">
+    <div className="p-4 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
       <h2 className="text-3xl font-bold text-center">My Profile</h2>
       <div className="max-w-5xl mx-auto">
         {/* Header Section (Profile Picture + Name + Position) */}

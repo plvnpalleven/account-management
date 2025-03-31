@@ -9,5 +9,7 @@ router.patch("/:leaveId/approve",protect,isAdmin,leaveController.approveLeave);
 router.patch("/:leaveId/reject",protect,isAdmin,leaveController.rejectLeave);
 router.get("/my-leaves",protect,leaveController.getMyLeaves);
 router.get("/admin-requests", protect, isAdmin, leaveController.getAllLeaves);
+router.post("/holidays", protect,isAdmin, leaveController.createHolidaysForAll);
+
 
 module.exports = router;

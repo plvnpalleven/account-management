@@ -11,5 +11,6 @@ router.post('/start-ot',protect,attendanceController.startOT);
 router.post('/end-ot',protect,attendanceController.endOT);
 router.patch('/adjust-planned-hours',protect,attendanceController.adjustPlannedHours);
 router.get('/today',protect,attendanceController.getTodayAttendance);
+router.get('/current', protect, attendanceController.getCurrentAttendance);
 router.get("/summary", attendanceSummaryController.getMonthlySummary);
 module.exports = router;

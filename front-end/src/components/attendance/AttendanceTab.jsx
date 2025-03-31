@@ -92,34 +92,37 @@ const AttendanceTab = ({ currentTime }) => {
     }
   };
 
-  const fetchAttendanceToday = async () => {
+  // const fetchAttendanceToday = async () => {
+    const fetchAttendanceCurrent = async () => {
     try {
-      const res = await axios.get(`/attendance/today`);
+      // const res = await axios.get(`/attendance/today`);
+      const res = await axios.get(`/attendance/current`);
+      const record = res.data.attendanceToday || res.data.activeOTRecord;
       if (res.data) {
-        setCheckInTime(formatTime(res.data.checkIn));
-        setCheckOutTime(formatTime(res.data.checkOut));
-        setIsCheckedIn(!!res.data.checkIn && !res.data.checkOut);
+        setCheckInTime(formatTime(record.checkIn));
+        setCheckOutTime(formatTime(record.checkOut));
+        setIsCheckedIn(!!record.checkIn && !record.checkOut);
 
-        if (res.data.totalHours) {
-          setTotalHours(res.data.totalHours);
+        if (record.totalHours) {
+          setTotalHours(record.totalHours);
         } else {
           setTotalHours(0);
         }
       }
 
-      if (res.data.overtime) {
-        setOtStatus(res.data.overtime.status);
-        setPlannedHours(res.data.overtime.plannedHours);
-        if (res.data.overtime.otStart) {
-          setOtStartTime(res.data.overtime.otStart);
+      if (record.overtime) {
+        setOtStatus(record.overtime.status);
+        setPlannedHours(record.overtime.plannedHours);
+        if (record.overtime.otStart) {
+          setOtStartTime(record.overtime.otStart);
         }
-        if (res.data.overtime.otEnd) {
-          setOtEndTime(res.data.overtime.otEnd);
+        if (record.overtime.otEnd) {
+          setOtEndTime(record.overtime.otEnd);
         }
 
         // เช็คว่ามี totalOTHours กลับมาจาก backend หรือไม่
-        if (res.data.overtime.totalOTHours) {
-          setTotalOTHours(res.data.overtime.totalOTHours);
+        if (record.overtime.totalOTHours) {
+          setTotalOTHours(record.overtime.totalOTHours);
         } else {
           // กรณีไม่มีค่า ก็อาจเซตเป็น 0 หรือปล่อยตามเดิม
           setTotalOTHours(0);
@@ -143,7 +146,7 @@ const AttendanceTab = ({ currentTime }) => {
       });
       toast.success("Check-in success!");
 
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
     } catch (error) {
       toast.error(error.response?.data.message || "Check-in error");
     }
@@ -160,7 +163,7 @@ const AttendanceTab = ({ currentTime }) => {
       await axios.post("/attendance/check-out", {
         userId: user._id,
       });
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
       toast.success("Check-out success!");
     } catch (error) {
       toast.error(error.response?.data.message || "Check-out error");
@@ -238,7 +241,7 @@ const AttendanceTab = ({ currentTime }) => {
       //อาจจะต้องรีเซต localStorage otTimeAlertShown ถ้าใช้
       localStorage.removeItem("otTimeAlertShown");
       //จากนั้น fetchAttendanceToday() เพื่อดึงข้อมูลใหม่
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
     } catch (error) {
       toast.error(error.response?.data.message || "Extend OT failed");
     }
@@ -256,7 +259,7 @@ const AttendanceTab = ({ currentTime }) => {
         startTime: nowTime,
       });
       toast.success(res.data.message);
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
 
       // update state
       setOtStatus(res.data.attendanceRecord.overtime.status);
@@ -282,7 +285,7 @@ const AttendanceTab = ({ currentTime }) => {
       setOtStatus(res.data.attendanceRecord.overtime.status);
       setTotalOTHours(res.data.attendanceRecord.overtime.totalOTHours);
       //อาจเก็บ totalHours มาโชว์ หรือเก็บ otEnd มาโชว์ได้
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
     } catch (error) {
       toast.error(error.response?.data.message || "End OT failed");
     }
@@ -301,7 +304,7 @@ const AttendanceTab = ({ currentTime }) => {
 
       setOtStatus(res.data.attendanceRecord.overtime.status);
       setTotalOTHours(res.data.attendanceRecord.overtime.totalOTHours);
-      await fetchAttendanceToday();
+      await fetchAttendanceCurrent();
     } catch (error) {
       toast.error(error.response?.data.message || "End OT failed");
     }
@@ -328,7 +331,8 @@ const AttendanceTab = ({ currentTime }) => {
   //fetch
   useEffect(() => {
     if (!loading && user?._id) {
-      fetchAttendanceToday();
+      // fetchAttendanceToday();
+      fetchAttendanceCurrent();
       fetchEmployeeInfo();
     }
   }, [loading, user]);

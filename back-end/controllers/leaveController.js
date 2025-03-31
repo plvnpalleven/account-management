@@ -1,5 +1,6 @@
 const LeaveRequest = require("../models/leaveRequest");
 const Attendance = require("../models/attendance");
+const Employee = require("../models/employeeModel");
 const mongoose = require("mongoose");
 
 exports.requestLeave = async (req, res) => {
@@ -134,13 +135,152 @@ exports.getAllLeaves = async (req, res) => {
   try {
     // ถ้าต้องการดึง user details ด้วย ก็ใช้ .populate() ได้
     // เช่น populate('userId', 'username email')
-    const allLeaves = await LeaveRequest.find().populate(
+    const allLeaves = await LeaveRequest.find({ status: "requested" }).populate(
       "userId",
       "personalInfo.firstName personalInfo.lastName"
     );
 
     return res.status(200).json(allLeaves);
   } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.createHolidaysForAll = async (req, res) => {
+  try {
+    const { startDate, endDate, reason } = req.body;
+
+    const sDate = new Date(startDate);
+    const eDate = new Date(endDate);
+
+    if (sDate > eDate) {
+      return res
+        .status(400)
+        .json({ message: "Start date cannot be after end date." });
+    }
+
+    const allEmployees = await Employee.find({}, "_id");
+    if (!allEmployees.length) {
+      return res.status(400).json({ message: "No users found in the system" });
+    }
+
+    const leaveRequests = [];
+    for (const employee of allEmployees) {
+      leaveRequests.push({
+        userId: employee._id,
+        leaveType: "holidays",
+        startDate: sDate,
+        endDate: eDate,
+        reason,
+        status: "approved",
+      });
+    }
+    await LeaveRequest.insertMany(leaveRequests);
+
+    for (const emp of allEmployees) {
+      let currentDate = new Date(sDate);
+      while (currentDate <= eDate) {
+        // ทำให้เวลาเป็น 00:00:00
+        const loopDate = new Date(currentDate);
+        loopDate.setHours(0, 0, 0, 0);
+
+        // หา attendance เดิม
+        const existingRecord = await Attendance.findOne({
+          userId: emp._id,
+          date: loopDate,
+        });
+
+        if (!existingRecord) {
+          // สร้างใหม่ status=holiday
+          await Attendance.create({
+            userId: emp._id,
+            date: loopDate,
+            checkIn: null,
+            checkOut: null,
+            totalHours: 0,
+            status: "holiday",
+            overtime: {
+              status: "none",
+              requestedHours: 0,
+              plannedHours: 0,
+              otStart: null,
+              otEnd: null,
+              totalOTHours: 0,
+            },
+          });
+        } else {
+          // อาจเช็กก่อนว่า existingRecord.status เป็นอะไรกัน
+          // ถ้าอยาก override ทุกอย่าง = holiday ก็ทำเลย
+          existingRecord.status = "leave";
+          existingRecord.checkIn = null;
+          existingRecord.checkOut = null;
+          existingRecord.totalHours = 0;
+          // ... ถ้ามีฟิลด์อื่น เช่น holidayDescription ก็ใส่เพิ่มได้
+          await existingRecord.save();
+        }
+
+        // เลื่อนไปวันถัดไป
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+
+    return res.status(200).json({
+      message: "Holidays created for all users successfully!",
+    });
+  } catch (error) {
+    console.error("Error creating holidays for all users:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// เช็คว่ามี conclicts เรื่อง record ทับกันไหม
+exports.checkHolidayConflicts = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+
+    const sDate = new Date(startDate);
+    const eDate = new Date(endDate);
+
+    if (sDate > eDate) {
+      return res
+        .status(400)
+        .json({ message: "Start date cannot be after end date." });
+    }
+
+    const allEmployees = await Employee.find({}, "_id");
+
+    const conflicts = [];
+
+    for (const emp of allEmployees) {
+      let currentDate = new Date(sDate);
+      while (currentDate <= eDate) {
+        const loopDate = new Date(currentDate);
+        loopDate.setHours(0, 0, 0, 0);
+
+        const existingRecord = await Attendance.findOne({
+          userId: emp._id,
+          date: loopDate,
+          status: { $ne: "holiday" }, // หาวันที่ status ไม่ใช่ holiday
+        });
+
+        if (existingRecord) {
+          conflicts.push({
+            employeeId: emp._id,
+            date: loopDate,
+          });
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+
+    if (conflicts.length === 0) {
+      return res.status(200).json({ message: "No conflicts found.", conflicts: [] });
+    }
+
+    return res.status(200).json({ message: "Conflicts found.", conflicts });
+  } catch (error) {
+    console.error("Error checking conflicts:", error);
     return res.status(500).json({ message: error.message });
   }
 };

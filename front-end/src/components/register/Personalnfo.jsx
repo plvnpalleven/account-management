@@ -1,6 +1,4 @@
 import React from "react";
-// import { employeeInfoSchema } from "../../schema/employeeInfoSchema";
-
 const PersonalInfo = ({
   formData,
   setFormData,
@@ -9,13 +7,13 @@ const PersonalInfo = ({
 }) => {
   // ฟังก์ชันอัปเดตข้อมูลใน formData
   const handleChange = (e) => {
-    const { name, value } = e.target; // ดึง name และ value จาก input
+    const { name, value } = e.target; 
     // console.log(`Input changed: ${name}, value: ${value}`);
     setFormData((prev) => ({
-      ...prev, // คัดลอกค่าก่อนหน้า
+      ...prev, 
       personalInfo: {
-        ...prev.personalInfo, // คัดลอกข้อมูล personalInfo เดิม
-        [name]: value, // อัปเดตค่าของฟิลด์ที่เปลี่ยนแปลง
+        ...prev.personalInfo, 
+        [name]: value, 
       },
     }));
     debouncedValidation(name, value);

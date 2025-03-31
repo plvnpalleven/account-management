@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "../../utils/axios";
 import LeaveModal from "./LeaveModal";
+import HolidayModal from "./HolidayModal";
+import { AuthContext } from "../../context/AuthContext";
 
 const LeaveTab = () => {
+  const { user } = useContext(AuthContext);
   const [leaves, setLeaves] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
+  // const [openModal, setOpenModal] = useState(false);
+
+  const [openLeaveModal, setOpenLeaveModal] = useState(false);
+  const [openHolidayModal, setOpenHolidayModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
@@ -25,11 +31,22 @@ const LeaveTab = () => {
     }
   };
 
-  const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
+  // const handleOpenModal = () => setOpenModal(true);
+  // const handleCloseModal = () => setOpenModal(false);
+
+  const handleOpenLeaveModal = () => setOpenLeaveModal(true);
+  const handleCloseLeaveModal = () => setOpenLeaveModal(false);
+
+  const handleOpenHolidayModal = () => setOpenHolidayModal(true);
+  const handleCloseHolidayModal = () => setOpenHolidayModal(false);
 
   const handleLeaveCreated = () => {
-    handleCloseModal();
+    handleCloseLeaveModal();
+    fetchLeaves();
+  };
+
+  const handleHolidayCreated = () => {
+    handleCloseHolidayModal();
     fetchLeaves();
   };
 
@@ -71,12 +88,22 @@ const LeaveTab = () => {
       {/* Header section */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">My Leave Requests</h1>
-        <button
-          onClick={handleOpenModal}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center"
-        >
-          Add Leave
-        </button>
+        <div className="flex flex-row gap-4">
+          {user?.role === "admin" && (
+            <button
+              onClick={handleOpenHolidayModal}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center"
+            >
+              Add Holidays
+            </button>
+          )}
+          <button
+            onClick={handleOpenLeaveModal}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center"
+          >
+            Add Leave
+          </button>
+        </div>
       </div>
 
       {/* Leave table */}
@@ -183,10 +210,18 @@ const LeaveTab = () => {
         </div>
       )}
       <LeaveModal
-        open={openModal}
-        onClose={handleCloseModal}
+        open={openLeaveModal}
+        onClose={handleCloseLeaveModal}
         onLeaveCreated={handleLeaveCreated}
       />
+
+      {user?.role === "admin" && (
+        <HolidayModal
+          open={openHolidayModal}
+          onClose={handleCloseHolidayModal}
+          onHolidayCreated={handleHolidayCreated}
+        />
+      )}
     </div>
   );
 };

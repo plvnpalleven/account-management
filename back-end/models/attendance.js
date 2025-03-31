@@ -11,14 +11,14 @@ const attendanceSchema = new mongoose.Schema(
     checkIn: {
       type: Date,
       required: function () {
-        return this.status !== "absent" && this.status !== "leave";
+        return this.status !== "absent" && this.status !== "leave" && this.status !== "holiday";
       },
     },
     checkOut: { type: Date, required: false }, 
     totalHours: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["on time", "late", "leave", "absent"],
+      enum: ["on time", "late", "leave", "absent","holiday"],
       required: true,
     },
     overtime: {

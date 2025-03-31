@@ -23,9 +23,9 @@ const TabHeader = ({ pageTabs, activeTab, onTabChange }) => {
       <div className="ml-auto">
         <button
           className={`w-32 h-10 flex items-center justify-center rounded-tl-lg rounded-tr-lg ${
-            activeTab === "profile" ? "bg-white font-bold" : "bg-gray-200 text-gray-600"
+            activeTab === "admin" ? "bg-white font-bold" : "bg-gray-200 text-gray-600"
           }`}
-          onClick={() => onTabChange("ยนข่ขรยยนข่่นสยขขขนสบขยนขยขขย")}
+          onClick={() => onTabChange("admin")}
         >
           Admin
         </button>
